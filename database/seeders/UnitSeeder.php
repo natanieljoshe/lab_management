@@ -142,6 +142,36 @@ class UnitSeeder extends Seeder
             'email' => 'c14230088@john.petra.ac.id',
             'unit_id' => $adminUnit->id,
         ]);
+
+        User::create([
+            'name' => 'Nataniel - Super Admin',
+            'email' => 'c14240154@john.petra.ac.id',
+            'unit_id' => $adminUnit->id,
+        ]);
+
+        User::create([
+            'name' => 'Evan - Super Admin',
+            'email' => 'c14240069@john.petra.ac.id',
+            'unit_id' => $adminUnit->id,
+        ]);
+
+        User::create([
+            'name' => 'Jeremy - Super Admin',
+            'email' => 'c14240090@john.petra.ac.id',
+            'unit_id' => $adminUnit->id,
+        ]);
+
+        User::create([
+            'name' => 'Bryan - Super Admin',
+            'email' => 'c14240085@john.petra.ac.id',
+            'unit_id' => $adminUnit->id,
+        ]);
+
+        User::create([
+            'name' => 'Axel - Super Admin',
+            'email' => 'c14240157@john.petra.ac.id',
+            'unit_id' => $adminUnit->id,
+        ]);
         $this->command->info('All permissions assigned to ADMIN Unit.');
     }
 }
