@@ -14,6 +14,15 @@ class Labs extends Model
         'name',
         'location',
         'capacity',
+        'manual_only',
+        'is_active',
+        'sort_order',
+        'notes',
+    ];
+
+    protected $casts = [
+        'manual_only' => 'boolean',
+        'is_active' => 'boolean',
     ];
 
     protected $hidden = [
@@ -53,5 +62,25 @@ class Labs extends Model
         )
             ->withPivot(['id', 'type', 'returner_id', 'returned_at', 'returned_status', 'returned_detail'])
             ->using(Bookings_item::class);
+    }
+
+    public function classMeetings()
+    {
+        return $this->hasMany(ClassMeeting::class, 'lab_id');
+    }
+
+    public function labSessions()
+    {
+        return $this->hasMany(LabSession::class, 'lab_id');
+    }
+
+    public function feedbacks()
+    {
+        return $this->hasMany(Feedback::class, 'lab_id');
+    }
+
+    public function fundTransactions()
+    {
+        return $this->hasMany(FundTransaction::class, 'lab_id');
     }
 }

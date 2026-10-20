@@ -10,9 +10,20 @@ class Matkul extends Model
 {
     use HasUuids, SoftDeletes;
 
-    protected $fillable = ['kode', 'nama', 'sks', 'root_folder_id', 'open_file_access'];
+    protected $fillable = [
+        'kode',
+        'nama',
+        'sks',
+        'curriculum_semester',
+        'is_required',
+        'root_folder_id',
+        'open_file_access',
+    ];
 
-    protected $casts = ['open_file_access' => 'boolean'];
+    protected $casts = [
+        'open_file_access' => 'boolean',
+        'is_required' => 'boolean',
+    ];
 
     public function rootFolder()
     {
@@ -27,5 +38,15 @@ class Matkul extends Model
     public function modules()
     {
         return $this->hasMany(Module::class, 'matkul_id');
+    }
+
+    public function matkulConfigs()
+    {
+        return $this->hasMany(MatkulConfig::class, 'matkul_id');
+    }
+
+    public function classSections()
+    {
+        return $this->hasMany(ClassSection::class, 'matkul_id');
     }
 }
