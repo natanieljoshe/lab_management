@@ -48,6 +48,36 @@ class User extends Authenticatable
         return $this->hasMany(Repair::class, 'reported_by');
     }
 
+    public function schedules()
+    {
+        return $this->hasMany(Schedule::class, 'pic_id');
+    }
+
+    public function reportedFeedbacks()
+    {
+        return $this->hasMany(Feedback::class, 'reporter_id');
+    }
+
+    public function assignedFeedbacks()
+    {
+        return $this->hasMany(Feedback::class, 'assigned_to');
+    }
+
+    public function feedbackResponses()
+    {
+        return $this->hasMany(FeedbackResponse::class, 'responder_id');
+    }
+
+    public function recordedFundTransactions()
+    {
+        return $this->hasMany(FundTransaction::class, 'recorded_by');
+    }
+
+    public function approvedFundTransactions()
+    {
+        return $this->hasMany(FundTransaction::class, 'approved_by');
+    }
+
     public function permissions()
     {
         return $this->morphToMany(

@@ -35,4 +35,34 @@ class Period extends Model
     {
         return self::where('active', true)->first();
     }
+
+    public function matkulConfigs()
+    {
+        return $this->hasMany(MatkulConfig::class, 'period_id');
+    }
+
+    public function classSections()
+    {
+        return $this->hasMany(ClassSection::class, 'period_id');
+    }
+
+    public function customPaths()
+    {
+        return $this->hasMany(CustomPath::class, 'period_id');
+    }
+
+    public function schedules()
+    {
+        return $this->hasMany(Schedule::class, 'period_id');
+    }
+
+    public function feedbacks()
+    {
+        return $this->hasMany(Feedback::class, 'period_id');
+    }
+
+    public function fundTransactions()
+    {
+        return $this->hasMany(FundTransaction::class, 'period_id');
+    }
 }
