@@ -5,16 +5,27 @@ namespace App\Http\Controllers;
 use App\Models\Matkul;
 use App\Models\Module;
 use App\Models\Folders;
+use App\Models\Period;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class MatkulController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $matkuls = Matkul::with('rootFolder')->get();
-        return view('admin.matkul', compact('matkuls'));
+        $periods = Period::orderBy('academic_year', 'desc')->orderBy('semester', 'desc')->get();
+        $activePeriod = Period::getCurrentPeriod();
+        $selectedPeriod = ($request->filled('period_id') ? $periods->firstWhere('id', $request->query('period_id')) : null)
+            ?? $activePeriod
+            ?? $periods->first();
+
+        $matkuls = Matkul::with([
+            'rootFolder',
+            'matkulConfigs' => fn ($q) => $q->where('period_id', $selectedPeriod?->id),
+        ])->get();
+
+        return view('admin.matkul', compact('matkuls', 'periods', 'activePeriod', 'selectedPeriod'));
     }
 
     public function store(Request $request)
@@ -23,7 +34,9 @@ class MatkulController extends Controller
             'kode' => 'required|unique:matkuls,kode',
             'nama' => 'required',
             'sks' => 'required|in:2,3',
-            'open_file_access' => 'boolean'
+            'open_file_access' => 'boolean',
+            'curriculum_semester' => 'nullable|integer|between:1,8',
+            'is_required' => 'boolean',
         ]);
 
         $folder = Folders::create([
@@ -39,7 +52,9 @@ class MatkulController extends Controller
             'nama' => $validated['nama'],
             'sks' => $validated['sks'],
             'root_folder_id' => $folder->id,
-            'open_file_access' => $validated['open_file_access'] ?? false
+            'open_file_access' => $validated['open_file_access'] ?? false,
+            'curriculum_semester' => $validated['curriculum_semester'] ?? null,
+            'is_required' => $validated['is_required'] ?? true,
         ]);
 
         return response()->json(['success' => true, 'matkul' => $matkul->load('rootFolder')]);
@@ -51,7 +66,9 @@ class MatkulController extends Controller
             'kode' => 'required|unique:matkuls,kode,' . $matkul->id,
             'nama' => 'required',
             'sks' => 'required|in:2,3',
-            'open_file_access' => 'boolean'
+            'open_file_access' => 'boolean',
+            'curriculum_semester' => 'nullable|integer|between:1,8',
+            'is_required' => 'boolean',
         ]);
 
         $matkul->update($validated);
