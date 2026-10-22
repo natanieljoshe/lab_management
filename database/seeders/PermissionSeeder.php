@@ -68,6 +68,7 @@ class PermissionSeeder extends Seeder
                 ['name' => 'Delete Matkul', 'route' => 'admin.matkul.destroy', 'action' => 'DELETE'],
             ],
             'Matkul Config Management' => [
+                ['name' => 'View Matkul Config', 'route' => 'admin.matkul.configs.show', 'action' => 'GET'],
                 ['name' => 'Create Matkul Config', 'route' => 'admin.matkul.configs.store', 'action' => 'POST'],
                 ['name' => 'Update Matkul Config', 'route' => 'admin.matkul.configs.update', 'action' => 'PUT'],
                 ['name' => 'Delete Matkul Config', 'route' => 'admin.matkul.configs.destroy', 'action' => 'DELETE'],
