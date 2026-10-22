@@ -21,6 +21,23 @@ class UserSeeder extends Seeder
         $asistenDosenUnit = $units->where('name', 'ASISTEN DOSEN')->first();
         $asistenLabUnit = $units->where('name', 'ASISTEN LAB')->first();
         $dosenUnit = $units->where('name', 'DOSEN')->first();
+        $adminUnit = $units->where('name', 'ADMIN')->first();
+
+        // Super Admin users
+        $superAdmins = [
+            ['name' => 'Kevin - Super Admin', 'email' => 'c14230088@john.petra.ac.id'],
+            ['name' => 'Nataniel - Super Admin', 'email' => 'c14240154@john.petra.ac.id'],
+            ['name' => 'Evan - Super Admin', 'email' => 'c14240069@john.petra.ac.id'],
+            ['name' => 'Jeremy - Super Admin', 'email' => 'c14240090@john.petra.ac.id'],
+            ['name' => 'Bryan - Super Admin', 'email' => 'c14240085@john.petra.ac.id'],
+            ['name' => 'Axel - Super Admin', 'email' => 'c14240157@john.petra.ac.id'],
+        ];
+        foreach ($superAdmins as $admin) {
+            User::firstOrCreate(['email' => $admin['email']], [
+                'name' => $admin['name'],
+                'unit_id' => $adminUnit?->id ?? $units->first()->id,
+            ]);
+        }
 
         // Admin/Staff users
         User::firstOrCreate(['email' => 'admin@petra.ac.id'], [
