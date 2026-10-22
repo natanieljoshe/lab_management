@@ -9,6 +9,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DesksController;
 use App\Http\Controllers\ItemsController;
 use App\Http\Controllers\MatkulController;
+use App\Http\Controllers\MatkulConfigController;
 use App\Http\Controllers\PeriodController;
 use App\Http\Controllers\RepairController;
 use App\Http\Controllers\BookingController;
@@ -132,6 +133,13 @@ Route::middleware(['auth.permission'])->group(function () {
         Route::post('/matkul', [MatkulController::class, 'store'])->name('admin.matkul.store');
         Route::put('/matkul/{matkul}', [MatkulController::class, 'update'])->name('admin.matkul.update');
         Route::delete('/matkul/{matkul}', [MatkulController::class, 'destroy'])->name('admin.matkul.destroy');
+
+        // Matkul Configs
+        Route::get('/matkul/{matkul}/configs/{period}', [MatkulConfigController::class, 'show'])->name('admin.matkul.configs.show');
+        Route::post('/matkul/{matkul}/configs', [MatkulConfigController::class, 'store'])->name('admin.matkul.configs.store');
+        Route::put('/matkul/{matkul}/configs/{config}', [MatkulConfigController::class, 'update'])->name('admin.matkul.configs.update');
+        Route::delete('/matkul/{matkul}/configs/{config}', [MatkulConfigController::class, 'destroy'])->name('admin.matkul.configs.destroy');
+        Route::post('/matkul-configs/copy', [MatkulConfigController::class, 'copy'])->name('admin.matkul.configs.copy');
 
         // Repository
         Route::get('/repository', [RepositoryController::class, 'index'])->name('admin.repository');
