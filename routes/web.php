@@ -101,7 +101,7 @@ Route::middleware(['auth.permission'])->group(function () {
         Route::post('/bookings/{booking}/return', [BookingController::class, 'returnBooking'])->name('admin.bookings.return');
 
         // period
-        Route::get('/periods', [PeriodController::class, 'periods'])->name('admin.periods');
+        Route::get('/periods', fn() => redirect()->route('settings.index'))->name('admin.periods');
         Route::post('/periods/create', [PeriodController::class, 'createPeriod'])->name('admin.periods.create');
         Route::patch('/periods/{id}/updateActive', [PeriodController::class, 'setActivePeriod'])->name('admin.periods.updateActive');
 

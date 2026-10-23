@@ -166,8 +166,13 @@ class VersionController extends Controller
     public function updateSlug(Request $request, ScheduleVersion $version): RedirectResponse
     {
         $validated = $request->validate([
+            'name' => 'nullable|string|max:255',
             'public_slug' => 'required|string|max:100|regex:/^[a-zA-Z0-9_\-]+$/',
         ]);
+
+        if (! empty($validated['name'])) {
+            $version->name = $validated['name'];
+        }
 
         $slug = Str::slug($validated['public_slug']);
         $snapshot = $version->snapshot_json ?? [];
@@ -175,7 +180,7 @@ class VersionController extends Controller
         $version->snapshot_json = $snapshot;
         $version->save();
 
-        return back()->with('success', "Slug link publik berhasil diubah menjadi /{$slug}.");
+        return back()->with('success', "Pengaturan draft '{$version->name}' berhasil diperbarui.");
     }
 
     /**

@@ -6,88 +6,20 @@
 
 @section('content')
 <div x-data="versionManager()" class="p-6 max-w-6xl mx-auto space-y-6">
-    <!-- Header banner & Active Public Link Announcement -->
-    <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-            <div class="flex items-center space-x-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-indigo-600"></span>
-                <h2 class="text-base font-bold text-slate-900 dark:text-white">Draft Jadwal & Publikasi Link Publik</h2>
-            </div>
-            <p class="text-xs text-slate-500 mt-1 max-w-2xl leading-relaxed">
-                Pilih draft jadwal yang ingin Anda publikasikan kepada mahasiswa. Anda dapat mengatur slug tautan kustom (misalnya <code>/gasal20262027</code>), mengaktifkan/menonaktifkannya kapan saja, dan link periode sebelumnya tetap aktif hingga dinonaktifkan secara manual.
-            </p>
-        </div>
-
-        @php
-            $activePublished = $versions->firstWhere('is_published', true);
-        @endphp
-
-        <!-- Public View Button Moved to /versions -->
-        <div class="flex-shrink-0">
-            @if($activePublished && $activePublished->public_slug)
-                <a href="{{ url('/' . $activePublished->public_slug) }}" target="_blank"
-                   class="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/20 transition transform hover:scale-[1.02]">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                    <span>Buka Public View ({{ '/' . $activePublished->public_slug }})</span>
-                </a>
-            @else
-                <a href="{{ route('public.schedule') }}" target="_blank"
-                   class="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-600/20 transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                    <span>Buka Public View Default</span>
-                </a>
-            @endif
-        </div>
-    </div>
-
-    <!-- Create Draft / Snapshot Form -->
-    <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 space-y-4">
-        <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center space-x-2">
-            <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
-            <span>Simpan Jadwal Saat Ini sebagai Draft Baru</span>
-        </h3>
-
-        <form action="{{ route('versions.store') }}" method="POST" class="space-y-4 text-xs">
-            @csrf
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Nama Draft Jadwal</label>
-                    <input type="text" name="name" required placeholder="mis. Draft Final Gasal 2026 v1"
-                           class="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500">
-                </div>
-
-                <div>
-                    <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">
-                        Slug Link Publik (Opsional)
-                    </label>
-                    <div class="flex items-center">
-                        <span class="px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-r-0 border-slate-300 dark:border-slate-700 rounded-l-xl text-slate-500 font-mono text-xs">
-                            {{ url('/') }}/
-                        </span>
-                        <input type="text" name="public_slug" placeholder="gasal20262027"
-                               class="w-full px-3 py-2 text-xs rounded-r-xl border border-slate-300 dark:border-slate-700 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 font-mono">
-                    </div>
-                </div>
-            </div>
-
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-slate-100 dark:border-slate-800">
-                <label class="flex items-center space-x-2.5 cursor-pointer select-none">
-                    <input type="checkbox" name="is_published" value="1" class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300">
-                    <span class="font-semibold text-slate-800 dark:text-slate-200">Langsung publikasikan dan aktifkan link untuk mahasiswa</span>
-                </label>
-
-                <button type="submit" class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold transition shadow-sm cursor-pointer">
-                    Simpan Draft
-                </button>
-            </div>
-        </form>
-    </div>
-
     <!-- Versions / Drafts List -->
     <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 space-y-4">
-        <div class="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
-            <h3 class="text-sm font-bold text-slate-900 dark:text-white">Daftar Draft Jadwal Tersimpan</h3>
-            <span class="text-xs text-slate-500">{{ $versions->count() }} Draft Terdaftar</span>
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-slate-200 dark:border-slate-800">
+            <div>
+                <h3 class="text-sm font-bold text-slate-900 dark:text-white">Daftar Draft Jadwal Tersimpan</h3>
+                <span class="text-xs text-slate-500">{{ $versions->count() }} Draft Terdaftar</span>
+            </div>
+            <div>
+                <a href="{{ route('public.schedule') }}" target="_blank"
+                   class="inline-flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:bg-indigo-950 dark:text-indigo-300 transition">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                    <span>Buka Public View Default</span>
+                </a>
+            </div>
         </div>
 
         <div class="overflow-x-auto border rounded-xl border-slate-200 dark:border-slate-800">
@@ -109,7 +41,13 @@
                         @endphp
                         <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/50">
                             <td class="p-3">
-                                <span class="font-bold text-slate-900 dark:text-white text-sm">{{ $ver->name }}</span>
+                                <div class="flex items-center space-x-1.5">
+                                    <span class="font-bold text-slate-900 dark:text-white text-sm">{{ $ver->name }}</span>
+                                    <button @click="openEditSlugModal({{ json_encode(['id' => $ver->id, 'name' => $ver->name, 'slug' => $ver->public_slug ?? '']) }})"
+                                            class="text-slate-400 hover:text-indigo-600 p-0.5 transition cursor-pointer" title="Ubah Nama & Slug">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                    </button>
+                                </div>
                                 <span class="block text-[10px] text-slate-400 mt-0.5">{{ $ver->created_at->format('d M Y, H:i') }}</span>
                             </td>
                             <td class="p-3 font-semibold text-slate-600 dark:text-slate-300">
@@ -193,7 +131,7 @@
                         <tr>
                             <td colspan="6" class="p-8 text-center text-slate-400">
                                 Belum ada draft jadwal yang disimpan.<br>
-                                Gunakan form di atas untuk menyimpan jadwal saat ini sebagai draft dan membuat link publik.
+                                Gunakan tombol "Simpan Versi" pada menu Jadwal Utama untuk menyimpan jadwal saat ini sebagai draft.
                             </td>
                         </tr>
                     @endforelse
@@ -208,18 +146,24 @@
         <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4"
              @click.outside="showSlugModal = false">
             <div class="flex items-center justify-between border-b pb-3 border-slate-200 dark:border-slate-800">
-                <h3 class="font-bold text-base text-slate-900 dark:text-white">Ubah Slug Link Publik</h3>
+                <h3 class="font-bold text-base text-slate-900 dark:text-white">Ubah Draft & Link Publik</h3>
                 <button @click="showSlugModal = false" class="text-slate-400 hover:text-slate-600 cursor-pointer">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
 
-            <form :action="'{{ url('/versions') }}/' + slugForm.id + '/slug'" method="POST" class="space-y-4 text-xs">
+            <form :action="'{{ url('/admin/academics-schedule/versions') }}/' + slugForm.id + '/slug'" method="POST" class="space-y-4 text-xs">
                 @csrf
                 @method('PUT')
                 <div>
+                    <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">Nama Draft Jadwal</label>
+                    <input type="text" name="name" x-model="slugForm.name" required
+                           class="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500">
+                </div>
+
+                <div>
                     <label class="block font-semibold mb-1 text-slate-700 dark:text-slate-300">
-                        Link Publik untuk: <span class="text-indigo-600 font-bold" x-text="slugForm.name"></span>
+                        Slug Link Publik
                     </label>
                     <div class="flex items-center">
                         <span class="px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-r-0 border-slate-300 dark:border-slate-700 rounded-l-xl text-slate-500 font-mono text-xs">
@@ -236,7 +180,7 @@
                         Batal
                     </button>
                     <button type="submit" class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold cursor-pointer">
-                        Simpan Slug
+                        Simpan Perubahan
                     </button>
                 </div>
             </form>
