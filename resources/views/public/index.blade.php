@@ -272,6 +272,37 @@
                                             </div>
                                         </th>
                                     </template>
+
+                                    <!-- Column Non-Lab (Ruang Kelas Teori) with Sub-Columns -->
+                                    <th :id="'col-th-' + dayName + '-non_lab'"
+                                        :style="colWidths['non_lab'] ? `width: ${colWidths['non_lab']}px; min-width: ${colWidths['non_lab']}px; max-width: ${colWidths['non_lab']}px;` : 'width: 440px; min-width: 320px;'"
+                                        class="sticky top-0 z-20 select-none border-r border-b border-slate-300 text-center px-2 py-1 text-xs font-bold overflow-hidden shadow-[0_1px_0_0_rgba(203,213,225,1)] bg-slate-200/90"
+                                        x-show="!selectedRoom">
+                                        
+                                        <div :class="colWidths['non_lab'] && colWidths['non_lab'] < 50 ? 'hidden' : ''">
+                                            <div class="flex items-center justify-between px-1">
+                                                <div class="font-bold text-slate-800 leading-tight">NON LAB</div>
+                                                <span class="px-1.5 py-0.2 rounded text-[9px] font-semibold bg-slate-300 text-slate-700">
+                                                    Ruang Kelas Teori (Sub-Kolom)
+                                                </span>
+                                            </div>
+                                            <!-- Sub-Columns Trackers -->
+                                            <div class="grid gap-1 mt-1 pt-1 border-t border-slate-300 text-[9px] text-slate-500 font-semibold"
+                                                 style="grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));">
+                                                <div class="bg-slate-100 rounded px-1 py-0.5 text-center truncate">Sub-Kolom 1</div>
+                                                <div class="bg-slate-100 rounded px-1 py-0.5 text-center truncate">Sub-Kolom 2</div>
+                                                <div class="bg-slate-100 rounded px-1 py-0.5 text-center truncate">Sub-Kolom 3</div>
+                                            </div>
+                                        </div>
+                                        <div x-show="colWidths['non_lab'] && colWidths['non_lab'] < 50" class="text-[8px] text-slate-400 truncate">NL</div>
+
+                                        <!-- Draggable Column Resizer handle -->
+                                        <div @mousedown="startColResize($event, 'non_lab')"
+                                             @touchstart.passive="startColResize($event, 'non_lab')"
+                                             title="Geser garis kolom untuk memperbesar atau memperkecil"
+                                             class="absolute right-0 top-0 bottom-0 w-2 hover:w-2.5 cursor-col-resize hover:bg-indigo-500/50 active:bg-indigo-600 transition-colors z-20 flex items-center justify-center">
+                                        </div>
+                                    </th>
                                 </tr>
                             </thead>
 
@@ -342,6 +373,30 @@
                                                 </template>
                                             </td>
                                         </template>
+
+                                        <!-- Non-Lab Cell for this Slot (with Sub-Columns) -->
+                                        <td :style="colWidths['non_lab'] ? `width: ${colWidths['non_lab']}px; min-width: ${colWidths['non_lab']}px; max-width: ${colWidths['non_lab']}px;` : 'width: 440px; min-width: 320px;'"
+                                            class="p-1 border-r border-b border-slate-300 relative align-top bg-slate-50/70 overflow-hidden"
+                                            x-show="!selectedRoom">
+                                            
+                                            <div class="grid gap-1 min-h-[26px]"
+                                                 style="grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));">
+                                                <template x-for="meeting in getNonLabMeetingsInSlot(dayName, slot)" :key="'meeting-nonlab-' + meeting.id">
+                                                    <div @click="openSessionModal(meeting, 'meeting')"
+                                                         class="px-1.5 py-1 rounded border border-slate-300 bg-slate-200/90 text-slate-900 text-[10px] leading-tight shadow-xs cursor-pointer hover:bg-slate-300 transition h-fit">
+                                                        <div class="font-bold truncate text-[10px] leading-tight" x-text="meeting.section?.course?.name || meeting.section?.course?.nama || ''" :title="meeting.section?.course?.name || meeting.section?.course?.nama || ''"></div>
+                                                        <div class="flex items-center justify-between text-[9px] text-slate-600 leading-tight mt-0.5"
+                                                             :class="colWidths['non_lab'] && colWidths['non_lab'] < 80 ? 'hidden' : ''">
+                                                            <span class="font-semibold" x-text="'Kelas ' + (meeting.section?.label || meeting.section?.name || '')"></span>
+                                                            <span class="font-mono text-[8px]" x-text="formatTime(meeting.start_min) + '-' + formatTime(meeting.end_min)"></span>
+                                                        </div>
+                                                        <template x-if="meeting.room_label && meeting.room_label !== 'Ruang Kelas'">
+                                                            <div class="text-[8px] text-slate-500 truncate mt-0.5" x-text="meeting.room_label"></div>
+                                                        </template>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </td>
                                     </tr>
                                 </template>
                             </tbody>
@@ -477,7 +532,7 @@ function publicScheduleManager() {
             
             // Find current width
             const firstHeader = document.querySelector(`[id^='col-th-'][id$='-${roomId}']`);
-            this.colStartWidth = firstHeader ? firstHeader.offsetWidth : 176;
+            this.colStartWidth = firstHeader ? firstHeader.offsetWidth : (roomId === 'non_lab' ? 440 : 176);
 
             const onMove = (ev) => {
                 if (!this.isResizingCol) return;
@@ -579,12 +634,28 @@ function publicScheduleManager() {
             });
         },
 
+        getDayName(dayOfWeek) {
+            const map = {1: 'Senin', 2: 'Selasa', 3: 'Rabu', 4: 'Kamis', 5: 'Jumat', 6: 'Sabtu', 0: 'Minggu'};
+            return map[dayOfWeek] || '';
+        },
+
         // Multi-block occupancy: meeting spans any slot it overlaps with
         getFilteredMeetingsInSlot(day, roomId, slot) {
             return this.classMeetings.filter(m => {
                 if (m.room_id !== roomId || m.day !== day) return false;
                 if (m.start_min >= slot.end || m.end_min <= slot.start) return false;
                 return this.matchesFilter(m.section.course, 'kelas');
+            });
+        },
+
+        // Non-Lab theory class meetings spanning overlapping slots with sub-columns
+        getNonLabMeetingsInSlot(day, slot) {
+            return this.classMeetings.filter(m => {
+                if (m.room_id || m.lab_id) return false;
+                const matchesDay = (m.day === day || this.getDayName(m.day_of_week) === day);
+                if (!matchesDay) return false;
+                if (m.start_min >= slot.end || m.end_min <= slot.start) return false;
+                return this.matchesFilter(m.section?.course, 'kelas');
             });
         },
 

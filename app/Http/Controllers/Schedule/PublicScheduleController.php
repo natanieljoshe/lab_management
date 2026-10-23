@@ -69,8 +69,7 @@ class PublicScheduleController extends Controller
                 : collect([]);
         }
 
-        $gridClassMeetings = ClassMeeting::whereHas('classSection', fn ($q) => $q->where('period_id', $period->id))
-            ->whereNotNull('lab_id')
+        $gridClassMeetings = ClassMeeting::whereHas('section', fn ($q) => $q->where('period_id', $period->id))
             ->with(['room', 'section.course'])
             ->get();
 
@@ -130,8 +129,7 @@ class PublicScheduleController extends Controller
 
         $placedSessions = $this->buildSessionsFromSnapshot($version, $period, $rooms);
 
-        $gridClassMeetings = ClassMeeting::whereHas('classSection', fn ($q) => $q->where('period_id', $period->id))
-            ->whereNotNull('lab_id')
+        $gridClassMeetings = ClassMeeting::whereHas('section', fn ($q) => $q->where('period_id', $period->id))
             ->with(['room', 'section.course'])
             ->get();
 
