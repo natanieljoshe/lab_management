@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Schedule;
 
 use App\Http\Controllers\Controller;
 use App\Models\ClassMeeting;
+use App\Models\ClassSection;
 use App\Models\CustomPath;
 use App\Models\LabSession;
 use App\Models\Labs as Room;
@@ -68,6 +69,21 @@ class ScheduleController extends Controller
         $periods = Period::orderBy('academic_year', 'desc')->orderBy('semester', 'desc')->get();
         $schedule = $this->getActiveSchedule($period);
 
+        // Saved Draft Versions for current period
+        $savedVersions = Schedule::where('period_id', $period->id)
+            ->whereNotNull('snapshot_json')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $versionId = $request->query('version_id');
+        $selectedVersion = null;
+        if ($versionId) {
+            $selectedVersion = Schedule::where('id', $versionId)->where('period_id', $period->id)->first();
+        }
+
+        $isDraftMode = (bool) $selectedVersion;
+        $isEditMode = $isDraftMode && ($request->query('mode') === 'edit');
+
         // Rooms: internal first, then external
         $rooms = Room::where('is_active', true)
             ->get()
@@ -80,27 +96,31 @@ class ScheduleController extends Controller
             $slotsByDay[$day] = $this->slotCalendar->getDaySlots($day);
         }
 
-        // Placed lab sessions
-        $placedSessions = LabSession::where('schedule_id', $schedule->id)
-            ->where(function ($q) {
-                $q->where('status', 'SCHEDULED')
-                  ->orWhere('status', 'placed');
-            })
-            ->with(['room', 'section.course', 'section.classMeetings'])
-            ->get();
+        if ($selectedVersion) {
+            [$placedSessions, $unscheduledSessions] = $this->buildSessionsFromSnapshot($selectedVersion, $period, $rooms);
+        } else {
+            // Placed lab sessions in live active schedule
+            $placedSessions = LabSession::where('schedule_id', $schedule->id)
+                ->where(function ($q) {
+                    $q->where('status', 'SCHEDULED')
+                      ->orWhere('status', 'placed');
+                })
+                ->with(['room', 'section.course', 'section.classMeetings'])
+                ->get();
+
+            // Unscheduled lab sessions in live active schedule
+            $unscheduledSessions = LabSession::where('schedule_id', $schedule->id)
+                ->where(function ($q) {
+                    $q->where('status', 'UNSCHEDULED')
+                      ->orWhere('status', 'unscheduled');
+                })
+                ->with(['section.course', 'section.classMeetings'])
+                ->get();
+        }
 
         // Class meetings that occupy rooms (both lab and non-lab rooms)
         $classMeetings = ClassMeeting::whereHas('section', fn ($q) => $q->where('period_id', $period->id))
             ->with(['room', 'section.course'])
-            ->get();
-
-        // Unscheduled lab sessions
-        $unscheduledSessions = LabSession::where('schedule_id', $schedule->id)
-            ->where(function ($q) {
-                $q->where('status', 'UNSCHEDULED')
-                  ->orWhere('status', 'unscheduled');
-            })
-            ->with(['section.course', 'section.classMeetings'])
             ->get();
 
         // Custom paths
@@ -116,7 +136,68 @@ class ScheduleController extends Controller
             'classMeetings' => $classMeetings,
             'unscheduledSessions' => $unscheduledSessions,
             'customPaths' => $customPaths,
+            'savedVersions' => $savedVersions,
+            'selectedVersion' => $selectedVersion,
+            'isDraftMode' => $isDraftMode,
+            'isEditMode' => $isEditMode,
         ]);
+    }
+
+    /**
+     * Reconstitute placed and unscheduled sessions from draft snapshot.
+     */
+    protected function buildSessionsFromSnapshot(Schedule $version, Period $period, $rooms): array
+    {
+        $snapshot = $version->snapshot_json ?? [];
+        $rawSessions = $snapshot['sessions'] ?? [];
+
+        $sections = ClassSection::where('period_id', $period->id)
+            ->with(['course', 'classMeetings.room'])
+            ->get()
+            ->keyBy('id');
+
+        $roomsById = $rooms->keyBy('id');
+
+        $placed = [];
+        $unscheduled = [];
+
+        foreach ($rawSessions as $s) {
+            $sec = $sections->get($s['class_section_id']);
+            $roomId = $s['lab_id'] ?? $s['room_id'] ?? null;
+            $room = $roomsById->get($roomId);
+            $dayName = $s['day'] ?? (isset($s['day_of_week']) ? [1=>'Senin',2=>'Selasa',3=>'Rabu',4=>'Kamis',5=>'Jumat',6=>'Sabtu',0=>'Minggu'][$s['day_of_week']] ?? null : null);
+            $dayOfWeek = $s['day_of_week'] ?? (isset($s['day']) ? ConstraintChecker::DAY_INDEX[$s['day']] ?? null : null);
+
+            $sessionObj = (object) [
+                'id' => $s['id'],
+                'schedule_id' => $version->id,
+                'class_section_id' => $s['class_section_id'],
+                'session_type' => $s['session_type'] ?? ($s['type'] ?? 'PRAKTIKUM'),
+                'type' => $s['type'] ?? strtolower($s['session_type'] ?? 'praktikum'),
+                'duration_min' => (int) ($s['duration_min'] ?? 120),
+                'day_of_week' => $dayOfWeek,
+                'day' => $dayName,
+                'start_min' => isset($s['start_min']) ? (int) $s['start_min'] : null,
+                'end_min' => isset($s['end_min']) ? (int) $s['end_min'] : null,
+                'room_id' => $roomId,
+                'lab_id' => $roomId,
+                'room' => $room,
+                'section' => $sec,
+                'status' => in_array(strtolower($s['status'] ?? ''), ['placed', 'scheduled']) ? 'SCHEDULED' : 'UNSCHEDULED',
+                'unscheduled_reason' => $s['unscheduled_reason'] ?? null,
+                'is_locked' => (bool) ($s['is_locked'] ?? false),
+                'is_manual_placed' => (bool) ($s['is_manual_placed'] ?? false),
+            ];
+
+            if ($sessionObj->status === 'SCHEDULED' && $sessionObj->room_id && $sessionObj->start_min !== null && $sessionObj->day) {
+                $placed[] = $sessionObj;
+            } else {
+                $sessionObj->status = 'UNSCHEDULED';
+                $unscheduled[] = $sessionObj;
+            }
+        }
+
+        return [collect($placed), collect($unscheduled)];
     }
 
     /**
@@ -156,20 +237,60 @@ class ScheduleController extends Controller
     public function updatePlacement(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'session_id' => 'required|string|exists:lab_sessions,id',
+            'session_id' => 'required|string',
             'room_id' => 'required|string|exists:labs,id',
             'day' => 'required|string',
             'start_min' => 'required|integer',
             'end_min' => 'required|integer',
             'override' => 'nullable|boolean',
+            'version_id' => 'nullable|string|exists:schedules,id',
         ]);
 
-        $session = LabSession::with(['section.course', 'section.classMeetings'])->findOrFail($validated['session_id']);
         $room = Room::findOrFail($validated['room_id']);
         $day = $validated['day'];
         $startMin = (int) $validated['start_min'];
         $endMin = (int) $validated['end_min'];
         $override = ! empty($validated['override']);
+
+        if ($request->filled('version_id')) {
+            $version = Schedule::findOrFail($validated['version_id']);
+            $snapshot = $version->snapshot_json ?? [];
+            $sessions = $snapshot['sessions'] ?? [];
+
+            $foundIndex = null;
+            foreach ($sessions as $idx => $s) {
+                if ($s['id'] == $validated['session_id']) {
+                    $foundIndex = $idx;
+                    break;
+                }
+            }
+
+            if ($foundIndex !== null) {
+                $sessions[$foundIndex]['status'] = 'SCHEDULED';
+                $sessions[$foundIndex]['lab_id'] = $room->id;
+                $sessions[$foundIndex]['room_id'] = $room->id;
+                $sessions[$foundIndex]['day'] = $day;
+                $sessions[$foundIndex]['day_of_week'] = ConstraintChecker::DAY_INDEX[$day] ?? 1;
+                $sessions[$foundIndex]['start_min'] = $startMin;
+                $sessions[$foundIndex]['end_min'] = $endMin;
+                $sessions[$foundIndex]['unscheduled_reason'] = null;
+                $sessions[$foundIndex]['is_manual_placed'] = true;
+            }
+
+            $snapshot['sessions'] = $sessions;
+            $snapshot['placed_count'] = count(array_filter($sessions, fn ($s) => in_array(strtolower($s['status'] ?? ''), ['placed', 'scheduled'])));
+            $version->snapshot_json = $snapshot;
+            $version->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Sesi draft berhasil ditempatkan.',
+                'has_override_warning' => false,
+                'violations' => [],
+            ]);
+        }
+
+        $session = LabSession::with(['section.course', 'section.classMeetings'])->findOrFail($validated['session_id']);
 
         // Server-side validation
         $check = $this->constraintChecker->validatePlacement(
@@ -220,8 +341,40 @@ class ScheduleController extends Controller
     public function unplace(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'session_id' => 'required|string|exists:lab_sessions,id',
+            'session_id' => 'required|string',
+            'version_id' => 'nullable|string|exists:schedules,id',
         ]);
+
+        if ($request->filled('version_id')) {
+            $version = Schedule::findOrFail($validated['version_id']);
+            $snapshot = $version->snapshot_json ?? [];
+            $sessions = $snapshot['sessions'] ?? [];
+
+            foreach ($sessions as $idx => $s) {
+                if ($s['id'] == $validated['session_id']) {
+                    $sessions[$idx]['status'] = 'UNSCHEDULED';
+                    $sessions[$idx]['lab_id'] = null;
+                    $sessions[$idx]['room_id'] = null;
+                    $sessions[$idx]['day'] = null;
+                    $sessions[$idx]['day_of_week'] = null;
+                    $sessions[$idx]['start_min'] = null;
+                    $sessions[$idx]['end_min'] = null;
+                    $sessions[$idx]['unscheduled_reason'] = 'Dibatalkan ke panel belum terjadwal';
+                    $sessions[$idx]['is_manual_placed'] = false;
+                    break;
+                }
+            }
+
+            $snapshot['sessions'] = $sessions;
+            $snapshot['placed_count'] = count(array_filter($sessions, fn ($s) => in_array(strtolower($s['status'] ?? ''), ['placed', 'scheduled'])));
+            $version->snapshot_json = $snapshot;
+            $version->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Sesi draft dikembalikan ke daftar belum terjadwal.',
+            ]);
+        }
 
         $session = LabSession::findOrFail($validated['session_id']);
         $session->update([
@@ -247,8 +400,34 @@ class ScheduleController extends Controller
     public function toggleLock(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'session_id' => 'required|string|exists:lab_sessions,id',
+            'session_id' => 'required|string',
+            'version_id' => 'nullable|string|exists:schedules,id',
         ]);
+
+        if ($request->filled('version_id')) {
+            $version = Schedule::findOrFail($validated['version_id']);
+            $snapshot = $version->snapshot_json ?? [];
+            $sessions = $snapshot['sessions'] ?? [];
+            $isLocked = false;
+
+            foreach ($sessions as $idx => $s) {
+                if ($s['id'] == $validated['session_id']) {
+                    $sessions[$idx]['is_locked'] = !($s['is_locked'] ?? false);
+                    $isLocked = $sessions[$idx]['is_locked'];
+                    break;
+                }
+            }
+
+            $snapshot['sessions'] = $sessions;
+            $version->snapshot_json = $snapshot;
+            $version->save();
+
+            return response()->json([
+                'success' => true,
+                'is_locked' => $isLocked,
+                'message' => $isLocked ? 'Sesi dikunci.' : 'Kunci sesi dibuka.',
+            ]);
+        }
 
         $session = LabSession::findOrFail($validated['session_id']);
         $session->update(['is_locked' => ! $session->is_locked]);

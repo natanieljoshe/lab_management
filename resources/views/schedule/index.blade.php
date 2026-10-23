@@ -8,42 +8,88 @@
 <div x-data="scheduleManager()" x-init="init()" class="h-full flex flex-col p-4 space-y-4">
     <!-- Toolbar -->
     <div class="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
-        <!-- Day Selector Tabs -->
-        <div class="flex items-center space-x-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
-            <button @click="activeDay = 'all'" 
-                    class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition flex items-center space-x-1.5"
-                    :class="activeDay === 'all' ? 'bg-indigo-600 text-white shadow-sm font-bold' : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
-                <span>Semua Hari</span>
-            </button>
-            <template x-for="day in days" :key="day">
-                <button @click="activeDay = day" 
-                        class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition"
-                        :class="activeDay === day ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-white shadow-sm' : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'"
-                        x-text="day">
+        <!-- Left: Day Selector Tabs & Draft Selector -->
+        <div class="flex flex-wrap items-center gap-3">
+            <!-- Day Selector Tabs -->
+            <div class="flex items-center space-x-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
+                <button @click="activeDay = 'all'" 
+                        class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition flex items-center space-x-1.5"
+                        :class="activeDay === 'all' ? 'bg-indigo-600 text-white shadow-sm font-bold' : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+                    <span>Semua Hari</span>
                 </button>
-            </template>
+                <template x-for="day in days" :key="day">
+                    <button @click="activeDay = day" 
+                            class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition"
+                            :class="activeDay === day ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-white shadow-sm' : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'"
+                            x-text="day">
+                    </button>
+                </template>
+            </div>
+
+            <!-- Draft Version Switcher -->
+            <div class="flex items-center space-x-1.5">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider hidden md:inline">Draft / Versi:</span>
+                <select onchange="window.location.href = this.value" 
+                        class="text-xs font-semibold py-1.5 pl-3 pr-8 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer shadow-sm">
+                    <option value="{{ route('schedule.index') }}" {{ !$selectedVersion ? 'selected' : '' }}>
+                        🌟 Mode Baru / Jadwal Utama (Live)
+                    </option>
+                    @if($savedVersions->count() > 0)
+                        <optgroup label="Draft Jadwal Tersimpan">
+                            @foreach($savedVersions as $sv)
+                                <option value="{{ route('schedule.index', ['version_id' => $sv->id]) }}" {{ $selectedVersion && $selectedVersion->id === $sv->id ? 'selected' : '' }}>
+                                    📄 {{ $sv->name }} ({{ $sv->created_at->format('d/m/Y H:i') }})
+                                </option>
+                            @endforeach
+                        </optgroup>
+                    @endif
+                </select>
+                <a href="{{ route('versions.index') }}" 
+                   class="p-1.5 rounded-lg border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition" 
+                   title="Kelola Daftar Draft Jadwal">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                </a>
+            </div>
         </div>
 
         <!-- Action Buttons -->
         <div class="flex items-center space-x-2">
-            <button @click="runGenerate()" :disabled="isLoading" 
-                    class="inline-flex items-center px-3.5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm transition disabled:opacity-50">
-                <svg x-show="!isLoading" class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                <svg x-show="isLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
-                <span x-text="isLoading ? 'Menjadwalkan...' : 'Generate Otomatis'"></span>
-            </button>
+            <!-- Edit Draft Button (when viewing draft in read-only mode) -->
+            @if($isDraftMode && !$isEditMode)
+                <a href="{{ route('schedule.index', ['version_id' => $selectedVersion->id, 'mode' => 'edit']) }}" 
+                   class="inline-flex items-center px-3.5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm transition">
+                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                    <span>Edit Draft Ini</span>
+                </a>
+            @endif
 
-            <button @click="showResetModal = true" 
-                    class="inline-flex items-center px-3.5 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold shadow-sm transition">
-                <svg class="w-4 h-4 mr-1.5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                Reset
-            </button>
+            @if(!$isDraftMode || $isEditMode)
+                <button @click="runGenerate()" :disabled="isLoading" 
+                        class="inline-flex items-center px-3.5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm transition disabled:opacity-50">
+                    <svg x-show="!isLoading" class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    <svg x-show="isLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                    <span x-text="isLoading ? 'Menjadwalkan...' : 'Generate Otomatis'"></span>
+                </button>
+
+                <button @click="showResetModal = true" 
+                        class="inline-flex items-center px-3.5 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold shadow-sm transition">
+                    <svg class="w-4 h-4 mr-1.5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    Reset
+                </button>
+            @endif
 
             <button @click="showSaveVersionModal = true" 
                     class="inline-flex items-center px-3.5 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold shadow-sm transition">
                 <svg class="w-4 h-4 mr-1.5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
-                Simpan Versi
+                <span>Simpan Versi</span>
+            </button>
+
+            <button @click="showUnscheduledPanel = !showUnscheduledPanel" 
+                    class="inline-flex items-center px-3.5 py-2 rounded-lg border text-xs font-semibold shadow-sm transition cursor-pointer"
+                    :class="showUnscheduledPanel ? 'bg-rose-50 border-rose-300 text-rose-700 dark:bg-rose-950 dark:text-rose-300' : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200'">
+                <svg class="w-4 h-4 mr-1.5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                <span>Belum Terjadwal (<span x-text="unscheduledSessions.length"></span>)</span>
             </button>
 
             <button @click="togglePathPanel()" 
@@ -55,31 +101,100 @@
         </div>
     </div>
 
-    <!-- Legend Bar -->
-    <div class="flex flex-wrap items-center gap-4 text-xs font-medium px-2 py-1 text-slate-600 dark:text-slate-400">
-        <div class="flex items-center space-x-1.5">
-            <span class="w-3.5 h-3.5 rounded bg-slate-200 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 inline-block"></span>
-            <span>Kelas (Tetap dari Atasan)</span>
+    <!-- Draft Status Banner -->
+    @if($selectedVersion)
+        @if($isEditMode)
+            <!-- Mode Edit Draft -->
+            <div class="bg-amber-50 dark:bg-amber-950/50 border border-amber-300 dark:border-amber-800 p-3.5 rounded-xl flex flex-wrap items-center justify-between gap-3 shadow-sm">
+                <div class="flex items-center space-x-3">
+                    <span class="px-2.5 py-1 rounded-md bg-amber-500 text-white font-black text-[11px] tracking-wide uppercase flex items-center space-x-1 shadow-sm">
+                        <svg class="w-3.5 h-3.5 animate-pulse" fill="currentColor" viewBox="0 0 20 20"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path></svg>
+                        <span>Mode Edit Draft</span>
+                    </span>
+                    <div class="text-xs text-amber-950 dark:text-amber-200">
+                        Sedang mengedit draft: <strong class="font-bold underline text-amber-900 dark:text-amber-100">{{ $selectedVersion->name }}</strong>. 
+                        <span class="text-amber-700 dark:text-amber-300 hidden md:inline">Pergeseran sesi (drag-and-drop) otomatis disimpan ke draft ini.</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <a href="{{ route('schedule.index', ['version_id' => $selectedVersion->id]) }}" 
+                       class="inline-flex items-center px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-200 hover:bg-amber-100/50 text-xs font-semibold shadow-sm transition">
+                        <svg class="w-3.5 h-3.5 mr-1 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                        <span>Selesai Edit (Pratinjau)</span>
+                    </a>
+                    <a href="{{ route('schedule.index') }}" 
+                       class="inline-flex items-center px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold transition"
+                       title="Beralih ke Jadwal Utama">
+                        <span>✕ Mode Baru</span>
+                    </a>
+                </div>
+            </div>
+        @else
+            <!-- Mode Pratinjau Draft (Hanya Lihat) -->
+            <div class="bg-indigo-50/80 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 p-3.5 rounded-xl flex flex-wrap items-center justify-between gap-3 shadow-sm">
+                <div class="flex items-center space-x-3">
+                    <span class="px-2.5 py-1 rounded-md bg-indigo-600 text-white font-bold text-[11px] tracking-wide uppercase flex items-center space-x-1 shadow-sm">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                        <span>Pratinjau Draft</span>
+                    </span>
+                    <div class="text-xs text-indigo-950 dark:text-indigo-200">
+                        Menampilkan draft tersimpan: <strong class="font-bold underline text-indigo-900 dark:text-indigo-100">{{ $selectedVersion->name }}</strong> (Hanya Lihat).
+                        <span class="text-indigo-700 dark:text-indigo-300 hidden md:inline">Jadwal terkunci. Klik Edit jika ingin memindahkan sesi pada draft ini.</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <a href="{{ route('schedule.index', ['version_id' => $selectedVersion->id, 'mode' => 'edit']) }}" 
+                       class="inline-flex items-center px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-sm transition">
+                        <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                        <span>Edit Draft Ini</span>
+                    </a>
+                    <a href="{{ route('schedule.index') }}" 
+                       class="inline-flex items-center px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 text-xs font-semibold transition"
+                       title="Beralih ke Jadwal Utama">
+                        <span>Mode Baru</span>
+                    </a>
+                </div>
+            </div>
+        @endif
+    @endif
+
+    <!-- Legend Bar & Excel Resizer Controls -->
+    <div class="flex flex-wrap items-center justify-between gap-3 text-xs font-medium px-2 py-1 text-slate-600 dark:text-slate-400">
+        <div class="flex flex-wrap items-center gap-4">
+            <div class="flex items-center space-x-1.5">
+                <span class="w-3.5 h-3.5 rounded bg-slate-200 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 inline-block"></span>
+                <span>Kelas (Tetap dari Atasan)</span>
+            </div>
+            <div class="flex items-center space-x-1.5">
+                <span class="w-3.5 h-3.5 rounded bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 inline-block"></span>
+                <span>Kolom Non-Lab (Jadwal Kelas Teori)</span>
+            </div>
+            <div class="flex items-center space-x-1.5">
+                <span class="w-3.5 h-3.5 rounded bg-emerald-100 dark:bg-emerald-900/60 border border-emerald-400 inline-block"></span>
+                <span>Praktikum</span>
+            </div>
+            <div class="flex items-center space-x-1.5">
+                <span class="w-3.5 h-3.5 rounded bg-amber-100 dark:bg-amber-900/60 border border-amber-400 inline-block"></span>
+                <span>Responsi</span>
+            </div>
+            <div class="flex items-center space-x-1.5">
+                <span class="w-3.5 h-3.5 rounded bg-[repeating-linear-gradient(45deg,#e2e8f0,#e2e8f0_5px,#cbd5e1_5px,#cbd5e1_10px)] dark:bg-[repeating-linear-gradient(45deg,#1e293b,#1e293b_5px,#0f172a_5px,#0f172a_10px)] border border-slate-300 inline-block"></span>
+                <span>Jam KU / Jam Kemahasiswaan</span>
+            </div>
+            <div class="flex items-center space-x-1.5">
+                <span class="w-3.5 h-3.5 rounded bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 inline-block"></span>
+                <span>Manual Saja (Sore / Malam)</span>
+            </div>
         </div>
-        <div class="flex items-center space-x-1.5">
-            <span class="w-3.5 h-3.5 rounded bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 inline-block"></span>
-            <span>Kolom Non-Lab (Jadwal Kelas Teori)</span>
-        </div>
-        <div class="flex items-center space-x-1.5">
-            <span class="w-3.5 h-3.5 rounded bg-emerald-100 dark:bg-emerald-900/60 border border-emerald-400 inline-block"></span>
-            <span>Praktikum</span>
-        </div>
-        <div class="flex items-center space-x-1.5">
-            <span class="w-3.5 h-3.5 rounded bg-amber-100 dark:bg-amber-900/60 border border-amber-400 inline-block"></span>
-            <span>Responsi</span>
-        </div>
-        <div class="flex items-center space-x-1.5">
-            <span class="w-3.5 h-3.5 rounded bg-[repeating-linear-gradient(45deg,#e2e8f0,#e2e8f0_5px,#cbd5e1_5px,#cbd5e1_10px)] dark:bg-[repeating-linear-gradient(45deg,#1e293b,#1e293b_5px,#0f172a_5px,#0f172a_10px)] border border-slate-300 inline-block"></span>
-            <span>Jam KU / Jam Kemahasiswaan</span>
-        </div>
-        <div class="flex items-center space-x-1.5">
-            <span class="w-3.5 h-3.5 rounded bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 inline-block"></span>
-            <span>Manual Saja (Sore / Malam)</span>
+
+        <div class="flex items-center space-x-2 ml-auto">
+            <button x-show="hasCustomDimensions" @click="resetDimensions()" 
+                    class="text-[10px] text-indigo-600 dark:text-indigo-400 hover:underline bg-indigo-50 dark:bg-indigo-950/70 px-2 py-0.5 rounded border border-indigo-200 dark:border-indigo-800 transition cursor-pointer">
+                Reset Ukuran Grid
+            </button>
+            <span class="text-slate-400 text-[10px] hidden md:inline">
+                Tips: Geser garis batas kolom / baris untuk menyesuaikan ukuran (compact) seperti di Excel.
+            </span>
         </div>
     </div>
 
@@ -110,52 +225,93 @@
                                     </th>
 
                                     <template x-for="room in rooms" :key="room.id">
-                                        <!-- Freeze Top Room Header -->
-                                        <th class="w-48 px-3 py-2 text-xs font-bold border-r border-b border-slate-200 dark:border-slate-700 text-center sticky top-0 z-20 shadow-[0_1px_0_0_rgba(203,213,225,0.8)] dark:shadow-[0_1px_0_0_rgba(51,65,85,0.8)]"
+                                        <!-- Freeze Top Room Header with Excel-Style Column Resizer -->
+                                        <th :id="'col-th-' + currentDay + '-' + room.id"
+                                            :style="colWidths[room.id] ? `width: ${colWidths[room.id]}px; min-width: ${colWidths[room.id]}px; max-width: ${colWidths[room.id]}px;` : 'width: 192px; min-width: 192px;'"
+                                            class="w-48 px-2 py-1.5 text-xs font-bold border-r border-b border-slate-200 dark:border-slate-700 text-center sticky top-0 z-20 shadow-[0_1px_0_0_rgba(203,213,225,0.8)] dark:shadow-[0_1px_0_0_rgba(51,65,85,0.8)] relative select-none overflow-hidden"
                                             :class="room.type === 'internal' ? 'bg-slate-50 dark:bg-slate-800' : 'bg-slate-100 dark:bg-slate-800/95'">
-                                            <div class="font-bold text-slate-800 dark:text-white" x-text="room.code"></div>
-                                            <div class="text-[10px] text-slate-500 font-normal truncate" x-text="room.name"></div>
-                                            <div class="flex items-center justify-center space-x-1 mt-0.5">
-                                                <span class="px-1.5 py-0.2 rounded text-[9px] font-semibold"
-                                                      :class="room.type === 'internal' ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300' : 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300'"
-                                                      x-text="room.type === 'internal' ? 'Internal' : 'Eksternal'">
-                                                </span>
-                                                <span class="text-[10px] text-slate-500" x-text="'Kap: ' + room.capacity"></span>
-                                                <template x-if="room.is_manual_only">
-                                                    <span class="px-1 py-0.2 rounded text-[9px] font-semibold bg-rose-100 text-rose-700" title="Manual Saja">M</span>
-                                                </template>
+                                            <div :class="colWidths[room.id] && colWidths[room.id] < 50 ? 'hidden' : ''">
+                                                <div class="font-bold text-slate-800 dark:text-white leading-tight" x-text="room.code"></div>
+                                                <div class="text-[10px] text-slate-500 font-normal truncate leading-tight" x-text="room.name" :class="colWidths[room.id] && colWidths[room.id] < 90 ? 'hidden' : ''"></div>
+                                                <div class="flex items-center justify-center space-x-1 mt-0.5" :class="colWidths[room.id] && colWidths[room.id] < 90 ? 'hidden' : ''">
+                                                    <span class="px-1.5 py-0.2 rounded text-[9px] font-semibold"
+                                                          :class="room.type === 'internal' ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300' : 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300'"
+                                                          x-text="room.type === 'internal' ? 'Internal' : 'Eksternal'">
+                                                    </span>
+                                                    <span class="text-[10px] text-slate-500" x-text="'Kap: ' + room.capacity"></span>
+                                                    <template x-if="room.is_manual_only">
+                                                        <span class="px-1 py-0.2 rounded text-[9px] font-semibold bg-rose-100 text-rose-700" title="Manual Saja">M</span>
+                                                    </template>
+                                                </div>
+                                            </div>
+                                            <div x-show="colWidths[room.id] && colWidths[room.id] < 50" class="text-[9px] text-slate-400 font-bold truncate" x-text="room.code"></div>
+
+                                            <!-- Draggable Column Resizer handle -->
+                                            <div @mousedown="startColResize($event, room.id)"
+                                                 @touchstart.passive="startColResize($event, room.id)"
+                                                 title="Geser garis kolom untuk memperlebar atau merapatkan"
+                                                 class="absolute right-0 top-0 bottom-0 w-2 hover:w-2.5 cursor-col-resize hover:bg-indigo-500/50 active:bg-indigo-600 transition-colors z-30 flex items-center justify-center">
                                             </div>
                                         </th>
                                     </template>
 
-                                    <!-- Column Non-Lab: Freeze Top Header di kolom paling akhir -->
-                                    <th class="w-52 px-3 py-2 text-xs font-bold border-r border-b border-slate-200 dark:border-slate-700 text-center bg-slate-100 dark:bg-slate-800 sticky top-0 z-20 shadow-[0_1px_0_0_rgba(203,213,225,0.8)] dark:shadow-[0_1px_0_0_rgba(51,65,85,0.8)]">
-                                        <div class="font-bold text-slate-800 dark:text-white">NON LAB</div>
-                                        <div class="text-[10px] text-slate-500 font-normal truncate">Ruang Kelas Teori</div>
-                                        <div class="flex items-center justify-center space-x-1 mt-0.5">
-                                            <span class="px-1.5 py-0.2 rounded text-[9px] font-semibold bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300">
-                                                Jadwal Kelas
-                                            </span>
+                                    <!-- Column Non-Lab: Freeze Top Header di kolom paling akhir with Sub-Columns -->
+                                    <th :id="'col-th-' + currentDay + '-non_lab'"
+                                        :style="colWidths['non_lab'] ? `width: ${colWidths['non_lab']}px; min-width: ${colWidths['non_lab']}px; max-width: ${colWidths['non_lab']}px;` : 'width: 440px; min-width: 320px;'"
+                                        class="px-2 py-1.5 text-xs font-bold border-r border-b border-slate-200 dark:border-slate-700 text-center bg-slate-100 dark:bg-slate-800 sticky top-0 z-20 shadow-[0_1px_0_0_rgba(203,213,225,0.8)] dark:shadow-[0_1px_0_0_rgba(51,65,85,0.8)] relative select-none overflow-hidden">
+                                        <div :class="colWidths['non_lab'] && colWidths['non_lab'] < 50 ? 'hidden' : ''">
+                                            <div class="flex items-center justify-between px-1">
+                                                <div class="font-bold text-slate-800 dark:text-white leading-tight">NON LAB</div>
+                                                <span class="px-1.5 py-0.2 rounded text-[9px] font-semibold bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300">
+                                                    Ruang Kelas Teori (Sub-Kolom)
+                                                </span>
+                                            </div>
+                                            <!-- Sub-Column Header Trackers -->
+                                            <div class="grid gap-1 mt-1 pt-1 border-t border-slate-200 dark:border-slate-700 text-[9px] text-slate-500 dark:text-slate-400 font-semibold"
+                                                 style="grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));">
+                                                <div class="bg-slate-200/70 dark:bg-slate-700/70 rounded px-1 py-0.5 text-center truncate">Sub-Kolom 1</div>
+                                                <div class="bg-slate-200/70 dark:bg-slate-700/70 rounded px-1 py-0.5 text-center truncate">Sub-Kolom 2</div>
+                                                <div class="bg-slate-200/70 dark:bg-slate-700/70 rounded px-1 py-0.5 text-center truncate">Sub-Kolom 3</div>
+                                            </div>
+                                        </div>
+                                        <div x-show="colWidths['non_lab'] && colWidths['non_lab'] < 50" class="text-[9px] text-slate-400 font-bold truncate">NL</div>
+
+                                        <!-- Draggable Column Resizer handle -->
+                                        <div @mousedown="startColResize($event, 'non_lab')"
+                                             @touchstart.passive="startColResize($event, 'non_lab')"
+                                             title="Geser garis kolom untuk memperlebar atau merapatkan"
+                                             class="absolute right-0 top-0 bottom-0 w-2 hover:w-2.5 cursor-col-resize hover:bg-indigo-500/50 active:bg-indigo-600 transition-colors z-30 flex items-center justify-center">
                                         </div>
                                     </th>
                                 </tr>
                             </thead>
 
-                            <!-- Time Slots Rows -->
+                            <!-- Time Slots Rows (Resizable Row Heights) -->
                             <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
                                 <template x-for="(slot, slotIndex) in (slotsByDay[currentDay] || [])" :key="slotIndex">
-                                    <tr class="h-16" :class="{
-                                        'bg-[repeating-linear-gradient(45deg,#f8fafc,#f8fafc_6px,#f1f5f9_6px,#f1f5f9_12px)] dark:bg-[repeating-linear-gradient(45deg,#0f172a,#0f172a_6px,#090d16_6px,#090d16_12px)]': slot.forbidden,
-                                        'bg-amber-50/40 dark:bg-amber-950/20': slot.manual_only && !slot.forbidden
-                                    }">
-                                        <!-- Slot Time Label Column (Freeze First Column) -->
-                                        <td class="w-24 px-2 py-1 text-[11px] font-medium text-slate-600 dark:text-slate-300 text-center border-r border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 select-none sticky left-0 z-10 shadow-[1px_0_0_0_rgba(203,213,225,0.8)] dark:shadow-[1px_0_0_0_rgba(51,65,85,0.8)]">
+                                    <tr :id="'slot-tr-' + currentDay + '-' + slotIndex"
+                                        :style="rowHeights[slotIndex] ? `height: ${rowHeights[slotIndex]}px;` : ''"
+                                        class="min-h-[36px] relative" 
+                                        :class="{
+                                            'bg-[repeating-linear-gradient(45deg,#f8fafc,#f8fafc_6px,#f1f5f9_6px,#f1f5f9_12px)] dark:bg-[repeating-linear-gradient(45deg,#0f172a,#0f172a_6px,#090d16_6px,#090d16_12px)]': slot.forbidden,
+                                            'bg-amber-50/40 dark:bg-amber-950/20': slot.manual_only && !slot.forbidden
+                                        }">
+                                        <!-- Slot Time Label Column (Freeze First Column with Row Resizer) -->
+                                        <td class="w-24 px-2 py-1 text-[11px] font-medium text-slate-600 dark:text-slate-300 text-center border-r border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 select-none sticky left-0 z-10 shadow-[1px_0_0_0_rgba(203,213,225,0.8)] dark:shadow-[1px_0_0_0_rgba(51,65,85,0.8)] relative whitespace-nowrap">
                                             <span x-text="slot.label"></span>
+
+                                            <!-- Draggable Row Resizer handle -->
+                                            <div @mousedown="startRowResize($event, slotIndex)"
+                                                 @touchstart.passive="startRowResize($event, slotIndex)"
+                                                 title="Geser garis baris untuk memperlebar atau merapatkan"
+                                                 class="absolute left-0 right-0 bottom-0 h-1.5 hover:h-2 cursor-row-resize hover:bg-indigo-500/50 active:bg-indigo-600 transition-colors z-20">
+                                            </div>
                                         </td>
 
                                         <!-- Room Cells for this Slot -->
                                         <template x-for="room in rooms" :key="room.id">
-                                            <td class="p-1 border-r border-b border-slate-200 dark:border-slate-800 relative transition-colors duration-150 align-top bg-white dark:bg-slate-900"
+                                            <td :style="colWidths[room.id] ? `width: ${colWidths[room.id]}px; min-width: ${colWidths[room.id]}px; max-width: ${colWidths[room.id]}px;` : 'width: 192px; min-width: 192px;'"
+                                                class="p-1 border-r border-b border-slate-200 dark:border-slate-800 relative transition-colors duration-150 align-top bg-white dark:bg-slate-900 overflow-hidden"
                                                 :class="getCellBgClass(currentDay, room, slot)"
                                                 @dragover.prevent="onCellDragOver($event, currentDay, room, slot)"
                                                 @dragleave="onCellDragLeave($event)"
@@ -164,23 +320,23 @@
                                                 <!-- Forbidden Window Notice: Jam KU / Jam Kemahasiswaan -->
                                                 <template x-if="slot.forbidden">
                                                     <div class="h-full w-full flex items-center justify-center text-[10px] text-slate-400 dark:text-slate-500 font-semibold italic select-none">
-                                                        Jam KU / Jam Kemahasiswaan
+                                                        <span :class="colWidths[room.id] && colWidths[room.id] < 60 ? 'hidden' : ''">Jam KU / Jam Kemahasiswaan</span>
                                                     </div>
                                                 </template>
 
-                                                <!-- Render Events that start at this slot for this room -->
+                                                <!-- Render Events that occupy this slot for this room -->
                                                 <template x-if="!slot.forbidden">
                                                     <div>
                                                         <!-- Placed Lab Session Blocks -->
                                                         <template x-for="session in getSessionsInSlot(currentDay, room.id, slot)" :key="'session-' + session.id">
-                                                            <div draggable="true"
-                                                                 @dragstart="onSessionDragStart($event, session)"
-                                                                 @dblclick="toggleLock(session)"
-                                                                 class="p-1.5 rounded-lg border text-xs shadow-sm cursor-move select-none mb-1 transition hover:shadow-md relative group"
-                                                                 :class="getBlockClass(session)">
+                                                            <div :draggable="canEdit"
+                                                                 @dragstart="canEdit ? onSessionDragStart($event, session) : null"
+                                                                 @dblclick="canEdit ? toggleLock(session) : null"
+                                                                 class="p-1.5 rounded-lg border text-xs shadow-sm select-none mb-1 transition relative group"
+                                                                 :class="[getBlockClass(session), canEdit ? 'cursor-move hover:shadow-md' : 'cursor-default']">
                                                                 <div class="flex items-start justify-between">
                                                                     <div class="font-bold truncate text-[11px]" x-text="session.section?.course?.name || session.section?.course?.nama || ''"></div>
-                                                                    <div class="flex items-center space-x-1 ml-1 flex-shrink-0">
+                                                                    <div class="flex items-center space-x-1 ml-1 flex-shrink-0" :class="colWidths[room.id] && colWidths[room.id] < 70 ? 'hidden' : ''">
                                                                         <template x-if="session.is_locked">
                                                                             <svg class="w-3.5 h-3.5 text-indigo-700 dark:text-indigo-300" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path></svg>
                                                                         </template>
@@ -189,15 +345,18 @@
                                                                         </template>
                                                                     </div>
                                                                 </div>
-                                                                <div class="flex items-center justify-between text-[10px] mt-0.5 opacity-90">
+                                                                <div class="flex items-center justify-between text-[10px] mt-0.5 opacity-90"
+                                                                     :class="(colWidths[room.id] && colWidths[room.id] < 85) || (rowHeights[slotIndex] && rowHeights[slotIndex] < 45) ? 'hidden' : ''">
                                                                     <span x-text="((session.type || session.session_type || 'PRAKTIKUM') + ' ' + (session.section?.label || session.section?.name || '')).toUpperCase()"></span>
                                                                     <span x-text="formatTime(session.start_min) + '-' + formatTime(session.end_min)"></span>
                                                                 </div>
                                                                 <!-- Lock toggle button overlay on hover -->
-                                                                <button @click.stop="toggleLock(session)" 
-                                                                        class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 p-0.5 rounded bg-white/80 dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 shadow text-[9px]">
-                                                                    <span x-text="session.is_locked ? 'Buka' : 'Kunci'"></span>
-                                                                </button>
+                                                                <template x-if="canEdit">
+                                                                    <button @click.stop="toggleLock(session)" 
+                                                                            class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 p-0.5 rounded bg-white/80 dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 shadow text-[9px] cursor-pointer">
+                                                                        <span x-text="session.is_locked ? 'Buka' : 'Kunci'"></span>
+                                                                    </button>
+                                                                </template>
                                                             </div>
                                                         </template>
 
@@ -205,7 +364,8 @@
                                                         <template x-for="meeting in getClassMeetingsInSlot(currentDay, room.id, slot)" :key="'meeting-' + meeting.id">
                                                             <div class="p-1.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-slate-200 dark:bg-slate-700/80 text-slate-800 dark:text-slate-100 text-xs shadow-sm mb-1">
                                                                 <div class="font-bold truncate text-[11px]" x-text="meeting.section?.course?.name || meeting.section?.course?.nama || ''"></div>
-                                                                <div class="flex items-center justify-between text-[10px] mt-0.5 text-slate-600 dark:text-slate-300">
+                                                                <div class="flex items-center justify-between text-[10px] mt-0.5 text-slate-600 dark:text-slate-300"
+                                                                     :class="(colWidths[room.id] && colWidths[room.id] < 85) || (rowHeights[slotIndex] && rowHeights[slotIndex] < 45) ? 'hidden' : ''">
                                                                     <span x-text="'Kelas ' + (meeting.section?.label || meeting.section?.name || '')"></span>
                                                                     <span x-text="formatTime(meeting.start_min) + '-' + formatTime(meeting.end_min)"></span>
                                                                 </div>
@@ -216,18 +376,23 @@
                                             </td>
                                         </template>
 
-                                        <!-- Non-Lab Cell for this Slot (Kolom paling akhir) -->
-                                        <td class="p-1 border-r border-b border-slate-200 dark:border-slate-800 relative transition-colors duration-150 align-top bg-slate-50/60 dark:bg-slate-900/60">
-                                            <div class="min-h-[56px] space-y-1">
+                                        <!-- Non-Lab Cell for this Slot (Kolom paling akhir dengan Sub-Kolom) -->
+                                        <td :style="colWidths['non_lab'] ? `width: ${colWidths['non_lab']}px; min-width: ${colWidths['non_lab']}px; max-width: ${colWidths['non_lab']}px;` : 'width: 440px; min-width: 320px;'"
+                                            class="p-1 border-r border-b border-slate-200 dark:border-slate-800 relative transition-colors duration-150 align-top bg-slate-50/60 dark:bg-slate-900/60 overflow-hidden">
+                                            <div class="grid gap-1.5 min-h-[36px]"
+                                                 style="grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));">
                                                 <template x-for="meeting in getClassMeetingsInSlot(currentDay, 'non_lab', slot)" :key="'meeting-nonlab-' + meeting.id">
-                                                    <div class="p-1.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-slate-200 dark:bg-slate-700/80 text-slate-800 dark:text-slate-100 text-xs shadow-sm mb-1 hover:border-indigo-400 transition">
-                                                        <div class="font-bold truncate text-[11px]" x-text="meeting.section?.course?.name || meeting.section?.course?.nama || ''"></div>
-                                                        <div class="flex items-center justify-between text-[10px] mt-0.5 text-slate-600 dark:text-slate-300">
+                                                    <div class="p-1.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-slate-200 dark:bg-slate-700/80 text-slate-800 dark:text-slate-100 text-xs shadow-sm hover:border-indigo-400 transition h-fit">
+                                                        <div class="font-bold truncate text-[11px]" x-text="meeting.section?.course?.name || meeting.section?.course?.nama || ''" :title="meeting.section?.course?.name || meeting.section?.course?.nama || ''"></div>
+                                                        <div class="flex items-center justify-between text-[10px] mt-0.5 text-slate-600 dark:text-slate-300"
+                                                             :class="(colWidths['non_lab'] && colWidths['non_lab'] < 85) || (rowHeights[slotIndex] && rowHeights[slotIndex] < 45) ? 'hidden' : ''">
                                                             <span class="font-semibold text-indigo-700 dark:text-indigo-300" x-text="'Kelas ' + (meeting.section?.label || meeting.section?.name || '')"></span>
-                                                            <span class="font-mono" x-text="formatTime(meeting.start_min) + '-' + formatTime(meeting.end_min)"></span>
+                                                            <span class="font-mono text-[9px]" x-text="formatTime(meeting.start_min) + '-' + formatTime(meeting.end_min)"></span>
                                                         </div>
                                                         <template x-if="meeting.room_label && meeting.room_label !== 'Ruang Kelas'">
-                                                            <div class="text-[9px] text-slate-500 dark:text-slate-400 truncate mt-0.5" x-text="meeting.room_label"></div>
+                                                            <div class="text-[9px] text-slate-500 dark:text-slate-400 truncate mt-0.5" 
+                                                                 :class="(colWidths['non_lab'] && colWidths['non_lab'] < 85) || (rowHeights[slotIndex] && rowHeights[slotIndex] < 45) ? 'hidden' : ''"
+                                                                 x-text="meeting.room_label"></div>
                                                         </template>
                                                     </div>
                                                 </template>
@@ -242,8 +407,9 @@
             </template>
         </div>
 
-        <!-- Right Side Panel: Belum Terjadwal (Droppable to unplace) -->
-        <div class="w-80 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col flex-shrink-0 min-w-0 sticky top-4 self-start max-h-[calc(100vh-2rem)]"
+        <!-- Right Side Panel: Belum Terjadwal (Droppable to unplace, Collapsible) -->
+        <div x-show="showUnscheduledPanel" 
+             class="w-80 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col flex-shrink-0 min-w-0 sticky top-4 self-start max-h-[calc(100vh-2rem)]"
              @dragover.prevent="onUnscheduledDragOver($event)"
              @dragleave="onUnscheduledDragLeave($event)"
              @drop="onUnscheduledDrop($event)">
@@ -253,9 +419,17 @@
                     <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
                     <h2 class="text-sm font-bold text-slate-900 dark:text-white">Belum Terjadwal</h2>
                 </div>
-                <span class="px-2 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
-                      x-text="unscheduledSessions.length">
-                </span>
+                <div class="flex items-center space-x-2">
+                    <span class="px-2 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                          x-text="unscheduledSessions.length">
+                    </span>
+                    <!-- Button Tutup Section Belum Terjadwal -->
+                    <button @click="showUnscheduledPanel = false" 
+                            class="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+                            title="Tutup Section Belum Terjadwal">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
             </div>
 
             <div class="p-2 text-[11px] text-slate-500 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800 text-center flex-shrink-0">
@@ -266,9 +440,10 @@
             <div class="flex-1 overflow-y-auto min-h-0 p-3 space-y-2.5"
                  :class="{ 'bg-rose-50/50 dark:bg-rose-950/20 ring-2 ring-rose-400': isUnscheduledDragHover }">
                 <template x-for="item in unscheduledSessions" :key="item.id">
-                    <div draggable="true"
-                         @dragstart="onSessionDragStart($event, item)"
-                         class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-indigo-400 shadow-sm cursor-move select-none transition">
+                    <div :draggable="canEdit"
+                         @dragstart="canEdit ? onSessionDragStart($event, item) : null"
+                         class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm select-none transition"
+                         :class="canEdit ? 'hover:border-indigo-400 cursor-move' : 'cursor-default'">
                         <div class="flex items-start justify-between">
                             <span class="font-bold text-xs text-slate-900 dark:text-white" x-text="item.section?.course?.name || item.section?.course?.nama || ''"></span>
                             <span class="px-1.5 py-0.5 rounded text-[10px] font-semibold"
@@ -607,6 +782,14 @@ function scheduleManager() {
         classMeetings: @json($classMeetings),
         unscheduledSessions: @json($unscheduledSessions),
 
+        // Draft Version States
+        selectedVersionId: @json($selectedVersion?->id),
+        isDraftMode: @json($isDraftMode),
+        isEditMode: @json($isEditMode),
+        get canEdit() {
+            return !this.isDraftMode || this.isEditMode;
+        },
+
         isLoading: false,
         showResetModal: false,
         showSaveVersionModal: false,
@@ -614,6 +797,21 @@ function scheduleManager() {
         showSummaryModal: false,
         versionName: '',
         generateSummary: {},
+
+        // Panel Belum Terjadwal
+        showUnscheduledPanel: true,
+
+        // Excel-style Resizable Columns & Rows
+        colWidths: {},
+        rowHeights: {},
+        isResizingCol: false,
+        resizingColRoomId: null,
+        colStartX: 0,
+        colStartWidth: 0,
+        isResizingRow: false,
+        resizingRowIndex: null,
+        rowStartY: 0,
+        rowStartHeight: 0,
 
         // Drag and drop state
         draggedSession: null,
@@ -667,26 +865,104 @@ function scheduleManager() {
             return map[dayOfWeek] || '';
         },
 
-        getSessionsInSlot(day, roomId, slot) {
-            return this.placedSessions.filter(s => 
-                (s.room_id === roomId || s.lab_id === roomId) && 
-                (s.day === day || this.getDayName(s.day_of_week) === day) && 
-                s.start_min === slot.start
-            );
+        get hasCustomDimensions() {
+            return Object.keys(this.colWidths).length > 0 || Object.keys(this.rowHeights).length > 0;
         },
 
+        resetDimensions() {
+            this.colWidths = {};
+            this.rowHeights = {};
+        },
+
+        startColResize(e, roomId) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.isResizingCol = true;
+            this.resizingColRoomId = roomId;
+            this.colStartX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+
+            const firstHeader = document.querySelector(`[id^='col-th-'][id$='-${roomId}']`);
+            this.colStartWidth = firstHeader ? firstHeader.offsetWidth : (roomId === 'non_lab' ? 208 : 192);
+
+            const onMove = (ev) => {
+                if (!this.isResizingCol) return;
+                const currentX = ev.type.includes('touch') ? ev.touches[0].clientX : ev.clientX;
+                const diff = currentX - this.colStartX;
+                const newWidth = Math.max(36, this.colStartWidth + diff);
+                this.colWidths[this.resizingColRoomId] = newWidth;
+            };
+
+            const onUp = () => {
+                this.isResizingCol = false;
+                this.resizingColRoomId = null;
+                window.removeEventListener('mousemove', onMove);
+                window.removeEventListener('mouseup', onUp);
+                window.removeEventListener('touchmove', onMove);
+                window.removeEventListener('touchend', onUp);
+            };
+
+            window.addEventListener('mousemove', onMove);
+            window.addEventListener('mouseup', onUp);
+            window.addEventListener('touchmove', onMove);
+            window.addEventListener('touchend', onUp);
+        },
+
+        startRowResize(e, slotIndex) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.isResizingRow = true;
+            this.resizingRowIndex = slotIndex;
+            this.rowStartY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+
+            const firstRow = document.querySelector(`[id^='slot-tr-'][id$='-${slotIndex}']`);
+            this.rowStartHeight = firstRow ? firstRow.offsetHeight : 56;
+
+            const onMove = (ev) => {
+                if (!this.isResizingRow) return;
+                const currentY = ev.type.includes('touch') ? ev.touches[0].clientY : ev.clientY;
+                const diff = currentY - this.rowStartY;
+                const newHeight = Math.max(26, this.rowStartHeight + diff);
+                this.rowHeights[this.resizingRowIndex] = newHeight;
+            };
+
+            const onUp = () => {
+                this.isResizingRow = false;
+                this.resizingRowIndex = null;
+                window.removeEventListener('mousemove', onMove);
+                window.removeEventListener('mouseup', onUp);
+                window.removeEventListener('touchmove', onMove);
+                window.removeEventListener('touchend', onUp);
+            };
+
+            window.addEventListener('mousemove', onMove);
+            window.addEventListener('mouseup', onUp);
+            window.addEventListener('touchmove', onMove);
+            window.addEventListener('touchend', onUp);
+        },
+
+        // Multi-block occupancy: session spans all overlapping slots (seperti di public)
+        getSessionsInSlot(day, roomId, slot) {
+            return this.placedSessions.filter(s => {
+                const matchesRoom = (s.room_id === roomId || s.lab_id === roomId);
+                const matchesDay = (s.day === day || this.getDayName(s.day_of_week) === day);
+                if (!matchesRoom || !matchesDay) return false;
+                return (s.start_min < slot.end && s.end_min > slot.start);
+            });
+        },
+
+        // Multi-block occupancy: class meeting spans all overlapping slots (seperti di public)
         getClassMeetingsInSlot(day, roomId, slot) {
             if (roomId === 'non_lab') {
                 return this.classMeetings.filter(m => 
                     (!m.room_id && !m.lab_id) && 
                     (m.day === day || this.getDayName(m.day_of_week) === day) && 
-                    (m.start_min === slot.start || (m.start_min >= slot.start && m.start_min < slot.end))
+                    (m.start_min < slot.end && m.end_min > slot.start)
                 );
             }
             return this.classMeetings.filter(m => 
                 (m.room_id === roomId || m.lab_id === roomId) && 
                 (m.day === day || this.getDayName(m.day_of_week) === day) && 
-                (m.start_min === slot.start || (m.start_min >= slot.start && m.start_min < slot.end))
+                (m.start_min < slot.end && m.end_min > slot.start)
             );
         },
 
@@ -719,7 +995,7 @@ function scheduleManager() {
         },
 
         onCellDragOver(event, day, room, slot) {
-            if (slot.forbidden || !this.draggedSession) {
+            if (!this.canEdit || slot.forbidden || !this.draggedSession) {
                 event.dataTransfer.dropEffect = 'none';
                 return;
             }
@@ -744,7 +1020,7 @@ function scheduleManager() {
 
         async onCellDrop(event, day, room, slot) {
             this.dragOverCell = null;
-            if (!this.draggedSession) return;
+            if (!this.canEdit || !this.draggedSession) return;
 
             const session = this.draggedSession;
             const targetStart = slot.start;
@@ -775,6 +1051,7 @@ function scheduleManager() {
                     },
                     body: JSON.stringify({
                         ...this.pendingPlacement,
+                        version_id: this.selectedVersionId,
                         override: override
                     })
                 });
@@ -808,7 +1085,9 @@ function scheduleManager() {
 
         // Drop to Unscheduled Panel
         onUnscheduledDragOver(event) {
-            if (this.draggedSession && this.draggedSession.status === 'placed') {
+            if (!this.canEdit) return;
+            const isPlaced = this.draggedSession && (this.draggedSession.status === 'placed' || this.draggedSession.status === 'SCHEDULED');
+            if (isPlaced) {
                 this.isUnscheduledDragHover = true;
                 event.dataTransfer.dropEffect = 'move';
             }
@@ -820,7 +1099,9 @@ function scheduleManager() {
 
         async onUnscheduledDrop(event) {
             this.isUnscheduledDragHover = false;
-            if (!this.draggedSession || this.draggedSession.status !== 'placed') return;
+            if (!this.canEdit || !this.draggedSession) return;
+            const isPlaced = (this.draggedSession.status === 'placed' || this.draggedSession.status === 'SCHEDULED');
+            if (!isPlaced) return;
 
             try {
                 const res = await fetch("{{ route('api.schedule.unplace') }}", {
@@ -829,7 +1110,10 @@ function scheduleManager() {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     },
-                    body: JSON.stringify({ session_id: this.draggedSession.id })
+                    body: JSON.stringify({ 
+                        session_id: this.draggedSession.id,
+                        version_id: this.selectedVersionId
+                    })
                 });
 
                 if (res.ok) {
@@ -843,6 +1127,7 @@ function scheduleManager() {
 
         // Lock Toggle
         async toggleLock(session) {
+            if (!this.canEdit) return;
             try {
                 const res = await fetch("{{ route('api.schedule.toggle_lock') }}", {
                     method: 'POST',
@@ -850,7 +1135,10 @@ function scheduleManager() {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     },
-                    body: JSON.stringify({ session_id: session.id })
+                    body: JSON.stringify({ 
+                        session_id: session.id,
+                        version_id: this.selectedVersionId
+                    })
                 });
                 const data = await res.json();
                 if (data.success) {
