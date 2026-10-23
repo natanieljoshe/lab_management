@@ -19,6 +19,14 @@ use App\Http\Controllers\ComponentsController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RepositoryController;
 use App\Http\Controllers\ModuleController;
+use App\Http\Controllers\Schedule\ScheduleController;
+use App\Http\Controllers\Schedule\ImportController;
+use App\Http\Controllers\Schedule\CourseConfigController;
+use App\Http\Controllers\Schedule\RoomController;
+use App\Http\Controllers\Schedule\VersionController;
+use App\Http\Controllers\Schedule\SettingsController;
+use App\Http\Controllers\Schedule\ExportController;
+use App\Http\Controllers\Schedule\PublicScheduleController;
 
 Route::get('/', function () {
     return view('user.landing', ['title' => 'User | Landing Page']);
@@ -161,5 +169,88 @@ Route::middleware(['auth.permission'])->group(function () {
         Route::post('/matkul/{matkul}/modules', [MatkulController::class, 'storeModule'])->name('admin.matkul.modules.store');
         Route::put('/matkul/{matkul}/modules/{module}', [MatkulController::class, 'updateModule'])->name('admin.matkul.modules.update');
         Route::delete('/matkul/{matkul}/modules/{module}', [MatkulController::class, 'destroyModule'])->name('admin.matkul.modules.destroy');
+
+        // Academics Schedule
+        Route::prefix('academics-schedule')->group(function () {
+            // Main Schedule Grid
+            Route::get('/', [ScheduleController::class, 'index'])->name('schedule.index');
+            Route::get('/print', [ScheduleController::class, 'printView'])->name('schedule.print');
+
+            // Pengaturan Kelas & Impor
+            Route::prefix('import')->name('import.')->group(function () {
+                Route::get('/', [ImportController::class, 'index'])->name('index');
+                Route::post('/preview', [ImportController::class, 'preview'])->name('preview');
+                Route::post('/commit', [ImportController::class, 'commit'])->name('commit');
+                Route::get('/template', [ImportController::class, 'downloadTemplate'])->name('template');
+                Route::post('/meeting', [ImportController::class, 'storeMeeting'])->name('meeting.store');
+                Route::put('/section/{section}', [ImportController::class, 'updateSection'])->name('section.update');
+                Route::delete('/section/{section}', [ImportController::class, 'destroySection'])->name('section.destroy');
+            });
+
+            // Atur Praktikum
+            Route::prefix('config')->name('config.')->group(function () {
+                Route::get('/', [CourseConfigController::class, 'index'])->name('index');
+                Route::post('/store', [CourseConfigController::class, 'storeOrUpdate'])->name('store');
+                Route::post('/enrollments', [CourseConfigController::class, 'updateEnrollments'])->name('enrollments');
+                Route::delete('/{config}', [CourseConfigController::class, 'destroy'])->name('destroy');
+            });
+
+            // Ruangan Lab (dialihkan ke Dashboard > Laboratories)
+            Route::prefix('rooms')->name('rooms.')->group(function () {
+                Route::get('/', fn() => redirect()->route('admin.labs'))->name('index');
+                Route::post('/store', [RoomController::class, 'store'])->name('store');
+                Route::put('/{room}', [RoomController::class, 'update'])->name('update');
+                Route::delete('/{room}', [RoomController::class, 'destroy'])->name('destroy');
+            });
+
+            // Draft Jadwal (Versi)
+            Route::prefix('versions')->name('versions.')->group(function () {
+                Route::get('/', [VersionController::class, 'index'])->name('index');
+                Route::post('/store', [VersionController::class, 'store'])->name('store');
+                Route::post('/{version}/toggle-publish', [VersionController::class, 'togglePublish'])->name('toggle_publish');
+                Route::put('/{version}/slug', [VersionController::class, 'updateSlug'])->name('update_slug');
+                Route::post('/{version}/restore', [VersionController::class, 'restore'])->name('restore');
+                Route::delete('/{version}', [VersionController::class, 'destroy'])->name('destroy');
+            });
+
+            // Pengaturan Periode
+            Route::prefix('settings')->name('settings.')->group(function () {
+                Route::get('/', [SettingsController::class, 'index'])->name('index');
+                Route::post('/period/active/{period}', [SettingsController::class, 'setActive'])->name('period.active');
+                Route::post('/period/store', [SettingsController::class, 'storePeriod'])->name('period.store');
+                Route::put('/period/{period}', [SettingsController::class, 'updatePeriod'])->name('period.update');
+                Route::delete('/period/{period}', [SettingsController::class, 'destroyPeriod'])->name('period.destroy');
+            });
+
+            // Ekspor Excel
+            Route::get('/export/excel', [ExportController::class, 'exportExcel'])->name('export.excel');
+        });
+    });
+
+    // Scheduling AJAX API
+    Route::prefix('api/schedule')->name('api.schedule.')->group(function () {
+        Route::post('/generate', [ScheduleController::class, 'generate'])->name('generate');
+        Route::post('/reset', [ScheduleController::class, 'reset'])->name('reset');
+        Route::post('/placement', [ScheduleController::class, 'updatePlacement'])->name('placement');
+        Route::post('/unplace', [ScheduleController::class, 'unplace'])->name('unplace');
+        Route::post('/toggle-lock', [ScheduleController::class, 'toggleLock'])->name('toggle_lock');
+        Route::post('/validate', [ScheduleController::class, 'validatePlacement'])->name('validate');
+        Route::get('/paths', [ScheduleController::class, 'getPaths'])->name('paths');
+        Route::post('/paths/evaluate', [ScheduleController::class, 'evaluateCustomPath'])->name('paths.evaluate');
+        Route::post('/paths/custom', [ScheduleController::class, 'storeCustomPath'])->name('paths.custom');
     });
 });
+
+// Public View untuk Mahasiswa & Umum (bebas akses tanpa login)
+Route::get('/public-schedule', [PublicScheduleController::class, 'index'])->name('public.schedule');
+Route::get('/public-schedule/path', [PublicScheduleController::class, 'showPaths'])->name('public.paths');
+Route::get('/jadwal', [PublicScheduleController::class, 'index']);
+
+// Dynamic Public Slug & Path Routes (dievaluasi paling akhir)
+Route::get('/{slug}/path', [PublicScheduleController::class, 'showPathsBySlug'])
+    ->where('slug', '^[a-zA-Z0-9_\-]+$')
+    ->name('public.paths.slug');
+
+Route::get('/{slug}', [PublicScheduleController::class, 'showBySlug'])
+    ->where('slug', '^[a-zA-Z0-9_\-]+$')
+    ->name('public.schedule.slug');

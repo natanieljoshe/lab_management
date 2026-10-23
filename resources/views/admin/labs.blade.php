@@ -8,6 +8,168 @@
     </div>
 
     <div class="max-w-7xl mx-auto px-6">
+        <!-- DAFTAR RUANGAN LABORATORIUM -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-gray-200">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800">Daftar Ruangan Laboratorium</h2>
+                    <p class="text-xs text-gray-500 mt-1 max-w-2xl leading-relaxed">
+                        Lab internal (diprioritaskan) dan lab eksternal (Puskom). Kolom grid mewakili ruangan ini. Flag <code class="px-1.5 py-0.5 bg-gray-100 text-indigo-600 rounded text-xs font-mono">manual_only</code> menandakan ruangan hanya untuk penataan manual (mis. VR, MM).
+                    </p>
+                </div>
+                <div>
+                    <button type="button" onclick="openAddRoomModal()"
+                        class="inline-flex items-center px-4 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm transition">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        Tambah Ruangan
+                    </button>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="overflow-x-auto mt-4 border rounded-xl border-gray-200">
+                <table class="w-full text-xs text-left">
+                    <thead class="bg-gray-50 text-gray-600 uppercase text-[11px] font-semibold border-b border-gray-200">
+                        <tr>
+                            <th class="py-3 px-4">Kode</th>
+                            <th class="py-3 px-4">Nama Ruangan</th>
+                            <th class="py-3 px-4 text-center">Tipe</th>
+                            <th class="py-3 px-4 text-center">Kapasitas</th>
+                            <th class="py-3 px-4 text-center">Status Grid</th>
+                            <th class="py-3 px-4 text-center">Aktif</th>
+                            <th class="py-3 px-4">Catatan</th>
+                            <th class="py-3 px-4 text-right">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        @forelse ($labs->sortBy(fn($r) => $r->type === 'internal' ? 0 : 1) as $lab)
+                            <tr class="hover:bg-gray-50/75 transition">
+                                <td class="py-3 px-4 font-bold text-gray-900 text-sm">{{ $lab->code }}</td>
+                                <td class="py-3 px-4 font-medium text-gray-800">{{ $lab->name }}</td>
+                                <td class="py-3 px-4 text-center">
+                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold {{ $lab->type === 'internal' ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-700' }}">
+                                        {{ ucfirst($lab->type) }}
+                                    </span>
+                                </td>
+                                <td class="py-3 px-4 text-center font-bold text-gray-800">{{ $lab->capacity ?? 50 }}</td>
+                                <td class="py-3 px-4 text-center">
+                                    @if ($lab->is_manual_only)
+                                        <span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-semibold text-[10px]">Manual Only</span>
+                                    @else
+                                        <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-semibold text-[10px]">Otomatis & Manual</span>
+                                    @endif
+                                </td>
+                                <td class="py-3 px-4 text-center">
+                                    @if ($lab->is_active)
+                                        <span class="text-emerald-600 font-bold text-sm">✓</span>
+                                    @else
+                                        <span class="text-rose-600 font-bold text-sm">✗</span>
+                                    @endif
+                                </td>
+                                <td class="py-3 px-4 text-gray-500 text-[11px]">{{ $lab->notes ?: '-' }}</td>
+                                <td class="py-3 px-4 text-right space-x-2 whitespace-nowrap">
+                                    <button type="button"
+                                        onclick="openEditRoomModal({{ json_encode([
+                                            'id' => $lab->id,
+                                            'code' => $lab->code,
+                                            'name' => $lab->name,
+                                            'capacity' => $lab->capacity ?? 50,
+                                            'type' => $lab->type,
+                                            'notes' => $lab->notes ?? '',
+                                            'is_manual_only' => (bool)$lab->is_manual_only,
+                                            'is_active' => (bool)$lab->is_active,
+                                        ]) }})"
+                                        class="text-indigo-600 hover:text-indigo-800 font-semibold transition">
+                                        Ubah
+                                    </button>
+                                    <form action="{{ route('rooms.destroy', $lab->id) }}" method="POST" class="inline" onsubmit="return confirm('Hapus/nonaktifkan ruangan {{ $lab->name }}?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="text-rose-600 hover:text-rose-800 font-semibold transition">
+                                            Hapus
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="8" class="p-6 text-center text-gray-400">Belum ada data ruangan laboratorium.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- MODAL: Tambah / Ubah Ruangan Lab -->
+        <div id="room-form-modal" class="hidden fixed inset-0 z-[5000] overflow-y-auto flex items-center justify-center p-4" role="dialog" aria-modal="true">
+            <div class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" onclick="closeRoomModal()"></div>
+            <div class="relative bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-gray-200 z-10 space-y-4">
+                <div class="flex items-center justify-between border-b pb-3 border-gray-200">
+                    <h3 id="room-modal-title" class="font-bold text-base text-gray-900">Tambah Ruangan Baru</h3>
+                    <button type="button" onclick="closeRoomModal()" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+
+                <form id="room-form" action="{{ route('rooms.store') }}" method="POST" class="space-y-4 text-xs">
+                    @csrf
+                    <input type="hidden" name="_method" id="room-form-method" value="POST">
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-semibold text-gray-700 mb-1">Kode Ruangan</label>
+                            <input type="text" name="code" id="room-input-code" required placeholder="mis. PG" class="w-full text-xs rounded-lg border-gray-300 focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-gray-700 mb-1">Kapasitas (Orang)</label>
+                            <input type="number" name="capacity" id="room-input-capacity" min="1" max="200" required class="w-full text-xs rounded-lg border-gray-300 focus:ring-indigo-500 focus:border-indigo-500" value="50">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Nama Ruangan</label>
+                        <input type="text" name="name" id="room-input-name" required placeholder="mis. Lab Pemrograman, P.206" class="w-full text-xs rounded-lg border-gray-300 focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-semibold text-gray-700 mb-1">Tipe Ruangan</label>
+                            <select name="type" id="room-input-type" required class="w-full text-xs rounded-lg border-gray-300 focus:ring-indigo-500 focus:border-indigo-500">
+                                <option value="internal">Internal (Lab Prodi)</option>
+                                <option value="external">Eksternal (Puskom)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-gray-700 mb-1">Catatan Tambahan</label>
+                            <input type="text" name="notes" id="room-input-notes" placeholder="Opsional" class="w-full text-xs rounded-lg border-gray-300 focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 pt-2 border-t border-gray-200">
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" name="is_manual_only" id="room-input-manual" value="1" class="rounded text-indigo-600 focus:ring-indigo-500">
+                            <span class="font-semibold text-gray-800">Manual Only (Hanya penataan manual)</span>
+                        </label>
+
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" name="is_active" id="room-input-active" value="1" checked class="rounded text-indigo-600 focus:ring-indigo-500">
+                            <span class="font-semibold text-gray-800">Ruangan Aktif</span>
+                        </label>
+                    </div>
+
+                    <div class="flex justify-end space-x-2 pt-3 border-t border-gray-200">
+                        <button type="button" onclick="closeRoomModal()" class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition">
+                            Batal
+                        </button>
+                        <button type="submit" class="px-5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold transition">
+                            Simpan Ruangan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
             <label for="lab-selector" class="block text-sm font-semibold text-gray-700 mb-2">
                 Pilih Laboratorium
@@ -2388,5 +2550,47 @@
             window.confirmAttachToDesk = confirmAttachToDesk;
             window.showDeskItems = showDeskItems;
             window.confirmAttachToItem = confirmAttachToItem;
+
+            // --- FUNGSI MODAL RUANGAN LAB ---
+            function openAddRoomModal() {
+                document.getElementById('room-modal-title').textContent = 'Tambah Ruangan Baru';
+                const form = document.getElementById('room-form');
+                form.action = "{{ route('rooms.store') }}";
+                document.getElementById('room-form-method').value = 'POST';
+                document.getElementById('room-input-code').value = '';
+                document.getElementById('room-input-name').value = '';
+                document.getElementById('room-input-capacity').value = '50';
+                document.getElementById('room-input-type').value = 'internal';
+                document.getElementById('room-input-notes').value = '';
+                document.getElementById('room-input-manual').checked = false;
+                document.getElementById('room-input-active').checked = true;
+                document.getElementById('room-form-modal').classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function openEditRoomModal(room) {
+                document.getElementById('room-modal-title').textContent = 'Ubah Ruangan: ' + room.name;
+                const form = document.getElementById('room-form');
+                form.action = `/admin/academics-schedule/rooms/${room.id}`;
+                document.getElementById('room-form-method').value = 'PUT';
+                document.getElementById('room-input-code').value = room.code || '';
+                document.getElementById('room-input-name').value = room.name || '';
+                document.getElementById('room-input-capacity').value = room.capacity || 50;
+                document.getElementById('room-input-type').value = room.type || 'internal';
+                document.getElementById('room-input-notes').value = room.notes || '';
+                document.getElementById('room-input-manual').checked = !!room.is_manual_only;
+                document.getElementById('room-input-active').checked = !!room.is_active;
+                document.getElementById('room-form-modal').classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeRoomModal() {
+                document.getElementById('room-form-modal').classList.add('hidden');
+                document.body.style.overflow = '';
+            }
+
+            window.openAddRoomModal = openAddRoomModal;
+            window.openEditRoomModal = openEditRoomModal;
+            window.closeRoomModal = closeRoomModal;
         </script>
 @endsection

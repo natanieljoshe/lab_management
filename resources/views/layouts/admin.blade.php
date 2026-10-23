@@ -17,6 +17,10 @@
     {{-- TW Elements (hanya 1x) --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tw-elements/dist/css/tw-elements.min.css" />
 
+    {{-- Alpine.js --}}
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
+    <style>[x-cloak] { display: none !important; }</style>
+
     {{-- TomSelect (CSS & JS) --}}
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
@@ -901,6 +905,59 @@
                             </svg>
                         </span>
                         <span>Periods</span>
+                    </a>
+                </div>
+            </li>
+            <li class="relative pt-4 nav-group">
+                <div class="nav-group-header flex items-center justify-between px-4 py-3 rounded-lg cursor-pointer"
+                    onclick="toggleNavGroup(this)">
+                    <span class="text-[0.65rem] font-bold uppercase text-gray-700 dark:text-gray-300">Academics Schedule</span>
+                    <svg class="nav-group-toggle expanded w-3 h-3 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="nav-group-content expanded">
+                    <a id="schedule-main"
+                        class="flex cursor-pointer items-center truncate rounded-[5px] px-6 py-[0.45rem] text-[0.85rem] text-gray-600 outline-none transition duration-300 ease-linear hover:bg-slate-50 hover:text-inherit hover:outline-none focus:bg-slate-50 focus:text-inherit focus:outline-none active:bg-slate-50 active:text-inherit active:outline-none data-[te-sidenav-state-active]:text-inherit data-[te-sidenav-state-focus]:outline-none motion-reduce:transition-none dark:text-gray-300 dark:hover:bg-white/10 dark:focus:bg-white/10 dark:active:bg-white/10 {{ request()->routeIs('schedule.*') ? 'bg-indigo-50 text-indigo-600 font-semibold dark:bg-white/15' : '' }}"
+                        href="{{ route('schedule.index') }}" data-te-sidenav-link-ref>
+                        <span class="mr-4 [&>svg]:h-4 [&>svg]:w-4 {{ request()->routeIs('schedule.*') ? '[&>svg]:text-indigo-600 dark:[&>svg]:text-indigo-400' : '[&>svg]:text-gray-400 dark:[&>svg]:text-gray-300' }}">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+                        </span>
+                        <span>Jadwal Utama</span>
+                    </a>
+                    <a id="schedule-classes"
+                        class="flex cursor-pointer items-center truncate rounded-[5px] px-6 py-[0.45rem] text-[0.85rem] text-gray-600 outline-none transition duration-300 ease-linear hover:bg-slate-50 hover:text-inherit hover:outline-none focus:bg-slate-50 focus:text-inherit focus:outline-none active:bg-slate-50 active:text-inherit active:outline-none data-[te-sidenav-state-active]:text-inherit data-[te-sidenav-state-focus]:outline-none motion-reduce:transition-none dark:text-gray-300 dark:hover:bg-white/10 dark:focus:bg-white/10 dark:active:bg-white/10 {{ request()->routeIs('import.*') ? 'bg-indigo-50 text-indigo-600 font-semibold dark:bg-white/15' : '' }}"
+                        href="{{ route('import.index') }}" data-te-sidenav-link-ref>
+                        <span class="mr-4 [&>svg]:h-4 [&>svg]:w-4 {{ request()->routeIs('import.*') ? '[&>svg]:text-indigo-600 dark:[&>svg]:text-indigo-400' : '[&>svg]:text-gray-400 dark:[&>svg]:text-gray-300' }}">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                        </span>
+                        <span>Pengaturan Kelas</span>
+                    </a>
+                    <a id="schedule-config"
+                        class="flex cursor-pointer items-center truncate rounded-[5px] px-6 py-[0.45rem] text-[0.85rem] text-gray-600 outline-none transition duration-300 ease-linear hover:bg-slate-50 hover:text-inherit hover:outline-none focus:bg-slate-50 focus:text-inherit focus:outline-none active:bg-slate-50 active:text-inherit active:outline-none data-[te-sidenav-state-active]:text-inherit data-[te-sidenav-state-focus]:outline-none motion-reduce:transition-none dark:text-gray-300 dark:hover:bg-white/10 dark:focus:bg-white/10 dark:active:bg-white/10 {{ request()->routeIs('config.*') ? 'bg-indigo-50 text-indigo-600 font-semibold dark:bg-white/15' : '' }}"
+                        href="{{ route('config.index') }}" data-te-sidenav-link-ref>
+                        <span class="mr-4 [&>svg]:h-4 [&>svg]:w-4 {{ request()->routeIs('config.*') ? '[&>svg]:text-indigo-600 dark:[&>svg]:text-indigo-400' : '[&>svg]:text-gray-400 dark:[&>svg]:text-gray-300' }}">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                        </span>
+                        <span>Atur Praktikum</span>
+                    </a>
+                    <a id="schedule-versions"
+                        class="flex cursor-pointer items-center truncate rounded-[5px] px-6 py-[0.45rem] text-[0.85rem] text-gray-600 outline-none transition duration-300 ease-linear hover:bg-slate-50 hover:text-inherit hover:outline-none focus:bg-slate-50 focus:text-inherit focus:outline-none active:bg-slate-50 active:text-inherit active:outline-none data-[te-sidenav-state-active]:text-inherit data-[te-sidenav-state-focus]:outline-none motion-reduce:transition-none dark:text-gray-300 dark:hover:bg-white/10 dark:focus:bg-white/10 dark:active:bg-white/10 {{ request()->routeIs('versions.*') ? 'bg-indigo-50 text-indigo-600 font-semibold dark:bg-white/15' : '' }}"
+                        href="{{ route('versions.index') }}" data-te-sidenav-link-ref>
+                        <span class="mr-4 [&>svg]:h-4 [&>svg]:w-4 {{ request()->routeIs('versions.*') ? '[&>svg]:text-indigo-600 dark:[&>svg]:text-indigo-400' : '[&>svg]:text-gray-400 dark:[&>svg]:text-gray-300' }}">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </span>
+                        <span>Draft Jadwal</span>
+                    </a>
+                    <a id="schedule-settings"
+                        class="flex cursor-pointer items-center truncate rounded-[5px] px-6 py-[0.45rem] text-[0.85rem] text-gray-600 outline-none transition duration-300 ease-linear hover:bg-slate-50 hover:text-inherit hover:outline-none focus:bg-slate-50 focus:text-inherit focus:outline-none active:bg-slate-50 active:text-inherit active:outline-none data-[te-sidenav-state-active]:text-inherit data-[te-sidenav-state-focus]:outline-none motion-reduce:transition-none dark:text-gray-300 dark:hover:bg-white/10 dark:focus:bg-white/10 dark:active:bg-white/10 {{ request()->routeIs('settings.*') ? 'bg-indigo-50 text-indigo-600 font-semibold dark:bg-white/15' : '' }}"
+                        href="{{ route('settings.index') }}" data-te-sidenav-link-ref>
+                        <span class="mr-4 [&>svg]:h-4 [&>svg]:w-4 {{ request()->routeIs('settings.*') ? '[&>svg]:text-indigo-600 dark:[&>svg]:text-indigo-400' : '[&>svg]:text-gray-400 dark:[&>svg]:text-gray-300' }}">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        </span>
+                        <span>Pengaturan Periode</span>
                     </a>
                 </div>
             </li>
