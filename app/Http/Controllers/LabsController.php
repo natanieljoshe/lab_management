@@ -32,7 +32,10 @@ class LabsController extends Controller
                     'keyboard' => $lab->qty_keyboard ?? 20,
                     'mouse'    => $lab->qty_mouse ?? 20,
                 ], 
-                'capacity' => $lab->capacity ?? 0
+                'capacity' => $lab->capacity ?? 0,
+                'is_active' => (bool) ($lab->is_active ?? true),
+                'sort_order' => (int) ($lab->sort_order ?? 0),
+                'manual_only' => (bool) ($lab->manual_only ?? false),
             ];
         });
 
