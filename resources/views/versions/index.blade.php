@@ -88,6 +88,14 @@
                             </td>
                             <td class="p-3 text-right">
                                 <div class="flex items-center justify-end space-x-2">
+                                    <!-- Edit Draft in Grid -->
+                                    <a href="{{ route('schedule.index', ['version_id' => $ver->id, 'mode' => 'edit']) }}" 
+                                       class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:bg-indigo-950 dark:text-indigo-300 transition flex items-center space-x-1"
+                                       title="Edit Draft Ini di Grid Jadwal">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                        <span>Edit</span>
+                                    </a>
+
                                     <!-- Public View Button for this version -->
                                     @if($ver->public_slug)
                                         <a href="{{ url('/' . $ver->public_slug) }}" target="_blank" 
