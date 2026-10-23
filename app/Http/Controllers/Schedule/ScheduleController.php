@@ -82,19 +82,24 @@ class ScheduleController extends Controller
 
         // Placed lab sessions
         $placedSessions = LabSession::where('schedule_id', $schedule->id)
-            ->where('status', 'SCHEDULED')
+            ->where(function ($q) {
+                $q->where('status', 'SCHEDULED')
+                  ->orWhere('status', 'placed');
+            })
             ->with(['room', 'section.course', 'section.classMeetings'])
             ->get();
 
-        // Class meetings that occupy rooms (only lab rooms block lab grid)
-        $classMeetings = ClassMeeting::whereHas('classSection', fn ($q) => $q->where('period_id', $period->id))
-            ->whereNotNull('lab_id')
+        // Class meetings that occupy rooms (both lab and non-lab rooms)
+        $classMeetings = ClassMeeting::whereHas('section', fn ($q) => $q->where('period_id', $period->id))
             ->with(['room', 'section.course'])
             ->get();
 
         // Unscheduled lab sessions
         $unscheduledSessions = LabSession::where('schedule_id', $schedule->id)
-            ->where('status', 'UNSCHEDULED')
+            ->where(function ($q) {
+                $q->where('status', 'UNSCHEDULED')
+                  ->orWhere('status', 'unscheduled');
+            })
             ->with(['section.course', 'section.classMeetings'])
             ->get();
 
@@ -372,8 +377,7 @@ class ScheduleController extends Controller
             ->with(['room', 'section.course'])
             ->get();
 
-        $classMeetings = ClassMeeting::whereHas('classSection', fn ($q) => $q->where('period_id', $period->id))
-            ->whereNotNull('lab_id')
+        $classMeetings = ClassMeeting::whereHas('section', fn ($q) => $q->where('period_id', $period->id))
             ->with(['room', 'section.course'])
             ->get();
 

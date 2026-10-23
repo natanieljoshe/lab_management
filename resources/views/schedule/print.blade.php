@@ -118,6 +118,10 @@
                                 <div style="font-weight: normal; font-size: 8px; color: #64748b;">{{ $room->name }} ({{ $room->capacity }})</div>
                             </th>
                         @endforeach
+                        <th>
+                            <div>NON LAB</div>
+                            <div style="font-weight: normal; font-size: 8px; color: #64748b;">Ruang Kelas Teori</div>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -149,6 +153,18 @@
                                     </td>
                                 @endif
                             @endforeach
+                            <td>
+                                {{-- Non-Lab Class meetings --}}
+                                @foreach($classMeetings->whereNull('lab_id')->where('day', $day)->filter(fn($m) => $m->start_min === $slot['start'] || ($m->start_min >= $slot['start'] && $m->start_min < $slot['end'])) as $meeting)
+                                    <div class="block-kelas">
+                                        <strong>{{ $meeting->section->course->name }}</strong><br>
+                                        Kelas {{ $meeting->section->label }} ({{ sprintf('%02d:%02d-%02d:%02d', floor($meeting->start_min / 60), $meeting->start_min % 60, floor($meeting->end_min / 60), $meeting->end_min % 60) }})
+                                        @if($meeting->room_label && $meeting->room_label !== 'Ruang Kelas')
+                                            <div style="font-size: 8px; color: #64748b;">{{ $meeting->room_label }}</div>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            </td>
                         </tr>
                     @endforeach
                 </tbody>
