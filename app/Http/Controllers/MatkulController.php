@@ -99,6 +99,14 @@ class MatkulController extends Controller
         return view('admin.modules', compact('matkul', 'modules', 'modulesFolder'));
     }
 
+    public function modulesJson(Matkul $matkul)
+    {
+        return response()->json([
+            'success' => true,
+            'modules' => $matkul->modules()->with('file', 'author')->get(),
+        ]);
+    }
+
     public function storeModule(Request $request, Matkul $matkul)
     {
         $validated = $request->validate([
