@@ -17,6 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ImportController extends Controller
@@ -152,8 +153,15 @@ class ImportController extends Controller
     /**
      * Download Excel template.
      */
-    public function downloadTemplate(Request $request): StreamedResponse
+    public function downloadTemplate(Request $request): BinaryFileResponse|StreamedResponse
     {
+        $templatePath = public_path('assets/file/template_file/Template_Jadwal_Kelas.xlsx');
+        if (file_exists($templatePath)) {
+            return response()->download($templatePath, 'Template_Jadwal_Kelas.xlsx', [
+                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            ]);
+        }
+
         $spreadsheet = new Spreadsheet;
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setTitle('Template Kelas');
