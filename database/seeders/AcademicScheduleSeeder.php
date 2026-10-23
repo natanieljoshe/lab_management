@@ -199,7 +199,7 @@ class AcademicScheduleSeeder extends Seeder
         if (! $period) {
             $period = Period::create([
                 'semester' => 'Gasal',
-                'academic_year' => '2024/2025',
+                'academic_year' => '2025/2026',
                 'active' => 1,
             ]);
         }

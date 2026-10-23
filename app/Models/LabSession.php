@@ -33,6 +33,13 @@ class LabSession extends Model
         'violations' => 'array',
     ];
 
+    protected $appends = [
+        'room_id',
+        'day',
+        'type',
+        'status',
+    ];
+
     protected static function booted()
     {
         static::creating(function ($model) {

@@ -25,6 +25,12 @@ class Labs extends Model
         'is_active' => 'boolean',
     ];
 
+    protected $appends = [
+        'code',
+        'type',
+        'is_manual_only',
+    ];
+
     protected $hidden = [
         'created_at',
         'updated_at',

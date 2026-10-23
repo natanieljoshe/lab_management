@@ -25,6 +25,11 @@ class Matkul extends Model
         'is_required' => 'boolean',
     ];
 
+    protected $appends = [
+        'name',
+        'code',
+    ];
+
     public function getNameAttribute(): string
     {
         return $this->nama ?? '';

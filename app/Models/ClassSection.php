@@ -19,6 +19,22 @@ class ClassSection extends Model
         'name',
     ];
 
+    protected $appends = [
+        'class_name',
+        'name',
+        'course_id',
+    ];
+
+    public function getCourseIdAttribute()
+    {
+        return $this->attributes['matkul_id'] ?? null;
+    }
+
+    public function setCourseIdAttribute($value)
+    {
+        $this->attributes['matkul_id'] = $value;
+    }
+
     public function getClassNameAttribute()
     {
         return $this->attributes['label'] ?? null;

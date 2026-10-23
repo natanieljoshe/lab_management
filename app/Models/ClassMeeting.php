@@ -19,6 +19,11 @@ class ClassMeeting extends Model
         'raw_text',
     ];
 
+    protected $appends = [
+        'room_id',
+        'day',
+    ];
+
     public function section()
     {
         return $this->belongsTo(ClassSection::class, 'class_section_id');

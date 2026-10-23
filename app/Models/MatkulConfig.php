@@ -24,6 +24,21 @@ class MatkulConfig extends Model
         'responsi_hours' => 'decimal:2',
     ];
 
+    protected $appends = [
+        'course_id',
+        'schedule_semester',
+    ];
+
+    public function getCourseIdAttribute()
+    {
+        return $this->attributes['matkul_id'] ?? null;
+    }
+
+    public function setCourseIdAttribute($value): void
+    {
+        $this->attributes['matkul_id'] = $value;
+    }
+
     public function getScheduleSemesterAttribute(): ?int
     {
         return $this->scheduling_semester ? (int) $this->scheduling_semester : null;
