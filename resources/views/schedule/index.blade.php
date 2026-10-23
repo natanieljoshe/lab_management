@@ -62,6 +62,10 @@
             <span>Kelas (Tetap dari Atasan)</span>
         </div>
         <div class="flex items-center space-x-1.5">
+            <span class="w-3.5 h-3.5 rounded bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 inline-block"></span>
+            <span>Kolom Non-Lab (Jadwal Kelas Teori)</span>
+        </div>
+        <div class="flex items-center space-x-1.5">
             <span class="w-3.5 h-3.5 rounded bg-emerald-100 dark:bg-emerald-900/60 border border-emerald-400 inline-block"></span>
             <span>Praktikum</span>
         </div>
@@ -95,17 +99,20 @@
                               x-text="(slotsByDay[currentDay] || []).length + ' Slot Waktu'"></span>
                     </div>
 
-                    <div class="overflow-x-auto">
-                        <table class="w-full border-collapse text-left table-fixed">
-                            <!-- Column Room Headers -->
-                            <thead class="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-700">
+                    <div class="overflow-auto max-h-[calc(100vh-210px)] min-h-[420px] relative border-t border-slate-200 dark:border-slate-700">
+                        <table class="w-full border-separate border-spacing-0 text-left table-fixed">
+                            <!-- Column Room Headers (Freeze Top Row) -->
+                            <thead class="bg-slate-50 dark:bg-slate-800/90">
                                 <tr>
-                                    <th class="w-24 px-3 py-2.5 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-center border-r border-slate-200 dark:border-slate-700">
+                                    <!-- Top-Left Corner: Freeze Top & Freeze Left -->
+                                    <th class="w-24 px-3 py-2.5 text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider text-center border-r border-b border-slate-200 dark:border-slate-700 sticky top-0 left-0 z-30 bg-slate-100 dark:bg-slate-800 shadow-[1px_1px_0_0_rgba(203,213,225,0.8)] dark:shadow-[1px_1px_0_0_rgba(51,65,85,0.8)] select-none">
                                         Jam
                                     </th>
+
                                     <template x-for="room in rooms" :key="room.id">
-                                        <th class="w-48 px-3 py-2 text-xs font-bold border-r border-slate-200 dark:border-slate-700 text-center"
-                                            :class="room.type === 'internal' ? 'bg-slate-50 dark:bg-slate-800' : 'bg-slate-100/70 dark:bg-slate-800/70'">
+                                        <!-- Freeze Top Room Header -->
+                                        <th class="w-48 px-3 py-2 text-xs font-bold border-r border-b border-slate-200 dark:border-slate-700 text-center sticky top-0 z-20 shadow-[0_1px_0_0_rgba(203,213,225,0.8)] dark:shadow-[0_1px_0_0_rgba(51,65,85,0.8)]"
+                                            :class="room.type === 'internal' ? 'bg-slate-50 dark:bg-slate-800' : 'bg-slate-100 dark:bg-slate-800/95'">
                                             <div class="font-bold text-slate-800 dark:text-white" x-text="room.code"></div>
                                             <div class="text-[10px] text-slate-500 font-normal truncate" x-text="room.name"></div>
                                             <div class="flex items-center justify-center space-x-1 mt-0.5">
@@ -120,6 +127,17 @@
                                             </div>
                                         </th>
                                     </template>
+
+                                    <!-- Column Non-Lab: Freeze Top Header di kolom paling akhir -->
+                                    <th class="w-52 px-3 py-2 text-xs font-bold border-r border-b border-slate-200 dark:border-slate-700 text-center bg-slate-100 dark:bg-slate-800 sticky top-0 z-20 shadow-[0_1px_0_0_rgba(203,213,225,0.8)] dark:shadow-[0_1px_0_0_rgba(51,65,85,0.8)]">
+                                        <div class="font-bold text-slate-800 dark:text-white">NON LAB</div>
+                                        <div class="text-[10px] text-slate-500 font-normal truncate">Ruang Kelas Teori</div>
+                                        <div class="flex items-center justify-center space-x-1 mt-0.5">
+                                            <span class="px-1.5 py-0.2 rounded text-[9px] font-semibold bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300">
+                                                Jadwal Kelas
+                                            </span>
+                                        </div>
+                                    </th>
                                 </tr>
                             </thead>
 
@@ -130,14 +148,14 @@
                                         'bg-[repeating-linear-gradient(45deg,#f8fafc,#f8fafc_6px,#f1f5f9_6px,#f1f5f9_12px)] dark:bg-[repeating-linear-gradient(45deg,#0f172a,#0f172a_6px,#090d16_6px,#090d16_12px)]': slot.forbidden,
                                         'bg-amber-50/40 dark:bg-amber-950/20': slot.manual_only && !slot.forbidden
                                     }">
-                                        <!-- Slot Time Label Column -->
-                                        <td class="px-2 py-1 text-[11px] font-medium text-slate-500 dark:text-slate-400 text-center border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 select-none">
+                                        <!-- Slot Time Label Column (Freeze First Column) -->
+                                        <td class="w-24 px-2 py-1 text-[11px] font-medium text-slate-600 dark:text-slate-300 text-center border-r border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 select-none sticky left-0 z-10 shadow-[1px_0_0_0_rgba(203,213,225,0.8)] dark:shadow-[1px_0_0_0_rgba(51,65,85,0.8)]">
                                             <span x-text="slot.label"></span>
                                         </td>
 
                                         <!-- Room Cells for this Slot -->
                                         <template x-for="room in rooms" :key="room.id">
-                                            <td class="p-1 border-r border-slate-200 dark:border-slate-800 relative transition-colors duration-150 align-top"
+                                            <td class="p-1 border-r border-b border-slate-200 dark:border-slate-800 relative transition-colors duration-150 align-top bg-white dark:bg-slate-900"
                                                 :class="getCellBgClass(currentDay, room, slot)"
                                                 @dragover.prevent="onCellDragOver($event, currentDay, room, slot)"
                                                 @dragleave="onCellDragLeave($event)"
@@ -161,7 +179,7 @@
                                                                  class="p-1.5 rounded-lg border text-xs shadow-sm cursor-move select-none mb-1 transition hover:shadow-md relative group"
                                                                  :class="getBlockClass(session)">
                                                                 <div class="flex items-start justify-between">
-                                                                    <div class="font-bold truncate text-[11px]" x-text="session.section.course.name"></div>
+                                                                    <div class="font-bold truncate text-[11px]" x-text="session.section?.course?.name || session.section?.course?.nama || ''"></div>
                                                                     <div class="flex items-center space-x-1 ml-1 flex-shrink-0">
                                                                         <template x-if="session.is_locked">
                                                                             <svg class="w-3.5 h-3.5 text-indigo-700 dark:text-indigo-300" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path></svg>
@@ -172,7 +190,7 @@
                                                                     </div>
                                                                 </div>
                                                                 <div class="flex items-center justify-between text-[10px] mt-0.5 opacity-90">
-                                                                    <span x-text="session.type.toUpperCase() + ' ' + session.section.label"></span>
+                                                                    <span x-text="((session.type || session.session_type || 'PRAKTIKUM') + ' ' + (session.section?.label || session.section?.name || '')).toUpperCase()"></span>
                                                                     <span x-text="formatTime(session.start_min) + '-' + formatTime(session.end_min)"></span>
                                                                 </div>
                                                                 <!-- Lock toggle button overlay on hover -->
@@ -186,9 +204,9 @@
                                                         <!-- Class Meeting Blocks occupying Lab Rooms -->
                                                         <template x-for="meeting in getClassMeetingsInSlot(currentDay, room.id, slot)" :key="'meeting-' + meeting.id">
                                                             <div class="p-1.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-slate-200 dark:bg-slate-700/80 text-slate-800 dark:text-slate-100 text-xs shadow-sm mb-1">
-                                                                <div class="font-bold truncate text-[11px]" x-text="meeting.section.course.name"></div>
+                                                                <div class="font-bold truncate text-[11px]" x-text="meeting.section?.course?.name || meeting.section?.course?.nama || ''"></div>
                                                                 <div class="flex items-center justify-between text-[10px] mt-0.5 text-slate-600 dark:text-slate-300">
-                                                                    <span x-text="'Kelas ' + meeting.section.label"></span>
+                                                                    <span x-text="'Kelas ' + (meeting.section?.label || meeting.section?.name || '')"></span>
                                                                     <span x-text="formatTime(meeting.start_min) + '-' + formatTime(meeting.end_min)"></span>
                                                                 </div>
                                                             </div>
@@ -197,6 +215,24 @@
                                                 </template>
                                             </td>
                                         </template>
+
+                                        <!-- Non-Lab Cell for this Slot (Kolom paling akhir) -->
+                                        <td class="p-1 border-r border-b border-slate-200 dark:border-slate-800 relative transition-colors duration-150 align-top bg-slate-50/60 dark:bg-slate-900/60">
+                                            <div class="min-h-[56px] space-y-1">
+                                                <template x-for="meeting in getClassMeetingsInSlot(currentDay, 'non_lab', slot)" :key="'meeting-nonlab-' + meeting.id">
+                                                    <div class="p-1.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-slate-200 dark:bg-slate-700/80 text-slate-800 dark:text-slate-100 text-xs shadow-sm mb-1 hover:border-indigo-400 transition">
+                                                        <div class="font-bold truncate text-[11px]" x-text="meeting.section?.course?.name || meeting.section?.course?.nama || ''"></div>
+                                                        <div class="flex items-center justify-between text-[10px] mt-0.5 text-slate-600 dark:text-slate-300">
+                                                            <span class="font-semibold text-indigo-700 dark:text-indigo-300" x-text="'Kelas ' + (meeting.section?.label || meeting.section?.name || '')"></span>
+                                                            <span class="font-mono" x-text="formatTime(meeting.start_min) + '-' + formatTime(meeting.end_min)"></span>
+                                                        </div>
+                                                        <template x-if="meeting.room_label && meeting.room_label !== 'Ruang Kelas'">
+                                                            <div class="text-[9px] text-slate-500 dark:text-slate-400 truncate mt-0.5" x-text="meeting.room_label"></div>
+                                                        </template>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </td>
                                     </tr>
                                 </template>
                             </tbody>
@@ -207,12 +243,12 @@
         </div>
 
         <!-- Right Side Panel: Belum Terjadwal (Droppable to unplace) -->
-        <div class="w-80 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col flex-shrink-0 min-w-0"
+        <div class="w-80 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col flex-shrink-0 min-w-0 sticky top-4 self-start max-h-[calc(100vh-2rem)]"
              @dragover.prevent="onUnscheduledDragOver($event)"
              @dragleave="onUnscheduledDragLeave($event)"
              @drop="onUnscheduledDrop($event)">
             
-            <div class="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <div class="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between flex-shrink-0">
                 <div class="flex items-center space-x-2">
                     <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
                     <h2 class="text-sm font-bold text-slate-900 dark:text-white">Belum Terjadwal</h2>
@@ -222,22 +258,22 @@
                 </span>
             </div>
 
-            <div class="p-2 text-[11px] text-slate-500 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800 text-center">
+            <div class="p-2 text-[11px] text-slate-500 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800 text-center flex-shrink-0">
                 Tarik sesi ke grid atau lepas sesi dari grid ke sini untuk membatalkan
             </div>
 
             <!-- List of Unscheduled Sessions -->
-            <div class="flex-1 overflow-y-auto p-3 space-y-2.5"
+            <div class="flex-1 overflow-y-auto min-h-0 p-3 space-y-2.5"
                  :class="{ 'bg-rose-50/50 dark:bg-rose-950/20 ring-2 ring-rose-400': isUnscheduledDragHover }">
                 <template x-for="item in unscheduledSessions" :key="item.id">
                     <div draggable="true"
                          @dragstart="onSessionDragStart($event, item)"
                          class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-indigo-400 shadow-sm cursor-move select-none transition">
                         <div class="flex items-start justify-between">
-                            <span class="font-bold text-xs text-slate-900 dark:text-white" x-text="item.section.course.name"></span>
+                            <span class="font-bold text-xs text-slate-900 dark:text-white" x-text="item.section?.course?.name || item.section?.course?.nama || ''"></span>
                             <span class="px-1.5 py-0.5 rounded text-[10px] font-semibold"
-                                  :class="item.type === 'praktikum' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'"
-                                  x-text="item.type.toUpperCase() + ' ' + item.section.label">
+                                  :class="(item.type || item.session_type || '').toLowerCase() === 'praktikum' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'"
+                                  x-text="((item.type || item.session_type || 'PRAKTIKUM') + ' ' + (item.section?.label || item.section?.name || '')).toUpperCase()">
                             </span>
                         </div>
                         <div class="text-[11px] text-slate-500 mt-1 flex items-center justify-between">
@@ -265,8 +301,8 @@
 
         <!-- Sliding / Collapsible Path Panel -->
         <div x-cloak x-show="showPathPanel" 
-             class="w-96 bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-slate-200 dark:border-slate-800 flex flex-col flex-shrink-0 min-w-0 z-20">
-            <div class="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+             class="w-96 bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-slate-200 dark:border-slate-800 flex flex-col flex-shrink-0 min-w-0 z-20 sticky top-4 self-start max-h-[calc(100vh-2rem)]">
+            <div class="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between flex-shrink-0">
                 <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center space-x-2">
                     <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
                     <span>Analisis Path Mahasiswa</span>
@@ -277,7 +313,7 @@
             </div>
 
             <!-- Path Tabs: Semester & Custom -->
-            <div class="flex border-b border-slate-200 dark:border-slate-800 text-xs font-medium">
+            <div class="flex border-b border-slate-200 dark:border-slate-800 text-xs font-medium flex-shrink-0">
                 <button @click="pathTab = 'semesters'" 
                         class="flex-1 py-2.5 text-center border-b-2 transition"
                         :class="pathTab === 'semesters' ? 'border-indigo-600 text-indigo-600 font-bold' : 'border-transparent text-slate-500 hover:text-slate-700'">
@@ -291,7 +327,7 @@
             </div>
 
             <!-- Path Tab Content -->
-            <div class="flex-1 overflow-y-auto p-4 space-y-4">
+            <div class="flex-1 overflow-y-auto min-h-0 p-4 space-y-4">
                 <!-- Semester Paths Tab -->
                 <template x-if="pathTab === 'semesters'">
                     <div class="space-y-4">
@@ -359,7 +395,7 @@
                             <template x-for="course in customPathCourses" :key="course.id">
                                 <div>
                                     <label class="block font-medium truncate mb-1" x-text="course.name"></label>
-                                    <select x-model.number="customSelectedSections[course.id]" @change="evaluateCustomPath()"
+                                    <select x-model="customSelectedSections[course.id]" @change="evaluateCustomPath()"
                                             class="w-full text-xs rounded-lg border-slate-300 dark:border-slate-700 dark:bg-slate-800">
                                         <option value="">-- Pilih Seksi --</option>
                                         <template x-for="sec in course.sections" :key="sec.id">
@@ -626,19 +662,31 @@ function scheduleManager() {
             return (h < 10 ? '0' : '') + h + '.' + (m < 10 ? '0' : '') + m;
         },
 
+        getDayName(dayOfWeek) {
+            const map = {1: 'Senin', 2: 'Selasa', 3: 'Rabu', 4: 'Kamis', 5: 'Jumat', 6: 'Sabtu', 0: 'Minggu'};
+            return map[dayOfWeek] || '';
+        },
+
         getSessionsInSlot(day, roomId, slot) {
             return this.placedSessions.filter(s => 
-                s.room_id === roomId && 
-                s.day === day && 
+                (s.room_id === roomId || s.lab_id === roomId) && 
+                (s.day === day || this.getDayName(s.day_of_week) === day) && 
                 s.start_min === slot.start
             );
         },
 
         getClassMeetingsInSlot(day, roomId, slot) {
+            if (roomId === 'non_lab') {
+                return this.classMeetings.filter(m => 
+                    (!m.room_id && !m.lab_id) && 
+                    (m.day === day || this.getDayName(m.day_of_week) === day) && 
+                    (m.start_min === slot.start || (m.start_min >= slot.start && m.start_min < slot.end))
+                );
+            }
             return this.classMeetings.filter(m => 
-                m.room_id === roomId && 
-                m.day === day && 
-                m.start_min === slot.start
+                (m.room_id === roomId || m.lab_id === roomId) && 
+                (m.day === day || this.getDayName(m.day_of_week) === day) && 
+                (m.start_min === slot.start || (m.start_min >= slot.start && m.start_min < slot.end))
             );
         },
 
@@ -653,7 +701,7 @@ function scheduleManager() {
         },
 
         getBlockClass(session) {
-            let base = session.type === 'praktikum' 
+            let base = (session.type || session.session_type || '').toLowerCase() === 'praktikum' 
                 ? 'bg-emerald-100 dark:bg-emerald-950/60 border-emerald-400 text-emerald-900 dark:text-emerald-100' 
                 : 'bg-amber-100 dark:bg-amber-950/60 border-amber-400 text-amber-900 dark:text-amber-100';
 
@@ -917,7 +965,7 @@ function scheduleManager() {
                 const data = await res.json();
                 this.customPathCourses = (data.courses || []).map(c => {
                     const sections = this.classMeetings
-                        .filter(m => m.section && m.section.course_id === c.id)
+                        .filter(m => m.section && (m.section.course_id === c.id || m.section.matkul_id === c.id))
                         .map(m => m.section);
                     // Deduplicate sections
                     const uniqueSecs = [];

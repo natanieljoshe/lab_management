@@ -237,20 +237,22 @@
                               x-text="getDaySessionCount(dayName) + ' Sesi Terjadwal'"></span>
                     </div>
 
-                    <!-- Google Sheets Compact Grid Table with Resizable Columns & Rows -->
-                    <div class="overflow-x-auto">
-                        <table class="w-full border-collapse text-left border border-slate-300 table-fixed">
-                            <!-- Column Room Headers -->
-                            <thead class="bg-slate-100 border-b border-slate-300">
+                    <!-- Google Sheets Compact Grid Table with Resizable Columns & Rows (Freeze Headers & Jam Column) -->
+                    <div class="overflow-auto max-h-[calc(100vh-210px)] min-h-[420px] relative border border-slate-300 rounded-b-xl">
+                        <table class="w-full border-separate border-spacing-0 text-left table-fixed">
+                            <!-- Column Room Headers (Freeze Top Row) -->
+                            <thead class="bg-slate-100">
                                 <tr>
-                                    <th class="w-20 px-2 py-1 text-[11px] font-bold text-slate-600 uppercase text-center border-r border-slate-300 select-none">
+                                    <!-- Top-Left Corner: Freeze Top & Freeze Left -->
+                                    <th class="w-20 px-2 py-1 text-[11px] font-bold text-slate-700 uppercase text-center border-r border-b border-slate-300 select-none sticky top-0 left-0 z-30 bg-slate-100 shadow-[1px_1px_0_0_rgba(203,213,225,1)]">
                                         Jam
                                     </th>
                                     <template x-for="room in filteredRooms" :key="room.id">
+                                        <!-- Freeze Top Room Headers -->
                                         <th :id="'col-th-' + dayName + '-' + room.id"
                                             :style="colWidths[room.id] ? `width: ${colWidths[room.id]}px; min-width: ${colWidths[room.id]}px; max-width: ${colWidths[room.id]}px;` : 'width: 176px; min-width: 176px;'"
-                                            class="relative select-none border-r border-slate-300 text-center px-1.5 py-1 text-xs font-bold overflow-hidden"
-                                            :class="room.type === 'internal' ? 'bg-slate-100' : 'bg-slate-200/60'">
+                                            class="sticky top-0 z-20 select-none border-r border-b border-slate-300 text-center px-1.5 py-1 text-xs font-bold overflow-hidden shadow-[0_1px_0_0_rgba(203,213,225,1)]"
+                                            :class="room.type === 'internal' ? 'bg-slate-100' : 'bg-slate-200/90'">
                                             
                                             <!-- Room info -->
                                             <div :class="colWidths[room.id] && colWidths[room.id] < 40 ? 'hidden' : ''">
@@ -278,14 +280,14 @@
                                 <template x-for="(slot, slotIndex) in (slotsByDay[dayName] || [])" :key="slotIndex">
                                     <tr :id="'slot-tr-' + dayName + '-' + slotIndex"
                                         :style="rowHeights[slotIndex] ? `height: ${rowHeights[slotIndex]}px;` : ''"
-                                        class="h-8 min-h-[32px] border-b border-slate-300 relative" 
+                                        class="h-8 min-h-[32px] relative" 
                                         :class="{
                                             'bg-[repeating-linear-gradient(45deg,#f8fafc,#f8fafc_6px,#f1f5f9_6px,#f1f5f9_12px)]': slot.forbidden,
                                             'bg-amber-50/20': slot.manual_only && !slot.forbidden
                                         }">
                                         
-                                        <!-- Time Slot Label with Row Resizer Handle -->
-                                        <td class="w-20 px-1 py-0.5 text-[10px] font-semibold text-slate-600 text-center border-r border-slate-300 bg-slate-50 select-none whitespace-nowrap relative">
+                                        <!-- Time Slot Label with Row Resizer Handle (Freeze Left Column) -->
+                                        <td class="w-20 px-1 py-0.5 text-[10px] font-semibold text-slate-700 text-center border-r border-b border-slate-300 bg-slate-50 select-none whitespace-nowrap sticky left-0 z-10 shadow-[1px_0_0_0_rgba(203,213,225,1)]">
                                             <span x-text="slot.label"></span>
 
                                             <!-- Draggable Row Resizer handle -->
@@ -299,7 +301,7 @@
                                         <!-- Room Cells -->
                                         <template x-for="room in filteredRooms" :key="room.id">
                                             <td :style="colWidths[room.id] ? `width: ${colWidths[room.id]}px; min-width: ${colWidths[room.id]}px; max-width: ${colWidths[room.id]}px;` : 'width: 176px; min-width: 176px;'"
-                                                class="p-0.5 border-r border-slate-300 relative align-top bg-white overflow-hidden">
+                                                class="p-0.5 border-r border-b border-slate-300 relative align-top bg-white overflow-hidden">
                                                 
                                                 <!-- Jam KU / Jam Kemahasiswaan Notice -->
                                                 <template x-if="slot.forbidden">
