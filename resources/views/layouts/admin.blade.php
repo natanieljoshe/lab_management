@@ -13,6 +13,7 @@
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
 
     {{-- TW Elements (hanya 1x) --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tw-elements/dist/css/tw-elements.min.css" />
@@ -110,6 +111,7 @@
         #sidenav-8 #permissions:hover svg, #sidenav-8 #permissions.active svg { color: #6366f1; }
         #sidenav-8 #periods:hover svg, #sidenav-8 #periods.active svg { color: #f97316; }
         #sidenav-8 #matkul:hover svg, #sidenav-8 #matkul.active svg { color: #06b6d4; }
+        #sidenav-8 #schedules:hover svg, #sidenav-8 #schedules.active svg { color: #10b981; }
         #sidenav-8 #report_repairs:hover svg, #sidenav-8 #report_repairs.active svg { color: #84cc16; }
         #sidenav-8 #repository:hover svg, #sidenav-8 #repository.active svg { color: #f59e0b; }
         #sidenav-8 #report_bookings:hover svg, #sidenav-8 #report_bookings.active svg { color: #a855f7; }
@@ -902,6 +904,16 @@
                         </span>
                         <span>Periods</span>
                     </a>
+                    <a id="schedules"
+                        class="flex cursor-pointer items-center truncate rounded-[5px] px-6 py-[0.45rem] text-[0.85rem] text-gray-600 outline-none transition duration-300 ease-linear hover:bg-slate-50 hover:text-inherit hover:outline-none focus:bg-slate-50 focus:text-inherit focus:outline-none active:bg-slate-50 active:text-inherit active:outline-none data-[te-sidenav-state-active]:text-inherit data-[te-sidenav-state-focus]:outline-none motion-reduce:transition-none dark:text-gray-300 dark:hover:bg-white/10 dark:focus:bg-white/10 dark:active:bg-white/10"
+                        href="{{ route('admin.schedules.index') }}" data-te-sidenav-link-ref>
+                        <span class="mr-4 [&>svg]:h-4 [&>svg]:w-4 [&>svg]:text-gray-400 dark:[&>svg]:text-gray-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                <path fill-rule="evenodd" d="M6.75 2.25A.75.75 0 017.5 3v1.5h9V3A.75.75 0 0118 3v1.5h.75a3 3 0 013 3v11.25a3 3 0 01-3 3H5.25a3 3 0 01-3-3V7.5a3 3 0 013-3H6V3a.75.75 0 01.75-.75zm13.5 9a1.5 1.5 0 00-1.5-1.5H5.25a1.5 1.5 0 00-1.5 1.5v7.5a1.5 1.5 0 001.5 1.5h13.5a1.5 1.5 0 001.5-1.5v-7.5z" clip-rule="evenodd" />
+                            </svg>
+                        </span>
+                        <span>Jadwal</span>
+                    </a>
                 </div>
             </li>
             <li class="relative pt-4 nav-group">
@@ -1132,6 +1144,16 @@
                                 </svg>
                             </span>
                             <span>Manage Periods</span>
+                        </a>
+                        <a class="flex cursor-pointer items-center truncate rounded-[5px] px-6 py-[0.45rem] text-[0.85rem] text-gray-600 outline-none transition duration-300 ease-linear hover:bg-slate-50 hover:text-inherit hover:outline-none focus:bg-slate-50 focus:text-inherit focus:outline-none active:bg-slate-50 active:text-inherit active:outline-none data-[te-sidenav-state-active]:text-inherit data-[te-sidenav-state-focus]:outline-none motion-reduce:transition-none dark:text-gray-300 dark:hover:bg-white/10 dark:focus:bg-white/10 dark:active:bg-white/10"
+                            href="{{ route('admin.schedules.index') }}" data-te-sidenav-link-ref>
+                            <span
+                                class="mr-4 [&>svg]:h-3.5 [&>svg]:w-3.5 [&>svg]:text-gray-400 dark:[&>svg]:text-gray-300">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M6.75 2.25A.75.75 0 017.5 3v1.5h9V3A.75.75 0 0118 3v1.5h.75a3 3 0 013 3v11.25a3 3 0 01-3 3H5.25a3 3 0 01-3-3V7.5a3 3 0 013-3H6V3a.75.75 0 01.75-.75zm13.5 9a1.5 1.5 0 00-1.5-1.5H5.25a1.5 1.5 0 00-1.5 1.5v7.5a1.5 1.5 0 001.5 1.5h13.5a1.5 1.5 0 001.5-1.5v-7.5z" clip-rule="evenodd" />
+                                </svg>
+                            </span>
+                            <span>Jadwal</span>
                         </a>
                     </li>
                     <li class="relative pt-4">
