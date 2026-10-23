@@ -10,6 +10,8 @@ use App\Http\Controllers\DesksController;
 use App\Http\Controllers\ItemsController;
 use App\Http\Controllers\MatkulController;
 use App\Http\Controllers\MatkulConfigController;
+use App\Http\Controllers\ClassSectionController;
+use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\PeriodController;
 use App\Http\Controllers\RepairController;
 use App\Http\Controllers\BookingController;
@@ -141,6 +143,12 @@ Route::middleware(['auth.permission'])->group(function () {
         Route::delete('/matkul/{matkul}/configs/{config}', [MatkulConfigController::class, 'destroy'])->name('admin.matkul.configs.destroy');
         Route::post('/matkul-configs/copy', [MatkulConfigController::class, 'copy'])->name('admin.matkul.configs.copy');
 
+        // Matkul Class Sections
+        Route::get('/matkul/{matkul}/sections/{period}',   [ClassSectionController::class, 'index'])  ->name('admin.matkul.sections.index');
+        Route::post('/matkul/{matkul}/sections',            [ClassSectionController::class, 'store'])  ->name('admin.matkul.sections.store');
+        Route::put('/matkul/{matkul}/sections/{section}',   [ClassSectionController::class, 'update']) ->name('admin.matkul.sections.update');
+        Route::delete('/matkul/{matkul}/sections/{section}',[ClassSectionController::class, 'destroy'])->name('admin.matkul.sections.destroy');
+
         // Repository
         Route::get('/repository', [RepositoryController::class, 'index'])->name('admin.repository');
         Route::post('/repository/folder', [RepositoryController::class, 'createFolder'])->name('admin.repository.folder.create');
@@ -157,9 +165,21 @@ Route::middleware(['auth.permission'])->group(function () {
         // Modules
         Route::get('/modules', [MatkulController::class, 'allModules'])->name('admin.modules');
         Route::get('/matkul/{matkul}/modules', [MatkulController::class, 'modules'])->name('admin.matkul.modules');
+        Route::get('/matkul/{matkul}/modules/json', [MatkulController::class, 'modulesJson'])->name('admin.matkul.modules.json');
         Route::get('/matkul/{matkul}/modules/{module}/details', [MatkulController::class, 'getModuleDetails'])->name('admin.matkul.modules.details');
         Route::post('/matkul/{matkul}/modules', [MatkulController::class, 'storeModule'])->name('admin.matkul.modules.store');
         Route::put('/matkul/{matkul}/modules/{module}', [MatkulController::class, 'updateModule'])->name('admin.matkul.modules.update');
         Route::delete('/matkul/{matkul}/modules/{module}', [MatkulController::class, 'destroyModule'])->name('admin.matkul.modules.destroy');
+
+        // Schedules
+        Route::get('/schedules',                                       [ScheduleController::class, 'index'])         ->name('admin.schedules.index');
+        Route::post('/schedules',                                      [ScheduleController::class, 'store'])         ->name('admin.schedules.store');
+        Route::patch('/schedules/sessions/{session}/place',            [ScheduleController::class, 'placeSession'])  ->name('admin.schedules.sessions.place');
+        Route::patch('/schedules/sessions/{session}/unplace',          [ScheduleController::class, 'unplaceSession'])->name('admin.schedules.sessions.unplace');
+        Route::patch('/schedules/sessions/{session}/lock',             [ScheduleController::class, 'lockSession'])   ->name('admin.schedules.sessions.lock');
+        Route::get('/schedules/{schedule}/sessions',                   [ScheduleController::class, 'show'])          ->name('admin.schedules.show');
+        Route::patch('/schedules/{schedule}/active',                   [ScheduleController::class, 'setActive'])     ->name('admin.schedules.active');
+        Route::post('/schedules/{schedule}/duplicate',                 [ScheduleController::class, 'duplicate'])     ->name('admin.schedules.duplicate');
+        Route::delete('/schedules/{schedule}',                         [ScheduleController::class, 'destroy'])       ->name('admin.schedules.destroy');
     });
 });
