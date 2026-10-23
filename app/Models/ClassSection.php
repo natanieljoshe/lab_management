@@ -15,7 +15,44 @@ class ClassSection extends Model
         'label',
         'enrollment',
         'lecturer',
+        'class_name',
+        'name',
     ];
+
+    public function getClassNameAttribute()
+    {
+        return $this->attributes['label'] ?? null;
+    }
+
+    public function setClassNameAttribute($value)
+    {
+        $this->attributes['label'] = $value;
+    }
+
+    public function getNameAttribute()
+    {
+        return $this->attributes['label'] ?? null;
+    }
+
+    public function setNameAttribute($value)
+    {
+        $this->attributes['label'] = $value;
+    }
+
+    public function course()
+    {
+        return $this->belongsTo(Matkul::class, 'matkul_id');
+    }
+
+    public function meetings()
+    {
+        return $this->hasMany(ClassMeeting::class, 'class_section_id');
+    }
+
+    public function sessions()
+    {
+        return $this->hasMany(LabSession::class, 'class_section_id');
+    }
 
     public function period()
     {

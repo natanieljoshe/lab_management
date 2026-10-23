@@ -21,6 +21,29 @@ class Period extends Model
         'updated_at',
     ];
 
+    public function getNameAttribute(): string
+    {
+        return ucfirst(strtolower($this->semester ?? 'Gasal')) . ' ' . ($this->academic_year ?? '');
+    }
+
+    public function setNameAttribute($value): void
+    {
+        if (preg_match('/^(Gasal|Genap)\s+(.+)$/i', trim($value), $m)) {
+            $this->attributes['semester'] = strtoupper($m[1]);
+            $this->attributes['academic_year'] = trim($m[2]);
+        }
+    }
+
+    public function getIsActiveAttribute(): bool
+    {
+        return (bool) ($this->active ?? false);
+    }
+
+    public function setIsActiveAttribute($value): void
+    {
+        $this->attributes['active'] = (bool) $value;
+    }
+
     public function bookings()
     {
         return $this->hasMany(Booking::class, 'period_id');

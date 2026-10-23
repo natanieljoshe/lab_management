@@ -30,6 +30,40 @@ class Labs extends Model
         'updated_at',
     ];
 
+    public function getCodeAttribute(): string
+    {
+        $name = strtoupper($this->name ?? '');
+        if (str_contains($name, 'SISTEM INFORMASI') || $name === 'SI') return 'SI';
+        if (str_contains($name, 'PEMROGRAMAN') || $name === 'PG') return 'PG';
+        if (str_contains($name, 'MOBILE') || $name === 'MOBDEV') return 'MOBDEV';
+        if (str_contains($name, 'STUDIO')) return 'STUDIO';
+        if (str_contains($name, 'JARINGAN') || $name === 'JK') return 'JK';
+        if (str_contains($name, 'CERDAS') || $name === 'SC') return 'SC';
+        if (str_contains($name, 'VIRTUAL') || $name === 'VR') return 'VR';
+        if (str_contains($name, 'MULTIMEDIA') || $name === 'MM') return 'MM';
+        if (str_contains($name, 'PA')) return 'PA';
+        if (str_contains($name, 'PB')) return 'PB';
+        if (str_contains($name, 'PC')) return 'PC';
+        if (str_contains($name, 'PD')) return 'PD';
+        return $this->location ?: substr($this->name, 0, 8);
+    }
+
+    public function getTypeAttribute(): string
+    {
+        $code = $this->code;
+        return in_array($code, ['PA', 'PB', 'PC', 'PD']) ? 'external' : 'internal';
+    }
+
+    public function getIsManualOnlyAttribute(): bool
+    {
+        return (bool) ($this->manual_only ?? false);
+    }
+
+    public function setIsManualOnlyAttribute($value): void
+    {
+        $this->attributes['manual_only'] = (bool) $value;
+    }
+
     public function desks()
     {
         return $this->hasMany(Desks::class, 'lab_id');

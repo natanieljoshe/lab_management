@@ -24,6 +24,37 @@ class Schedule extends Model
         'snapshot_json' => 'array',
     ];
 
+    public function getIsPublishedAttribute(): bool
+    {
+        $snap = $this->snapshot_json ?? [];
+        return isset($snap['is_published']) ? (bool) $snap['is_published'] : (bool) $this->is_active;
+    }
+
+    public function setIsPublishedAttribute($value): void
+    {
+        $snap = $this->snapshot_json ?? [];
+        $snap['is_published'] = (bool) $value;
+        $this->snapshot_json = $snap;
+    }
+
+    public function getPublicSlugAttribute(): ?string
+    {
+        $snap = $this->snapshot_json ?? [];
+        return $snap['public_slug'] ?? null;
+    }
+
+    public function setPublicSlugAttribute($value): void
+    {
+        $snap = $this->snapshot_json ?? [];
+        $snap['public_slug'] = $value;
+        $this->snapshot_json = $snap;
+    }
+
+    public function sessions()
+    {
+        return $this->hasMany(LabSession::class, 'schedule_id');
+    }
+
     public function period()
     {
         return $this->belongsTo(Period::class, 'period_id');

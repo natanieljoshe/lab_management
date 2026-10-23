@@ -25,6 +25,41 @@ class Matkul extends Model
         'is_required' => 'boolean',
     ];
 
+    public function getNameAttribute(): string
+    {
+        return $this->nama ?? '';
+    }
+
+    public function setNameAttribute($value): void
+    {
+        $this->attributes['nama'] = $value;
+    }
+
+    public function getCodeAttribute(): ?string
+    {
+        return $this->kode;
+    }
+
+    public function setCodeAttribute($value): void
+    {
+        $this->attributes['kode'] = $value;
+    }
+
+    public function getIsMandatoryAttribute(): bool
+    {
+        return (bool) ($this->is_required ?? true);
+    }
+
+    public function setIsMandatoryAttribute($value): void
+    {
+        $this->attributes['is_required'] = (bool) $value;
+    }
+
+    public function sections()
+    {
+        return $this->hasMany(ClassSection::class, 'matkul_id');
+    }
+
     public function rootFolder()
     {
         return $this->belongsTo(Folders::class, 'root_folder_id');
