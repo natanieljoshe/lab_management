@@ -237,13 +237,14 @@
                                     <!-- Edit Button -->
                                     <button @click="openEditModal({{ json_encode([
                                         'id' => $sec->id,
-                                        'course_id' => $sec->course_id,
+                                        'course_id' => $sec->matkul_id ?? $sec->course_id,
+                                        'matkul_id' => $sec->matkul_id ?? $sec->course_id,
                                         'label' => $sec->label,
-                                        'enrollment' => $sec->enrollment,
+                                        'enrollment' => (int)$sec->enrollment,
                                         'day' => $meetingData['day'],
                                         'start_time' => $meetingData['start_time'],
                                         'end_time' => $meetingData['end_time'],
-                                        'room_id' => $meetingData['room_id'],
+                                        'room_id' => $meetingData['room_id'] ?: '',
                                     ]) }})" 
                                             class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:text-indigo-300 transition cursor-pointer">
                                         Edit
@@ -364,7 +365,7 @@
                 </button>
             </div>
 
-            <form :action="'{{ url('/import/section') }}/' + editForm.id" method="POST" class="space-y-4 text-xs">
+            <form :action="'{{ url('/admin/academics-schedule/import/section') }}/' + editForm.id" method="POST" class="space-y-4 text-xs">
                 @csrf
                 @method('PUT')
                 <div>
@@ -455,7 +456,16 @@ function importManager() {
         },
 
         openEditModal(data) {
-            this.editForm = { ...data };
+            this.editForm = {
+                id: data.id,
+                course_id: data.course_id || data.matkul_id || '',
+                label: data.label || '',
+                enrollment: data.enrollment || 30,
+                day: data.day || 'Senin',
+                start_time: data.start_time || '07:30',
+                end_time: data.end_time || '09:30',
+                room_id: data.room_id || ''
+            };
             this.showEditModal = true;
         },
 

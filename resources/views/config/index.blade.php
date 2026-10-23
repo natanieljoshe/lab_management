@@ -14,8 +14,8 @@
                 Tentukan semester penjadwalan, bobot jam praktikum, responsi, serta mode penjadwalan (otomatis atau manual) untuk periode <strong>{{ $period->name }}</strong>.
             </p>
         </div>
-        <button @click="showAddModal = true" 
-                class="inline-flex items-center px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm transition">
+        <button @click="openAddModal()" 
+                class="inline-flex items-center px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm transition cursor-pointer">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
             Tambah Konfigurasi Matkul
         </button>
@@ -80,7 +80,16 @@
                                 @endif
                             </td>
                             <td class="p-3 text-right space-x-2">
-                                <button @click="editConfig({{ json_encode($cfg) }})" class="text-indigo-600 hover:text-indigo-800 font-semibold">Ubah</button>
+                                <button @click="editConfig({{ json_encode([
+                                    'id' => $cfg->id,
+                                    'course_id' => $cfg->matkul_id,
+                                    'matkul_id' => $cfg->matkul_id,
+                                    'schedule_semester' => (int)$cfg->scheduling_semester,
+                                    'scheduling_semester' => (int)$cfg->scheduling_semester,
+                                    'practicum_hours' => (int)$cfg->practicum_hours,
+                                    'responsi_hours' => (int)$cfg->responsi_hours,
+                                    'is_manual' => (bool)$cfg->is_manual,
+                                ]) }})" class="text-indigo-600 hover:text-indigo-800 font-semibold cursor-pointer">Ubah</button>
                                 <form action="{{ route('config.destroy', $cfg) }}" method="POST" class="inline" onsubmit="return confirm('Hapus konfigurasi ini?')">
                                     @csrf
                                     @method('DELETE')
@@ -223,21 +232,31 @@ function configManager() {
         formResponsiHours: 2,
         formIsManual: false,
 
+        openAddModal() {
+            this.editingConfig = null;
+            this.formCourseId = '';
+            this.formScheduleSemester = 1;
+            this.formPracticumHours = 2;
+            this.formResponsiHours = 2;
+            this.formIsManual = false;
+            this.showAddModal = true;
+        },
+
         editConfig(cfg) {
             this.editingConfig = cfg;
-            this.formCourseId = cfg.course_id;
-            this.formScheduleSemester = cfg.schedule_semester;
-            this.formPracticumHours = cfg.practicum_hours;
-            this.formResponsiHours = cfg.responsi_hours;
-            this.formIsManual = cfg.is_manual;
+            this.formCourseId = cfg.course_id || cfg.matkul_id || '';
+            this.formScheduleSemester = Number(cfg.schedule_semester ?? cfg.scheduling_semester ?? 1);
+            this.formPracticumHours = Math.round(Number(cfg.practicum_hours ?? 0));
+            this.formResponsiHours = Math.round(Number(cfg.responsi_hours ?? 0));
+            this.formIsManual = Boolean(cfg.is_manual);
             this.showAddModal = true;
         },
 
         async saveEnrollments() {
             this.isSavingEnrollments = true;
             const payload = Object.keys(this.enrollmentMap).map(id => ({
-                id: parseInt(id),
-                enrollment: this.enrollmentMap[id]
+                id: id,
+                enrollment: parseInt(this.enrollmentMap[id]) || 0
             }));
 
             try {

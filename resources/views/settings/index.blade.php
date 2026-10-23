@@ -29,16 +29,16 @@
                     @foreach($periods as $p)
                         <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/50">
                             <td class="p-3">
-                                <template x-if="editingPeriodId !== {{ $p->id }}">
+                                <template x-if="editingPeriodId !== '{{ $p->id }}'">
                                     <div class="flex items-center space-x-2">
                                         <span class="font-bold text-slate-900 dark:text-white text-sm">{{ $p->name }}</span>
-                                        <button @click="editingPeriodId = {{ $p->id }}; editingPeriodName = '{{ $p->name }}'" 
-                                                class="text-slate-400 hover:text-indigo-600 p-1" title="Ubah Nama">
+                                        <button @click="editingPeriodId = '{{ $p->id }}'; editingPeriodName = '{{ addslashes($p->name) }}'" 
+                                                class="text-slate-400 hover:text-indigo-600 p-1 cursor-pointer" title="Ubah Nama">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                                         </button>
                                     </div>
                                 </template>
-                                <template x-if="editingPeriodId === {{ $p->id }}">
+                                <template x-if="editingPeriodId === '{{ $p->id }}'">
                                     <form action="{{ route('settings.period.update', $p) }}" method="POST" class="flex items-center space-x-2">
                                         @csrf
                                         @method('PUT')
