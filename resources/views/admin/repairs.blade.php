@@ -377,6 +377,9 @@
                                                 data-current-notes="{{ $pivot->repair_notes }}"
                                                 data-item-name="{{ $itemName }}"
                                                 data-issue="{{ $pivot->issue_description }}">
+                                                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="h-3.5 w-3.5 inline-block mr-1 align-[-2px]">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M20.49 9A9 9 0 0 0 5.64 5.64L3 8m0 0V3m0 5h5M3.51 15A9 9 0 0 0 18.36 18.36L21 16m0 0v5m0-5h-5" />
+                                                </svg>
                                                 Update
                                             </button>
                                         </td>

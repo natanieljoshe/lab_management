@@ -237,8 +237,10 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-right">
                                         <button type="button" onclick="openAdminFeedbackModal('{{ $fb->id }}')"
                                                 class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium rounded-lg shadow-sm transition-colors">
-                                            <i class="fa-solid fa-comments"></i>
-                                            <span>Tanggapi</span>
+                                            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="h-3.5 w-3.5">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3h5.25m5.07 4.19A8.96 8.96 0 0 0 21 9.75a9 9 0 1 0-17.49 2.9L3 17.25l4.6-1.53a9 9 0 0 0 9.22-.28Z" />
+                                            </svg>
+                                            <span>Respond</span>
                                         </button>
                                     </td>
                                 </tr>
