@@ -12,6 +12,28 @@ class Feedback extends Model
 
     protected $table = 'feedbacks';
 
+    public const STATUS_OPEN = 1;
+    public const STATUS_IN_PROGRESS = 2;
+    public const STATUS_RESOLVED = 3;
+    public const STATUS_CLOSED = 4;
+    public const STATUS_REJECTED = 5;
+
+    public static function statusLabels(): array
+    {
+        return [
+            self::STATUS_OPEN => 'Open',
+            self::STATUS_IN_PROGRESS => 'In Progress',
+            self::STATUS_RESOLVED => 'Resolved',
+            self::STATUS_CLOSED => 'Closed',
+            self::STATUS_REJECTED => 'Rejected',
+        ];
+    }
+
+    public function getStatusLabelAttribute(): string
+    {
+        return self::statusLabels()[$this->status] ?? 'Unknown';
+    }
+
     protected $fillable = [
         'ticket_number',
         'type',
@@ -20,7 +42,6 @@ class Feedback extends Model
         'reporter_id',
         'lab_id',
         'status',
-        'assigned_to',
         'period_id',
         'resolved_at',
     ];
@@ -51,11 +72,6 @@ class Feedback extends Model
     public function lab()
     {
         return $this->belongsTo(Labs::class, 'lab_id');
-    }
-
-    public function assignee()
-    {
-        return $this->belongsTo(User::class, 'assigned_to');
     }
 
     public function period()
