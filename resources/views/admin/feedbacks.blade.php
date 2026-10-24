@@ -32,6 +32,22 @@
             padding-top: 0.5rem;
         }
 
+        #feedbacks-datatable-wrapper {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        #feedbacks-datatable-wrapper .dataTables_wrapper {
+            max-width: 100%;
+        }
+
+        #feedbacks-table {
+            min-width: 900px;
+        }
+
         .dataTables_wrapper .dataTables_paginate {
             display: flex;
             align-items: center;
@@ -172,7 +188,7 @@
             </div>
 
             <div class="p-6">
-                <div id="feedbacks-datatable-wrapper" class="w-full">
+                <div id="feedbacks-datatable-wrapper" class="w-full min-w-0">
                     <table id="feedbacks-table" class="w-full text-sm pb-3 text-left text-gray-500 display responsive" style="width:100%">
                         <thead class="text-xs text-gray-500 uppercase bg-gray-50 border-b border-gray-100">
                             <tr>
