@@ -86,7 +86,11 @@ class LabsController extends Controller
 
         $requiredTypes = ['MONITOR', 'MOUSE', 'KEYBOARD', 'CPU'];
 
-        $desks = $lab->desks()->with(['items.type', 'items.repairs'])->get();
+        $activeRepair = fn ($query) => $query
+            ->whereIn('repairs_items.status', [0, 1])
+            ->whereNull('repairs_items.completed_at');
+
+        $desks = $lab->desks()->with(['items.type', 'items.repairs' => $activeRepair])->get();
 
         $availableDesks = [];
 
@@ -134,13 +138,13 @@ class LabsController extends Controller
 
         // Check storage items
         $storageItems = $lab->items()
-            ->with(['type', 'repairs'])
+            ->with(['type', 'repairs' => $activeRepair])
             ->whereNull('desk_id')
             ->whereIn('type_id', function($q) use ($requiredTypes) {
                 $q->select('id')->from('types')->whereIn('name', $requiredTypes);
             })
             ->where('condition', 1)
-            ->whereDoesntHave('repairs')
+            ->whereDoesntHave('repairs', $activeRepair)
             ->get();
 
         if ($start && $end) {
@@ -173,14 +177,26 @@ class LabsController extends Controller
         $start = $request->query('start');
         $end = $request->query('end');
 
+        $activeRepair = fn ($query) => $query
+            ->whereIn('repairs_items.status', [0, 1])
+            ->whereNull('repairs_items.completed_at');
+
         $desks = $lab->desks()
-            ->with(['items.type', 'items.specSetValues.specAttributes', 'items.repairs', 'items.components.type', 'items.components.repairs', 'items.components.specSetValues.specAttributes'])
+            ->with([
+                'items.type',
+                'items.specSetValues.specAttributes',
+                'items.repairs' => $activeRepair,
+                'items.components.type',
+                'items.components.repairs' => $activeRepair,
+                'items.components.specSetValues.specAttributes',
+            ])
             ->orderBy('location')
             ->get();
 
         $deskMap = $desks->map(function ($desk) use ($start, $end) {
             $items = $desk->items->map(function ($item) use ($start, $end) {
-                $isUnderRepair = $item->repairs->isNotEmpty();
+                $isUnderRepair = $item->repairs->contains(fn ($repair) => (int) $repair->pivot->status === 1);
+                $isPendingRepair = $item->repairs->contains(fn ($repair) => (int) $repair->pivot->status === 0);
                 $isBooked = $start && $end && DB::table('bookings_items')
                     ->join('bookings', 'bookings_items.booking_id', '=', 'bookings.id')
                     ->where('bookings_items.bookable_type', 'App\\Models\\Items')
@@ -196,8 +212,9 @@ class LabsController extends Controller
                     'serial_code' => $item->serial_code,
                     'type' => $item->type ? $item->type->name : null,
                     'condition' => $item->condition,
-                    'available' => $item->condition == 1 && !$isUnderRepair && !$isBooked,
+                    'available' => $item->condition == 1 && !$isUnderRepair && !$isPendingRepair && !$isBooked,
                     'is_under_repair' => $isUnderRepair,
+                    'is_pending_repair' => $isPendingRepair,
                     'specifications' => $item->specSetValues->map(fn($spec) => [
                         'name' => $spec->specAttributes->name,
                         'value' => $spec->value,
@@ -207,7 +224,8 @@ class LabsController extends Controller
                         'name' => $c->name,
                         'serial_code' => $c->serial_code,
                         'type' => $c->type ? $c->type->name : null,
-                        'is_under_repair' => $c->repairs->isNotEmpty(),
+                        'is_under_repair' => $c->repairs->contains(fn ($repair) => (int) $repair->pivot->status === 1),
+                        'is_pending_repair' => $c->repairs->contains(fn ($repair) => (int) $repair->pivot->status === 0),
                         'specifications' => $c->specSetValues->map(fn($spec) => [
                             'name' => $spec->specAttributes->name,
                             'value' => $spec->value,
@@ -223,11 +241,19 @@ class LabsController extends Controller
         });
 
         $storageItems = $lab->items()
-            ->with(['type', 'specSetValues.specAttributes', 'repairs', 'components.type', 'components.repairs', 'components.specSetValues.specAttributes'])
+            ->with([
+                'type',
+                'specSetValues.specAttributes',
+                'repairs' => $activeRepair,
+                'components.type',
+                'components.repairs' => $activeRepair,
+                'components.specSetValues.specAttributes',
+            ])
             ->whereNull('desk_id')
             ->get()
             ->map(function ($item) use ($start, $end) {
-                $isUnderRepair = $item->repairs->isNotEmpty();
+                $isUnderRepair = $item->repairs->contains(fn ($repair) => (int) $repair->pivot->status === 1);
+                $isPendingRepair = $item->repairs->contains(fn ($repair) => (int) $repair->pivot->status === 0);
                 $isBooked = $start && $end && DB::table('bookings_items')
                     ->join('bookings', 'bookings_items.booking_id', '=', 'bookings.id')
                     ->where('bookings_items.bookable_type', 'App\\Models\\Items')
@@ -243,8 +269,9 @@ class LabsController extends Controller
                     'serial_code' => $item->serial_code,
                     'type' => $item->type ? $item->type->name : null,
                     'condition' => $item->condition,
-                    'available' => $item->condition == 1 && !$isUnderRepair && !$isBooked,
+                    'available' => $item->condition == 1 && !$isUnderRepair && !$isPendingRepair && !$isBooked,
                     'is_under_repair' => $isUnderRepair,
+                    'is_pending_repair' => $isPendingRepair,
                     'specifications' => $item->specSetValues->map(fn($spec) => [
                         'name' => $spec->specAttributes->name,
                         'value' => $spec->value,
@@ -254,7 +281,8 @@ class LabsController extends Controller
                         'name' => $c->name,
                         'serial_code' => $c->serial_code,
                         'type' => $c->type ? $c->type->name : null,
-                        'is_under_repair' => $c->repairs->isNotEmpty(),
+                        'is_under_repair' => $c->repairs->contains(fn ($repair) => (int) $repair->pivot->status === 1),
+                        'is_pending_repair' => $c->repairs->contains(fn ($repair) => (int) $repair->pivot->status === 0),
                         'specifications' => $c->specSetValues->map(fn($spec) => [
                             'name' => $spec->specAttributes->name,
                             'value' => $spec->value,
@@ -264,7 +292,7 @@ class LabsController extends Controller
             });
 
         $storageComponents = \App\Models\Components::where('lab_id', $lab->id)
-            ->with(['type', 'repairs', 'specSetValues.specAttributes'])
+            ->with(['type', 'repairs' => $activeRepair, 'specSetValues.specAttributes'])
             ->whereNull('item_id')
             ->get()
             ->map(function ($component) use ($start, $end) {
@@ -284,7 +312,8 @@ class LabsController extends Controller
                     'type' => $component->type ? $component->type->name : null,
                     'condition' => $component->condition,
                     'available' => $component->condition == 1 && !$isBooked,
-                    'is_under_repair' => $component->repairs->isNotEmpty(),
+                    'is_under_repair' => $component->repairs->contains(fn ($repair) => (int) $repair->pivot->status === 1),
+                    'is_pending_repair' => $component->repairs->contains(fn ($repair) => (int) $repair->pivot->status === 0),
                     'is_component' => true,
                     'specifications' => $component->specSetValues->map(fn($spec) => [
                         'name' => $spec->specAttributes->name,

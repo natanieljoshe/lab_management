@@ -58,7 +58,9 @@
                             <option value="">Semua Kondisi</option>
                             <option value="1">Baik</option>
                             <option value="0">Rusak</option>
+                            <option value="pending_repair">Pending</option>
                             <option value="under_repair">Sedang Diperbaiki</option>
+                            <option value="parent_pending_repair">Induk Pending</option>
                             <option value="parent_under_repair">Induk Sedang Diperbaiki</option>
                         </select>
                         <p class="text-xs text-gray-500 mt-1">"Induk Sedang Diperbaiki" hanya untuk Components.</p>
@@ -207,11 +209,16 @@
 
                                             // Tentukan Status Affiliasi
                                             $status = $item->desk || $item->lab ? 'affiliated' : 'unaffiliated';
+                                            $hasPendingRepair = $item->repairs->contains(fn ($repair) => (int) $repair->pivot->status === 0);
+                                            $hasInProgressRepair = $item->repairs->contains(fn ($repair) => (int) $repair->pivot->status === 1);
+                                            $itemConditionFilter = $hasInProgressRepair
+                                                ? 'under_repair'
+                                                : ($hasPendingRepair ? 'pending_repair' : (string) $item->condition);
                                         @endphp
 
                                         <tr class="item-row group hover:bg-gray-50 transition-colors" data-lab-id="{{ $labId }}"
                                             data-type-id="{{ $item->type_id }}" data-status="{{ $status }}"
-                                            data-condition="{{ $item->condition }}" data-specs='{{ $itemSpecsJson }}'
+                                            data-condition="{{ $itemConditionFilter }}" data-specs='{{ $itemSpecsJson }}'
                                             data-search="{{ strtolower($item->name . ' ' . $item->serial_code) }}">
 
                                             {{-- ... (Isi kolom <td> biarkan sama seperti sebelumnya) ... --}}
@@ -259,7 +266,10 @@
                                                 @endforeach
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
-                                                @if ($item->repairs->isNotEmpty())
+                                                @if ($hasPendingRepair && !$hasInProgressRepair)
+                                                    <span
+                                                        class="condition-badge px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-700">Pending</span>
+                                                @elseif ($hasInProgressRepair)
                                                     <span
                                                         class="condition-badge px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Sedang
                                                         Diperbaiki</span>
@@ -367,10 +377,18 @@
 
                                             // Kondisi Khusus Component
                                             $compConditionVal = $comp->condition;
-                                            if ($comp->repairs->isNotEmpty()) {
+                                            $hasPendingRepair = $comp->repairs->contains(fn ($repair) => (int) $repair->pivot->status === 0);
+                                            $hasInProgressRepair = $comp->repairs->contains(fn ($repair) => (int) $repair->pivot->status === 1);
+                                            $hasPendingParentRepair = $comp->item && $comp->item->repairs->contains(fn ($repair) => (int) $repair->pivot->status === 0);
+                                            $hasInProgressParentRepair = $comp->item && $comp->item->repairs->contains(fn ($repair) => (int) $repair->pivot->status === 1);
+                                            if ($hasInProgressRepair) {
                                                 $compConditionVal = 'under_repair';
-                                            } elseif ($comp->item && $comp->item->repairs->isNotEmpty()) {
+                                            } elseif ($hasPendingRepair) {
+                                                $compConditionVal = 'pending_repair';
+                                            } elseif ($hasInProgressParentRepair) {
                                                 $compConditionVal = 'parent_under_repair';
+                                            } elseif ($hasPendingParentRepair) {
+                                                $compConditionVal = 'parent_pending_repair';
                                             }
                                         @endphp
 
@@ -414,11 +432,18 @@
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 {{-- Badge Kondisi (Biarkan logika blade yang lama) --}}
-                                                @if ($comp->repairs->isNotEmpty())
+                                                @if ($hasPendingRepair && !$hasInProgressRepair)
+                                                    <span
+                                                        class="condition-badge px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-700">Pending</span>
+                                                @elseif ($hasInProgressRepair)
                                                     <span
                                                         class="condition-badge px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Sedang
                                                         Diperbaiki</span>
-                                                @elseif (isset($isParentUnderRepair) && $isParentUnderRepair)
+                                                @elseif ($hasPendingParentRepair)
+                                                    <span
+                                                        class="condition-badge px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800">Induk
+                                                        Pending</span>
+                                                @elseif ($hasInProgressParentRepair)
                                                     <span
                                                         class="condition-badge px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800">Induk
                                                         Sedang Diperbaiki</span>

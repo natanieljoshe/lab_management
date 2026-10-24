@@ -228,7 +228,7 @@
                                 @foreach ($allItems as $item)
                                     @php
                                         $pivot = $item->pivot;
-                                        $isCompleted = (int) $pivot->status === 2;
+                                        $status = (int) $pivot->status;
                                     @endphp
                                     <div class="p-4 rounded-xl border border-gray-100 bg-gray-50/70 flex flex-col md:flex-row md:items-center justify-between gap-4">
                                         <div class="space-y-1 min-w-0 flex-1">
@@ -254,7 +254,7 @@
                                         </div>
 
                                         <div class="flex md:flex-col items-center md:items-end justify-between gap-2 flex-shrink-0">
-                                            @if ($isCompleted)
+                                            @if ($status === 2)
                                                 @if ($pivot->is_successful)
                                                     <span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
                                                         <i class="fa-solid fa-circle-check mr-1"></i>Berhasil diperbaiki
@@ -264,9 +264,13 @@
                                                         <i class="fa-solid fa-circle-xmark mr-1"></i>Tidak berhasil diperbaiki
                                                     </span>
                                                 @endif
-                                            @else
+                                            @elseif ($status === 1)
                                                 <span class="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">
                                                     <i class="fa-solid fa-spinner fa-spin mr-1"></i>Sedang diproses
+                                                </span>
+                                            @else
+                                                <span class="px-3 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-700 border border-gray-200">
+                                                    <i class="fa-regular fa-clock mr-1"></i>Menunggu diproses
                                                 </span>
                                             @endif
 
@@ -282,7 +286,7 @@
                                 @foreach ($allComps as $comp)
                                     @php
                                         $pivot = $comp->pivot;
-                                        $isCompleted = (int) $pivot->status === 2;
+                                        $status = (int) $pivot->status;
                                     @endphp
                                     <div class="p-4 rounded-xl border border-gray-100 bg-gray-50/70 flex flex-col md:flex-row md:items-center justify-between gap-4">
                                         <div class="space-y-1 min-w-0 flex-1">
@@ -296,7 +300,7 @@
                                         </div>
 
                                         <div class="flex md:flex-col items-center md:items-end justify-between gap-2 flex-shrink-0">
-                                            @if ($isCompleted)
+                                            @if ($status === 2)
                                                 @if ($pivot->is_successful)
                                                     <span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
                                                         <i class="fa-solid fa-circle-check mr-1"></i>Berhasil diperbaiki
@@ -306,9 +310,13 @@
                                                         <i class="fa-solid fa-circle-xmark mr-1"></i>Tidak berhasil diperbaiki
                                                     </span>
                                                 @endif
-                                            @else
+                                            @elseif ($status === 1)
                                                 <span class="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">
                                                     <i class="fa-solid fa-spinner fa-spin mr-1"></i>Sedang diproses
+                                                </span>
+                                            @else
+                                                <span class="px-3 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-700 border border-gray-200">
+                                                    <i class="fa-regular fa-clock mr-1"></i>Menunggu diproses
                                                 </span>
                                             @endif
                                         </div>

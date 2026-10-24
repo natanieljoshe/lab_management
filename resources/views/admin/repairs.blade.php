@@ -96,6 +96,7 @@
                         Item</label>
                     <select id="filter_repair_status" class="filter-input" placeholder="Semua Status...">
                         <option value="">Semua Status</option>
+                        <option value="0">Pending</option>
                         <option value="1">In Progress</option>
                         <option value="2">Completed</option>
                     </select>
@@ -287,9 +288,13 @@
                                         $statusLabel = '';
                                         $statusClass = '';
                                         switch ($pivot->status) {
+                                            case 0:
+                                                $statusLabel = 'Pending';
+                                                $statusClass = 'bg-gray-100 text-gray-700';
+                                                break;
                                             case 1:
                                                 $statusLabel = 'In Progress';
-                                                $statusClass = 'bg-blue-100 text-blue-800';
+                                                $statusClass = 'bg-amber-100 text-amber-800';
                                                 break;
                                             case 2:
                                                 $statusLabel = $pivot->is_successful
@@ -442,6 +447,7 @@
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Status Baru</label>
                             <select id="modal-status-select" name="status" class="w-full">
+                                <option value="0">Pending (Menunggu Diproses)</option>
                                 <option value="1">In Progress (Sedang Dikerjakan)</option>
                                 <option value="2">Completed (Selesai)</option>
                             </select>
@@ -694,6 +700,20 @@
                     document.getElementById('modal-issue').textContent = issue;
                     document.getElementById('modal-repair-notes').value = notes;
 
+                    tomSelectStatusModal.clearOptions();
+                    const currentStatusNumber = Number(currentStatus);
+                    const statusOptions = currentStatusNumber === 0
+                        ? [
+                            { value: '0', text: 'Pending (Menunggu Diproses)' },
+                            { value: '1', text: 'In Progress (Sedang Dikerjakan)' }
+                        ]
+                        : currentStatusNumber === 1
+                            ? [
+                                { value: '1', text: 'In Progress (Sedang Dikerjakan)' },
+                                { value: '2', text: 'Completed (Selesai)' }
+                            ]
+                            : [{ value: '2', text: 'Completed (Selesai)' }];
+                    tomSelectStatusModal.addOptions(statusOptions);
                     tomSelectStatusModal.setValue(currentStatus);
 
                     // Reset Radio

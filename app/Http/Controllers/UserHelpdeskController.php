@@ -61,7 +61,7 @@ class UserHelpdeskController extends Controller
 
         // Pastikan tidak ada barang yang sedang dalam proses perbaikan
         $blockedItems = Repairs_item::whereIn('itemable_id', $itemIds->concat($compIds))
-            ->where('status', 1)
+            ->whereIn('status', [0, 1])
             ->whereNull('completed_at')
             ->exists();
 
@@ -89,8 +89,8 @@ class UserHelpdeskController extends Controller
                 foreach ($validated['items'] as $itemData) {
                     $itemAttachments[$itemData['id']] = [
                         'issue_description' => $itemData['issue_description'],
-                        'started_at' => $reportedTime,
-                        'status' => 1,
+                        'started_at' => null,
+                        'status' => 0,
                     ];
                     Items::where('id', $itemData['id'])->update(['condition' => 0]);
                 }
@@ -102,8 +102,8 @@ class UserHelpdeskController extends Controller
                 foreach ($validated['components'] as $compData) {
                     $compAttachments[$compData['id']] = [
                         'issue_description' => $compData['issue_description'],
-                        'started_at' => $reportedTime,
-                        'status' => 1,
+                        'started_at' => null,
+                        'status' => 0,
                     ];
                     Components::where('id', $compData['id'])->update(['condition' => 0]);
                 }

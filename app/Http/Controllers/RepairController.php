@@ -110,7 +110,7 @@ class RepairController extends Controller
                 $itemIds = collect($validated['items'])->pluck('id');
 
                 $blockedItems = Repairs_item::whereIn('itemable_id', $itemIds)
-                    ->where('status', 1)
+                    ->whereIn('status', [0, 1])
                     ->whereNull('completed_at')
                     ->exists();
 
@@ -123,7 +123,7 @@ class RepairController extends Controller
                 $compIds = collect($validated['components'])->pluck('id');
 
                 $blockedComponents = Repairs_item::whereIn('itemable_id', $compIds)
-                    ->where('status', 1)
+                    ->whereIn('status', [0, 1])
                     ->whereNull('completed_at')
                     ->exists();
 
@@ -150,8 +150,8 @@ class RepairController extends Controller
                     $itemAttachments[$itemData['id']] = [
                         'issue_description' => $itemData['issue_description'],
                         'reported_at'       => $reportedTime,
-                        'started_at'        => $reportedTime,
-                        'status'            => 1,
+                        'started_at'        => null,
+                        'status'            => 0,
                     ];
                     Items::where('id', $itemData['id'])->update(['condition' => 0]);
                 }
@@ -164,8 +164,8 @@ class RepairController extends Controller
                     $compAttachments[$compData['id']] = [
                         'issue_description' => $compData['issue_description'],
                         'reported_at'       => $reportedTime,
-                        'started_at'        => $reportedTime,
-                        'status'            => 1,
+                        'started_at'        => null,
+                        'status'            => 0,
                     ];
                     Components::where('id', $compData['id'])->update(['condition' => 0]);
                 }
@@ -202,18 +202,33 @@ class RepairController extends Controller
         $isPartialUpdate = $request->has('items') && is_array($request->items);
 
         $rules = [
-            'status'        => $isPartialUpdate ? 'nullable' : 'required|integer|in:1,2',
+            'status'        => $isPartialUpdate ? 'nullable' : 'required|integer|in:0,1,2',
             'is_successful' => 'nullable|boolean',
             'repair_notes'  => 'nullable|string|max:255',
 
             'items'                  => 'nullable|array',
             'items.*.itemable_id'    => 'required|uuid',
-            'items.*.status'         => 'nullable|integer|in:1,2',
+            'items.*.status'         => 'nullable|integer|in:0,1,2',
             'items.*.is_successful'  => 'nullable|boolean',
             'items.*.repair_notes'   => 'nullable|string',
         ];
 
         $validated = $request->validate($rules);
+
+        $completionMissingResult = $isPartialUpdate
+            ? collect($validated['items'] ?? [])->contains(fn ($item) =>
+                (int) ($item['status'] ?? 0) === 2
+                && (!array_key_exists('is_successful', $item) || is_null($item['is_successful']))
+            )
+            : ((int) ($validated['status'] ?? 0) === 2
+                && (!array_key_exists('is_successful', $validated) || is_null($validated['is_successful'])));
+
+        if ($completionMissingResult) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Hasil perbaikan wajib dipilih saat status diselesaikan.',
+            ], 422);
+        }
         $currentTime = now('Asia/Jakarta');
         DB::beginTransaction();
         try {
@@ -233,15 +248,15 @@ class RepairController extends Controller
                     if (isset($itemData['status'])) {
                         $newStatus = (int)$itemData['status'];
 
-                        if ($newStatus !== $currentItem->status && $newStatus !== ($currentItem->status + 1)) {
-                            $msg = "Status Reparasi yang sudah Completed tidak dapat di rollback.";
-                            if ($request->wantsJson()) {
-                                return response()->json(['message' => $msg], 400);
-                            }
-                            return redirect()->back()->with('error', $msg);
+                        if ($newStatus < (int) $currentItem->status || $newStatus > ((int) $currentItem->status + 1)) {
+                            throw new \Exception('Status reparasi hanya dapat maju satu tahap dan tidak dapat di-rollback.');
                         }
 
                         $updateData['status'] = $newStatus;
+
+                        if ($newStatus === 1 && (int) $currentItem->status === 0) {
+                            $updateData['started_at'] = $currentTime;
+                        }
 
                         if ($newStatus === 2) {
                             $updateData['completed_at'] = $currentTime;
@@ -257,6 +272,15 @@ class RepairController extends Controller
 
                     if (!empty($updateData)) {
                         $pivotQuery->update($updateData);
+                    }
+
+                    if (
+                        isset($itemData['status'])
+                        && (int) $itemData['status'] === 2
+                        && array_key_exists('is_successful', $itemData)
+                        && (bool) $itemData['is_successful']
+                    ) {
+                        $this->restoreRepairableCondition($currentItem);
                     }
                 }
             } else {
@@ -275,9 +299,20 @@ class RepairController extends Controller
 
                 if ($status === 2) {
                     $pivotUpdateData['completed_at'] = $currentTime;
+                } elseif ($status === 1) {
+                    $pivotUpdateData['started_at'] = $currentTime;
                 }
 
-                Repairs_item::where('repair_id', $repair->id)->update($pivotUpdateData);
+                $repairItems = Repairs_item::where('repair_id', $repair->id)->get();
+                $repairItems->each->update($pivotUpdateData);
+
+                if (
+                    $status === 2
+                    && array_key_exists('is_successful', $validated)
+                    && (bool) $validated['is_successful']
+                ) {
+                    $repairItems->each(fn (Repairs_item $repairItem) => $this->restoreRepairableCondition($repairItem));
+                }
 
                 if ($request->has('items') && is_array($request->items)) {
                     foreach ($validated['items'] as $specificNote) {
@@ -308,6 +343,15 @@ class RepairController extends Controller
                 return response()->json(['success' => false, 'message' => 'Server Error', 'error' => $e->getMessage()], 500);
             }
             return redirect()->back()->with('error', 'Terjadi kesalahan pada server.');
+        }
+    }
+
+    private function restoreRepairableCondition(Repairs_item $repairItem): void
+    {
+        $repairItem->loadMissing('itemable');
+
+        if ($repairItem->itemable) {
+            $repairItem->itemable->update(['condition' => 1]);
         }
     }
 }

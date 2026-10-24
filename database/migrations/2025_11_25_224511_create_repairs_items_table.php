@@ -16,7 +16,7 @@ return new class extends Migration
             $table->uuidMorphs('itemable'); // itemable_type, itemable_id
 
             $table->text('issue_description');
-            $table->unsignedTinyInteger('status')->default('1')->comment('1: In Progress | 2: Completed'); // in_progress, completed
+            $table->unsignedTinyInteger('status')->default('0')->comment('0: Pending | 1: In Progress | 2: Completed');
 
             $table->boolean('is_successful')->nullable()->comment('null: belum selesai | true: perbaikan berhasil | false: perbaikan gagal');
             $table->text('repair_notes')->nullable();

@@ -415,7 +415,7 @@ class ItemsController extends Controller
             if ($item->condition == 0) {
                 $ongoingRepair = Repairs_item::where('itemable_id', $item->id)
                     ->where('itemable_type', Items::class)
-                    ->where('status', 1)
+                    ->whereIn('status', [0, 1])
                     ->whereNull('completed_at')
                     ->with('repair')
                     ->first();

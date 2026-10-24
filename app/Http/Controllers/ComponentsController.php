@@ -29,7 +29,7 @@ class ComponentsController extends Controller
             if ($component->condition == 0) {
                 $ongoingRepair = Repairs_item::where('itemable_id', $component->id)
                     ->where('itemable_type', Components::class)
-                    ->where('status', 1)
+                    ->whereIn('status', [0, 1])
                     ->whereNull('completed_at')
                     ->with('repair')
                     ->first();

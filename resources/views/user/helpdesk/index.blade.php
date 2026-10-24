@@ -611,19 +611,22 @@
         items.forEach(item => {
             const isBroken = item.condition === 0;
             const isUnderRepair = item.is_under_repair;
+            const isPendingRepair = item.is_pending_repair;
+            const isRepairUnavailable = isUnderRepair || isPendingRepair;
             html += `
                 <div class="item-card" id="item-card-wrapper-${item.id}">
                     <div class="flex items-start gap-3">
                         <input type="checkbox" id="item-chk-${item.id}" value="${item.id}" data-type="item"
                                onchange="toggleItemDescription('item', '${item.id}')"
                                class="mt-1 h-4 w-4 text-petra-blue rounded border-gray-300 focus:ring-petra-blue cursor-pointer"
-                               ${isUnderRepair ? 'disabled' : ''}>
+                               ${isRepairUnavailable ? 'disabled' : ''}>
                         <div class="flex-1 min-w-0">
                             <div class="flex flex-wrap items-center gap-2">
                                 <label for="item-chk-${item.id}" class="text-sm font-bold text-gray-900 cursor-pointer">${item.name}</label>
                                 <span class="px-2 py-0.5 text-xs font-semibold rounded bg-blue-50 text-petra-blue border border-blue-200">${item.type}</span>
                                 ${isUnderRepair ? '<span class="px-2 py-0.5 text-[10px] font-bold rounded bg-amber-100 text-amber-800">Sedang Diperbaiki</span>' : ''}
-                                ${isBroken && !isUnderRepair ? '<span class="px-2 py-0.5 text-[10px] font-bold rounded bg-red-100 text-red-800">Kondisi Rusak</span>' : ''}
+                                ${isPendingRepair ? '<span class="px-2 py-0.5 text-[10px] font-bold rounded bg-gray-100 text-gray-700">Menunggu Diproses</span>' : ''}
+                                ${isBroken && !isRepairUnavailable ? '<span class="px-2 py-0.5 text-[10px] font-bold rounded bg-red-100 text-red-800">Kondisi Rusak</span>' : ''}
                             </div>
                             <p class="text-xs text-gray-500 font-mono mt-0.5">SN: ${item.serial_code}</p>
 
@@ -644,12 +647,13 @@
                                             <input type="checkbox" id="comp-chk-${comp.id}" value="${comp.id}" data-type="component"
                                                    onchange="toggleItemDescription('comp', '${comp.id}')"
                                                    class="mt-0.5 h-3.5 w-3.5 text-petra-blue rounded border-gray-300 focus:ring-petra-blue cursor-pointer"
-                                                   ${comp.is_under_repair ? 'disabled' : ''}>
+                                                   ${(comp.is_under_repair || comp.is_pending_repair) ? 'disabled' : ''}>
                                             <div class="flex-1 min-w-0">
                                                 <div class="flex flex-wrap items-center gap-1.5">
                                                     <label for="comp-chk-${comp.id}" class="text-xs font-semibold text-gray-800 cursor-pointer">${comp.name}</label>
                                                     <span class="text-[10px] font-mono text-gray-500">(${comp.type})</span>
                                                     ${comp.is_under_repair ? '<span class="text-[9px] px-1.5 py-0.2 rounded bg-amber-100 text-amber-800 font-bold">Sedang Diperbaiki</span>' : ''}
+                                                    ${comp.is_pending_repair ? '<span class="text-[9px] px-1.5 py-0.2 rounded bg-gray-100 text-gray-700 font-bold">Menunggu Diproses</span>' : ''}
                                                 </div>
                                                 <div id="desc-box-comp-${comp.id}" class="hidden mt-2">
                                                     <textarea id="desc-val-comp-${comp.id}" rows="2" maxlength="1000"
@@ -674,12 +678,13 @@
                         <input type="checkbox" id="comp-chk-${comp.id}" value="${comp.id}" data-type="component"
                                onchange="toggleItemDescription('comp', '${comp.id}')"
                                class="mt-1 h-4 w-4 text-petra-blue rounded border-gray-300 focus:ring-petra-blue cursor-pointer"
-                               ${comp.is_under_repair ? 'disabled' : ''}>
+                               ${(comp.is_under_repair || comp.is_pending_repair) ? 'disabled' : ''}>
                         <div class="flex-1 min-w-0">
                             <div class="flex flex-wrap items-center gap-2">
                                 <label for="comp-chk-${comp.id}" class="text-sm font-bold text-gray-900 cursor-pointer">${comp.name}</label>
                                 <span class="px-2 py-0.5 text-xs font-semibold rounded bg-blue-50 text-petra-blue border border-blue-200">${comp.type}</span>
                                 ${comp.is_under_repair ? '<span class="px-2 py-0.5 text-[10px] font-bold rounded bg-amber-100 text-amber-800">Sedang Diperbaiki</span>' : ''}
+                                ${comp.is_pending_repair ? '<span class="px-2 py-0.5 text-[10px] font-bold rounded bg-gray-100 text-gray-700">Menunggu Diproses</span>' : ''}
                             </div>
                             <div id="desc-box-comp-${comp.id}" class="hidden mt-3 pt-3 border-t border-gray-100">
                                 <textarea id="desc-val-comp-${comp.id}" rows="2" maxlength="1000"
