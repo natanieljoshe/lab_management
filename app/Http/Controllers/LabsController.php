@@ -174,7 +174,7 @@ class LabsController extends Controller
         $end = $request->query('end');
 
         $desks = $lab->desks()
-            ->with(['items.type', 'items.specSetValues.specAttributes', 'items.repairs', 'items.components.type', 'items.components.specSetValues.specAttributes'])
+            ->with(['items.type', 'items.specSetValues.specAttributes', 'items.repairs', 'items.components.type', 'items.components.repairs', 'items.components.specSetValues.specAttributes'])
             ->orderBy('location')
             ->get();
 
@@ -197,6 +197,7 @@ class LabsController extends Controller
                     'type' => $item->type ? $item->type->name : null,
                     'condition' => $item->condition,
                     'available' => $item->condition == 1 && !$isUnderRepair && !$isBooked,
+                    'is_under_repair' => $isUnderRepair,
                     'specifications' => $item->specSetValues->map(fn($spec) => [
                         'name' => $spec->specAttributes->name,
                         'value' => $spec->value,
@@ -206,6 +207,7 @@ class LabsController extends Controller
                         'name' => $c->name,
                         'serial_code' => $c->serial_code,
                         'type' => $c->type ? $c->type->name : null,
+                        'is_under_repair' => $c->repairs->isNotEmpty(),
                         'specifications' => $c->specSetValues->map(fn($spec) => [
                             'name' => $spec->specAttributes->name,
                             'value' => $spec->value,
@@ -221,7 +223,7 @@ class LabsController extends Controller
         });
 
         $storageItems = $lab->items()
-            ->with(['type', 'specSetValues.specAttributes', 'repairs', 'components.type', 'components.specSetValues.specAttributes'])
+            ->with(['type', 'specSetValues.specAttributes', 'repairs', 'components.type', 'components.repairs', 'components.specSetValues.specAttributes'])
             ->whereNull('desk_id')
             ->get()
             ->map(function ($item) use ($start, $end) {
@@ -242,6 +244,7 @@ class LabsController extends Controller
                     'type' => $item->type ? $item->type->name : null,
                     'condition' => $item->condition,
                     'available' => $item->condition == 1 && !$isUnderRepair && !$isBooked,
+                    'is_under_repair' => $isUnderRepair,
                     'specifications' => $item->specSetValues->map(fn($spec) => [
                         'name' => $spec->specAttributes->name,
                         'value' => $spec->value,
@@ -251,6 +254,7 @@ class LabsController extends Controller
                         'name' => $c->name,
                         'serial_code' => $c->serial_code,
                         'type' => $c->type ? $c->type->name : null,
+                        'is_under_repair' => $c->repairs->isNotEmpty(),
                         'specifications' => $c->specSetValues->map(fn($spec) => [
                             'name' => $spec->specAttributes->name,
                             'value' => $spec->value,
@@ -260,7 +264,7 @@ class LabsController extends Controller
             });
 
         $storageComponents = \App\Models\Components::where('lab_id', $lab->id)
-            ->with(['type', 'specSetValues.specAttributes'])
+            ->with(['type', 'repairs', 'specSetValues.specAttributes'])
             ->whereNull('item_id')
             ->get()
             ->map(function ($component) use ($start, $end) {
@@ -280,6 +284,7 @@ class LabsController extends Controller
                     'type' => $component->type ? $component->type->name : null,
                     'condition' => $component->condition,
                     'available' => $component->condition == 1 && !$isBooked,
+                    'is_under_repair' => $component->repairs->isNotEmpty(),
                     'is_component' => true,
                     'specifications' => $component->specSetValues->map(fn($spec) => [
                         'name' => $spec->specAttributes->name,
