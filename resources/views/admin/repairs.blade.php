@@ -2,6 +2,98 @@
 
 @section('title', 'Manajemen Perbaikan')
 
+@section('style')
+    <style>
+        /* --- DATATABLES CUSTOM STYLING (MATCHING SOFTWARES) --- */
+        .dataTables_wrapper .dataTables_filter {
+            display: none;
+        }
+
+        .dataTables_wrapper .dataTables_length select {
+            padding-right: 2rem;
+            padding-left: 0.75rem;
+            padding-top: 0.3rem;
+            padding-bottom: 0.3rem;
+            font-size: 0.875rem;
+            border-radius: 0.5rem;
+            border-color: #d1d5db;
+            cursor: pointer;
+        }
+
+        .dataTables_wrapper .dataTables_length select:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        }
+
+        .dataTables_wrapper .dataTables_info {
+            font-size: 0.875rem;
+            color: #6b7280;
+            padding-top: 0.5rem;
+        }
+
+        .dataTables_wrapper .dataTables_paginate {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding-top: 0.5rem;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.375rem 0.75rem;
+            margin-left: 0;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border-radius: 0.5rem;
+            border: 1px solid #e5e7eb;
+            background-color: white;
+            color: #374151;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover:not(.disabled) {
+            background-color: #f9fafb;
+            color: #4f46e5;
+            border-color: #c7d2fe;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+            z-index: 10;
+            background-color: #4f46e5 !important;
+            color: white !important;
+            border-color: #4f46e5 !important;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background-color: #f9fafb;
+        }
+
+        table.dataTable.no-footer {
+            border-bottom: 1px solid #e5e7eb !important;
+        }
+
+        .ts-control {
+            border-radius: 0.5rem;
+            padding: 10px 12px;
+            border-color: #d1d5db;
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            z-index: 10;
+            position: relative;
+        }
+
+        .ts-dropdown {
+            z-index: 3005;
+        }
+    </style>
+@endsection
+
 @section('body')
     <div class="flex flex-col md:flex-row w-full py-4 shadow-md items-center justify-center mb-5 px-6 md:px-4">
         <h1 class="text-center text-4xl uppercase font-bold mb-2 md:mb-0">Daftar Perbaikan</h1>
@@ -117,6 +209,98 @@
     </div>
 
     {{-- ========================================================= --}}
+    {{-- Ringkasan Statistik Perbaikan --}}
+    {{-- ========================================================= --}}
+    @php
+        $totalItemsRepaired = 0;
+        $inProgressCount = 0;
+        $completedSuccessCount = 0;
+        $completedFailedCount = 0;
+        foreach ($repairs as $r) {
+            foreach ($r->items as $item) {
+                $totalItemsRepaired++;
+                if ((int) $item->pivot->status === 1) {
+                    $inProgressCount++;
+                } elseif ((int) $item->pivot->status === 2 && $item->pivot->is_successful) {
+                    $completedSuccessCount++;
+                } elseif ((int) $item->pivot->status === 2 && !$item->pivot->is_successful) {
+                    $completedFailedCount++;
+                }
+            }
+            foreach ($r->components as $comp) {
+                $totalItemsRepaired++;
+                if ((int) $comp->pivot->status === 1) {
+                    $inProgressCount++;
+                } elseif ((int) $comp->pivot->status === 2 && $comp->pivot->is_successful) {
+                    $completedSuccessCount++;
+                } elseif ((int) $comp->pivot->status === 2 && !$comp->pivot->is_successful) {
+                    $completedFailedCount++;
+                }
+            }
+        }
+    @endphp
+
+    <div class="max-w-7xl mx-auto px-6 pb-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {{-- Card 1: Total Perbaikan --}}
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Total Item Terdaftar</p>
+                    <h3 class="text-2xl font-bold text-gray-800 mt-1">{{ $totalItemsRepaired }}</h3>
+                    <p class="text-xs text-gray-400 mt-1">Item & komponen perbaikan</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
+                </div>
+            </div>
+
+            {{-- Card 2: Dalam Pengerjaan (In Progress) --}}
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-amber-600">Dalam Pengerjaan</p>
+                    <h3 class="text-2xl font-bold text-gray-800 mt-1">{{ $inProgressCount }}</h3>
+                    <p class="text-xs text-gray-400 mt-1">Sedang ditangani teknisi</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+            </div>
+
+            {{-- Card 3: Selesai Sukses --}}
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-emerald-600">Selesai (Sukses)</p>
+                    <h3 class="text-2xl font-bold text-gray-800 mt-1">{{ $completedSuccessCount }}</h3>
+                    <p class="text-xs text-gray-400 mt-1">Berhasil diperbaiki & normal</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+            </div>
+
+            {{-- Card 4: Selesai Gagal --}}
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-rose-600">Selesai (Gagal)</p>
+                    <h3 class="text-2xl font-bold text-gray-800 mt-1">{{ $completedFailedCount }}</h3>
+                    <p class="text-xs text-gray-400 mt-1">Perlu penggantian / afkir</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-xl flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ========================================================= --}}
     {{-- Tabel Utama --}}
     {{-- ========================================================= --}}
     <div class="max-w-7xl mx-auto px-6 pb-12 space-y-8">
@@ -125,34 +309,17 @@
                 <h2 class="text-xl font-semibold text-gray-800">Daftar Laporan Perbaikan</h2>
             </div>
             <div class="p-6">
-                <div id="repairs-datatable-wrapper" class="overflow-x-auto">
-                    <table id="repairs-table" class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
+                <div id="repairs-datatable-wrapper" class="w-full">
+                    <table id="repairs-table" class="w-full text-sm pb-3 text-left text-gray-500 display responsive" style="width:100%">
+                        <thead class="text-xs text-gray-500 uppercase bg-gray-50 border-b border-gray-100">
                             <tr>
-                                <th scope="col"
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                    data-te-datatable-sortable="true">
-                                    Barang & Tipe</th>
-                                <th scope="col"
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                    data-te-datatable-sortable="true">
-                                    Lokasi / Lab</th>
-                                <th scope="col"
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Keluhan & Catatan</th>
-                                <th scope="col"
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Pelapor & Tiket</th>
-                                <th scope="col"
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Status</th>
-                                <th scope="col"
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                    data-te-datatable-sortable="true">
-                                    Waktu</th>
-                                <th scope="col"
-                                    class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Aksi</th>
+                                <th scope="col" class="px-6 py-4 font-bold tracking-wider">Barang & Tipe</th>
+                                <th scope="col" class="px-6 py-4 font-bold tracking-wider">Lokasi / Lab</th>
+                                <th scope="col" class="px-6 py-4 font-bold tracking-wider">Keluhan & Catatan</th>
+                                <th scope="col" class="px-6 py-4 font-bold tracking-wider">Pelapor & Tiket</th>
+                                <th scope="col" class="px-6 py-4 font-bold tracking-wider">Status</th>
+                                <th scope="col" class="px-6 py-4 font-bold tracking-wider">Waktu</th>
+                                <th scope="col" class="px-6 py-4 font-bold tracking-wider text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
@@ -212,6 +379,10 @@
                                         $statusLabel = '';
                                         $statusClass = '';
                                         switch ($pivot->status) {
+                                            case 0:
+                                                $statusLabel = 'Pending';
+                                                $statusClass = 'bg-gray-100 text-gray-800';
+                                                break;
                                             case 1:
                                                 $statusLabel = 'In Progress';
                                                 $statusClass = 'bg-blue-100 text-blue-800';
@@ -282,7 +453,7 @@
                                         </td>
 
                                         {{-- Kolom 6: Waktu (Dari Pivot) --}}
-                                        <td class="px-6 py-4 whitespace-nowrap">
+                                        <td class="px-6 py-4 whitespace-nowrap" data-order="{{ $repair->created_at ? $repair->created_at->timestamp : 0 }}">
                                             <div class="flex flex-col gap-1">
                                                 <div class="text-xs text-gray-600">
                                                     <span class="font-semibold text-gray-500">Lapor:</span>
@@ -411,22 +582,10 @@
 @endsection
 
 @section('script')
-    <style>
-        .ts-control {
-            @apply block w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white;
-            padding-top: 0.6rem;
-            padding-bottom: 0.6rem;
-        }
-
-        .ts-dropdown {
-            z-index: 3005;
-        }
-    </style>
-
     <script>
+        let table;
         let tomSelects = {};
         let tomSelectStatusModal;
-        let dataTableInstance;
 
         function showLoading(title = 'Loading...', text = 'silakan tunggu...') {
             Swal.fire({
@@ -489,77 +648,86 @@
                 }
             });
 
-            // --- 2. INIT DATATABLE ---
-            try {
-                const tableEl = document.getElementById('repairs-table');
-                dataTableInstance = new te.Datatable(tableEl, {
-                    hover: true,
-                    fixedHeader: true,
-                    pagination: true,
-                    entries: 10,
-                    entriesOptions: [5, 10, 25, 50],
-                    noFoundMessage: 'Belum ada data perbaikan.',
-                });
+            // --- 2. INIT JQUERY DATATABLE (MATCHING SOFTWARES) ---
+            table = $('#repairs-table').DataTable({
+                responsive: true,
+                autoWidth: false,
+                dom: 't<"flex flex-col md:flex-row justify-between items-center gap-4 px-6 py-6 border-t border-gray-100"<"flex items-center gap-4"li>p>',
+                pageLength: 10,
+                order: [[5, 'desc']],
+                lengthMenu: [
+                    [5, 10, 25, 50, -1],
+                    [5, 10, 25, 50, "All"]
+                ],
+                language: {
+                    lengthMenu: "Show _MENU_",
+                    emptyTable: "Belum ada data perbaikan.",
+                    zeroRecords: "Tidak ada data perbaikan yang cocok.",
+                    paginate: {
+                        previous: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>',
+                        next: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>'
+                    }
+                },
+                columnDefs: [{
+                    orderable: false,
+                    targets: 6
+                }],
+            });
 
-                document.getElementById('datatable-search-input').addEventListener('input', (e) => {
-                    dataTableInstance.search(e.target.value);
-                    applyClientSideFilter();
-                });
-            } catch (e) {
-                console.warn("DataTable init failed", e);
-            }
+            // Datatable Search Input
+            $('#datatable-search-input').on('keyup input', function () {
+                table.search(this.value).draw();
+            });
 
             // --- 3. CLIENT SIDE FILTER LOGIC ---
+            $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+                if (settings.nTable.id !== 'repairs-table') return true;
+
+                const rowNode = table.row(dataIndex).node();
+                if (!rowNode) return true;
+
+                const statusVal = tomSelects.status ? tomSelects.status.getValue() : '';
+                const labVal = tomSelects.lab ? tomSelects.lab.getValue() : '';
+                const typeVal = tomSelects.type ? tomSelects.type.getValue() : '';
+                const reporterVal = tomSelects.reporter ? tomSelects.reporter.getValue() : '';
+                const specValVal = tomSelects.specVal ? tomSelects.specVal.getValue() : '';
+
+                const rowStatus = rowNode.dataset.repairStatus;
+                const rowLab = rowNode.dataset.labId;
+                const rowType = rowNode.dataset.typeId;
+                const rowReporter = rowNode.dataset.reporter;
+                let rowSpecs = [];
+                try {
+                    rowSpecs = JSON.parse(rowNode.dataset.specs || '[]');
+                } catch(e) {}
+
+                if (statusVal && rowStatus !== statusVal) return false;
+                if (labVal && rowLab !== labVal) return false;
+                if (typeVal && rowType !== typeVal) return false;
+                if (reporterVal && rowReporter !== reporterVal) return false;
+                if (specValVal && !rowSpecs.includes(parseInt(specValVal))) return false;
+
+                return true;
+            });
+
             function applyClientSideFilter() {
-                const statusVal = tomSelects.status.getValue();
-                const labVal = tomSelects.lab.getValue();
-                const typeVal = tomSelects.type.getValue();
-                const reporterVal = tomSelects.reporter.getValue();
-                const specValVal = tomSelects.specVal.getValue();
-
-                const rows = document.querySelectorAll('.repair-row');
-                let visibleCount = 0;
-
-                rows.forEach(row => {
-                    const rowStatus = row.dataset.repairStatus;
-                    const rowLab = row.dataset.labId;
-                    const rowType = row.dataset.typeId;
-                    const rowReporter = row.dataset.reporter;
-                    const rowSpecs = JSON.parse(row.dataset.specs || '[]');
-
-                    let matchStatus = (statusVal === "" || rowStatus === statusVal);
-                    let matchLab = (labVal === "" || rowLab === labVal);
-                    let matchType = (typeVal === "" || rowType === typeVal);
-                    let matchReporter = (reporterVal === "" || rowReporter === reporterVal);
-                    let matchSpec = (specValVal === "" || rowSpecs.includes(parseInt(specValVal)));
-
-                    if (matchStatus && matchLab && matchType && matchReporter && matchSpec) {
-                        row.style.display = '';
-                        visibleCount++;
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
-
-                const noResultRow = document.getElementById('filter-no-result');
-                if (visibleCount === 0 && rows.length > 0) {
-                    noResultRow.classList.remove('hidden');
-                } else {
-                    noResultRow.classList.add('hidden');
-                }
+                table.draw();
             }
 
             // Filter Event Listeners
             [tomSelects.status, tomSelects.lab, tomSelects.type, tomSelects.reporter, tomSelects.specVal].forEach(
                 ts => {
-                    ts.on('change', applyClientSideFilter);
+                    if (ts) ts.on('change', applyClientSideFilter);
                 });
 
             document.getElementById('reset-filter-btn').addEventListener('click', () => {
-                Object.values(tomSelects).forEach(ts => ts.clear());
-                document.getElementById('datatable-search-input').value = '';
-                if (dataTableInstance) dataTableInstance.search('');
-                applyClientSideFilter();
+                Object.values(tomSelects).forEach(ts => {
+                    if (ts) ts.clear();
+                });
+                if (tomSelects.specVal) tomSelects.specVal.disable();
+                const searchInput = document.getElementById('datatable-search-input');
+                if (searchInput) searchInput.value = '';
+                table.search('').draw();
             });
 
             // --- 4. MODAL UPDATE STATUS ---
