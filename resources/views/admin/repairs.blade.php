@@ -549,7 +549,8 @@
                     if (!value) {
                         tomSelects.specVal.disable();
                     } else {
-                        const selectedOption = tomSelects.specAttr.getOption(value);
+                        const selectedOption = Array.from(document.querySelectorAll('#filter_spec_attr option'))
+                            .find(option => option.value === value);
                         if (selectedOption && selectedOption.dataset.values) {
                             try {
                                 const values = JSON.parse(selectedOption.dataset.values);
@@ -610,7 +611,7 @@
                     && (labVal === "" || rowLab === labVal)
                     && (typeVal === "" || rowType === typeVal)
                     && (reporterVal === "" || rowReporter === reporterVal)
-                    && (specValVal === "" || rowSpecs.includes(parseInt(specValVal)));
+                    && (specValVal === "" || rowSpecs.map(String).includes(String(specValVal)));
             }
 
             $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
@@ -625,10 +626,12 @@
                 const visibleCount = dataTableInstance.rows({ search: 'applied' }).count();
 
                 const noResultRow = document.getElementById('filter-no-result');
-                if (visibleCount === 0 && rows.length > 0) {
-                    noResultRow.classList.remove('hidden');
-                } else {
-                    noResultRow.classList.add('hidden');
+                if (noResultRow) {
+                    if (visibleCount === 0 && rows.length > 0) {
+                        noResultRow.classList.remove('hidden');
+                    } else {
+                        noResultRow.classList.add('hidden');
+                    }
                 }
             }
 
