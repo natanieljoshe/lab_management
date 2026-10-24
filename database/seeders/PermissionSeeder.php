@@ -22,7 +22,6 @@ class PermissionSeeder extends Seeder
             ],
             'Helpdesk System' => [
                 ['name' => 'View Helpdesk Form', 'route' => 'user.helpdesk.index', 'action' => 'GET'],
-                ['name' => 'Get Lab Items for Helpdesk', 'route' => 'user.helpdesk.lab.items', 'action' => 'GET'],
                 ['name' => 'Submit Repair Request', 'route' => 'user.helpdesk.repair.store', 'action' => 'POST'],
                 ['name' => 'Submit Feedback', 'route' => 'user.helpdesk.feedback.store', 'action' => 'POST'],
                 ['name' => 'View Helpdesk History', 'route' => 'user.helpdesk.history', 'action' => 'GET'],
