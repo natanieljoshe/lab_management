@@ -23,6 +23,19 @@
             color: #6b7280;
             padding-top: .5rem;
         }
+        #repairs-datatable-wrapper {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+        }
+        #repairs-datatable-wrapper .dataTables_wrapper {
+            max-width: 100%;
+        }
+        #repairs-table {
+            min-width: 1080px;
+        }
         .dataTables_wrapper .dataTables_paginate {
             display: flex;
             align-items: center;
@@ -187,7 +200,7 @@
                 <h2 class="text-xl font-semibold text-gray-800">Daftar Laporan Perbaikan</h2>
             </div>
             <div class="p-6">
-                <div id="repairs-datatable-wrapper" class="w-full">
+                <div id="repairs-datatable-wrapper" class="w-full min-w-0">
                     <table id="repairs-table" class="w-full text-sm pb-3 text-left text-gray-500 display responsive" style="width:100%">
                         <thead class="text-xs text-gray-500 uppercase bg-gray-50 border-b border-gray-100">
                             <tr>
