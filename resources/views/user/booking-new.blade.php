@@ -31,7 +31,7 @@
 
         input[name="booking_type"]:checked+.type-card {
             border-color: var(--petra-blue);
-            background: linear-gradient(135deg, rgba(26, 35, 126, 0.05), rgba(26, 35, 126, 0.02));
+            background: #f8fafc;
         }
 
         .desk-grid-container {
@@ -180,28 +180,28 @@
         }
 
         .type-badge-cpu {
-            background: linear-gradient(135deg, #3b82f6, #2563eb);
-            color: white;
+            background: #dbeafe;
+            color: #1e40af;
         }
 
         .type-badge-monitor {
-            background: linear-gradient(135deg, #10b981, #059669);
-            color: white;
+            background: #d1fae5;
+            color: #047857;
         }
 
         .type-badge-mouse {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-            color: white;
+            background: #fef3c7;
+            color: #b45309;
         }
 
         .type-badge-keyboard {
-            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-            color: white;
+            background: #ede9fe;
+            color: #6d28d9;
         }
 
         .type-badge-other {
-            background: linear-gradient(135deg, #6b7280, #4b5563);
-            color: white;
+            background: #f3f4f6;
+            color: #4b5563;
         }
 
         .component-card {
@@ -216,33 +216,93 @@
             border-color: #cbd5e1;
             background: #f1f5f9;
         }
+
+        .booking-page { background: #f7f8fa; }
+        .booking-page .booking-shell {
+            border: 1px solid #e5e7eb;
+            border-radius: 1rem;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, .04);
+        }
+        .booking-page .booking-header {
+            background: #fff;
+            color: #111827;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .booking-page .booking-header p { color: #6b7280; }
+        .booking-page .booking-header .booking-context {
+            background: #f8fafc;
+            color: var(--petra-blue);
+            border: 1px solid #dbe2ea;
+        }
+        .booking-page .booking-card {
+            border-width: 1px;
+            border-radius: .75rem;
+            box-shadow: none;
+        }
+        .booking-page .booking-card:hover {
+            transform: none;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, .05);
+        }
+        .booking-page .type-card {
+            display: grid;
+            grid-template-columns: 2.5rem minmax(0, 1fr);
+            column-gap: .75rem;
+            row-gap: .15rem;
+            text-align: left;
+            padding: 1rem;
+        }
+        .booking-page .type-card > div:first-child {
+            width: 2.5rem;
+            height: 2.5rem;
+            margin: 0;
+            border-radius: .5rem;
+            flex-shrink: 0;
+            grid-row: span 2;
+        }
+        .booking-page .type-card h4 { font-size: .95rem; margin-bottom: .25rem; }
+        .booking-page .type-card p { grid-column: 2; }
+        .booking-page .desk-grid-container,
+        .booking-page .item-card,
+        .booking-page .form-input { border-width: 1px; }
+        .booking-page .form-input { border-radius: .625rem; }
+        .booking-page .desk-card:hover,
+        .booking-page .item-card:hover { transform: none; box-shadow: none; }
+        .booking-page h3 { font-size: 1rem; letter-spacing: .01em; }
+        .booking-page .form-step {
+            width: 1.75rem;
+            height: 1.75rem;
+            font-size: .75rem;
+            flex-shrink: 0;
+        }
+        .booking-page #submit-btn { box-shadow: none; border-radius: .625rem; }
     </style>
 @endsection
 
 @section('body')
     @include('user.partials.navbar')
-    <div class="min-h-screen bg-gray-50 pt-24 pb-12">
+    <div class="booking-page min-h-screen pt-24 pb-12">
         <div class="container mx-auto px-4 max-w-6xl">
 
-            <div class="text-center mb-12">
-                <h1 class="text-4xl font-bold text-petra-blue mb-4">Formulir Peminjaman</h1>
-                <p class="text-petra-darkgray text-lg max-w-2xl mx-auto">
+            <div class="mb-8 max-w-3xl">
+                <p class="text-xs font-bold uppercase tracking-[.18em] text-gray-500 mb-3">Reservasi fasilitas laboratorium</p>
+                <h1 class="text-3xl md:text-4xl font-bold tracking-tight text-petra-blue mb-3">Buat peminjaman</h1>
+                <p class="text-gray-600 max-w-2xl">
                     Ajukan peminjaman fasilitas laboratorium untuk keperluan akademik Anda
                 </p>
             </div>
 
             <!-- Main Form Card -->
-            <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200 mb-8">
+            <div class="booking-shell bg-white overflow-hidden mb-8">
 
                 <!-- Form Header -->
-                <div class="bg-gradient-to-r from-petra-blue to-blue-900 p-8 text-white">
+                <div class="booking-header p-6 md:p-8">
                     <div class="flex items-center justify-between">
                         <div>
-                            <h2 class="text-2xl font-bold">Detail Peminjaman</h2>
-                            <p class="text-blue-100 mt-1">Isi formulir sesuai kebutuhan Anda</p>
+                            <h2 class="text-xl font-bold text-gray-900">Detail peminjaman</h2>
+                            <p class="mt-1">Isi formulir sesuai kebutuhan Anda.</p>
                         </div>
                         <div class="hidden md:block">
-                            <div class="flex items-center gap-2 bg-blue-800/50 px-4 py-2 rounded-full">
+                            <div class="booking-context flex items-center gap-2 px-4 py-2 rounded-lg">
                                 <i class="fa-solid fa-calendar-check"></i>
                                 <span>Sistem Reservasi Online</span>
                             </div>
@@ -251,13 +311,13 @@
                 </div>
 
                 <!-- Form Content -->
-                <div class="p-8">
+                <div class="p-6 md:p-8">
 
                     <!-- Step 1: Tipe Peminjaman -->
                     <div class="mb-12">
                         <h3 class="text-xl font-bold text-petra-blue mb-6 flex items-center gap-3">
                             <span
-                                class="flex items-center justify-center w-8 h-8 rounded-full bg-petra-blue text-white text-sm">1</span>
+                                 class="form-step flex items-center justify-center rounded-full bg-petra-blue text-white">1</span>
                             Tipe Peminjaman
                         </h3>
 
@@ -271,7 +331,7 @@
                                         <i class="fa-solid fa-building text-2xl text-petra-blue"></i>
                                     </div>
                                     <h4 class="font-bold text-lg text-petra-blue mb-2">Laboratorium</h4>
-                                    <p class="text-sm text-gray-600">Reservasi ruang lab untuk kegiatan kelompok</p>
+                                    <p class="text-sm text-gray-600">Reservasi ruang lab untuk kegiatan</p>
                                 </div>
                             </label>
 
@@ -307,7 +367,7 @@
                     <div class="mb-12">
                         <h3 class="text-xl font-bold text-petra-blue mb-6 flex items-center gap-3">
                             <span
-                                class="flex items-center justify-center w-8 h-8 rounded-full bg-petra-blue text-white text-sm">2</span>
+                                class="form-step flex items-center justify-center rounded-full bg-petra-blue text-white">2</span>
                             Detail Umum
                         </h3>
 
@@ -391,7 +451,7 @@
                         <div id="lab-section" class="booking-section">
                             <h3 class="text-xl font-bold text-petra-blue mb-6 flex items-center gap-3">
                                 <span
-                                    class="flex items-center justify-center w-8 h-8 rounded-full bg-petra-blue text-white text-sm">3</span>
+                                    class="form-step flex items-center justify-center rounded-full bg-petra-blue text-white">3</span>
                                 Detail Laboratorium
                             </h3>
 
@@ -442,7 +502,7 @@
                         <div id="sets-section" class="booking-section hidden">
                             <h3 class="text-xl font-bold text-petra-blue mb-6 flex items-center gap-3">
                                 <span
-                                    class="flex items-center justify-center w-8 h-8 rounded-full bg-petra-blue text-white text-sm">3</span>
+                                    class="form-step flex items-center justify-center rounded-full bg-petra-blue text-white">3</span>
                                 Detail Set Lengkap
                             </h3>
 
@@ -480,7 +540,7 @@
                         <div id="items-section" class="booking-section hidden">
                             <h3 class="text-xl font-bold text-petra-blue mb-6 flex items-center gap-3">
                                 <span
-                                    class="flex items-center justify-center w-8 h-8 rounded-full bg-petra-blue text-white text-sm">3</span>
+                                    class="form-step flex items-center justify-center rounded-full bg-petra-blue text-white">3</span>
                                 Pilih Item
                             </h3>
 
@@ -635,7 +695,7 @@
                     <!-- Submit Button -->
                     <div class="mt-12 pt-8 border-t border-gray-200">
                         <button type="button" id="submit-btn"
-                            class="w-full md:w-auto px-12 py-4 bg-petra-blue text-white font-bold rounded-xl hover:bg-blue-800 transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-3 text-lg">
+                            class="w-full md:w-auto px-12 py-4 bg-petra-blue text-white font-bold rounded-lg hover:bg-blue-800 transition-all flex items-center justify-center gap-3 text-lg">
                             <i class="fa-solid fa-paper-plane"></i>
                             Ajukan Peminjaman
                         </button>
