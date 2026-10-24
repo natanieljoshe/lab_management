@@ -18,7 +18,6 @@ return new class extends Migration
             $table->foreignUuid('lab_id')->nullable()->constrained('labs')->nullOnDelete();
             $table->unsignedTinyInteger('status')->default(1)
                   ->comment('1=Open, 2=In Progress, 3=Resolved, 4=Closed, 5=Rejected');
-            $table->foreignUuid('assigned_to')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignUuid('period_id')->constrained('periods')->cascadeOnDelete();
             $table->timestamp('resolved_at')->nullable();
             $table->timestamps();

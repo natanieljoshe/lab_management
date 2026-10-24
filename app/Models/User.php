@@ -58,11 +58,6 @@ class User extends Authenticatable
         return $this->hasMany(Feedback::class, 'reporter_id');
     }
 
-    public function assignedFeedbacks()
-    {
-        return $this->hasMany(Feedback::class, 'assigned_to');
-    }
-
     public function feedbackResponses()
     {
         return $this->hasMany(FeedbackResponse::class, 'responder_id');
