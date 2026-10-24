@@ -126,8 +126,8 @@ class RepairSeeder extends Seeder
     
     private function getRandomRepairStatus(): int
     {
-        // 0: Pending, 1: In Progress, 2: Completed
-        $statuses = [0, 1, 2, 2, 2]; // More completed repairs
+        // 1: In Progress, 2: Completed
+        $statuses = [1, 2, 2, 2]; // More completed repairs
         return $statuses[array_rand($statuses)];
     }
 }
