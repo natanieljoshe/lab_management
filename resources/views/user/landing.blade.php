@@ -100,7 +100,7 @@
                     </p>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
                     
                     <div class="group bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border-t-4 border-petra-blue" data-aos="fade-up" data-aos-delay="100">
                         <div class="h-56 overflow-hidden relative">
@@ -146,6 +146,30 @@
                             </ul>
                             <a href="{{ route('user.booking.form') }}" class="block w-full text-center py-3 rounded bg-petra-gray text-petra-blue font-bold border border-petra-yellow hover:bg-petra-yellow hover:text-petra-blue transition-all">
                                 PINJAM ALAT
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="group bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border-t-4 border-indigo-600" data-aos="fade-up" data-aos-delay="300">
+                        <div class="h-56 overflow-hidden relative">
+                             <img src="https://placehold.co/600x400/e0e7ff/3730a3?text=Helpdesk+%26+Layanan+Lab" 
+                                 alt="Helpdesk & Pengaduan" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        </div>
+                        <div class="p-8">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-2xl font-bold text-petra-blue">Helpdesk & Saran</h3>
+                                <i class="fa-solid fa-headset text-4xl text-indigo-500/30 group-hover:text-indigo-600 transition-colors"></i>
+                            </div>
+                            <p class="text-gray-600 mb-6 leading-relaxed">
+                                Pusat pengaduan kerusakan perangkat lab serta sarana penyampaian keluhan dan saran untuk peningkatan mutu lab.
+                            </p>
+                            <ul class="text-sm text-gray-500 space-y-2 mb-8">
+                                <li><i class="fa-solid fa-check-circle text-indigo-600 mr-2"></i>Lapor Kerusakan PC & Meja</li>
+                                <li><i class="fa-solid fa-check-circle text-indigo-600 mr-2"></i>Keluhan Fasilitas Ruang Lab</li>
+                                <li><i class="fa-solid fa-check-circle text-indigo-600 mr-2"></i>Tracking Status & Tanggapan</li>
+                            </ul>
+                            <a href="{{ route('user.helpdesk.index') }}" class="block w-full text-center py-3 rounded bg-petra-gray text-petra-blue font-bold border border-indigo-600 hover:bg-indigo-600 hover:text-white transition-all">
+                                PUSAT BANTUAN
                             </a>
                         </div>
                     </div>
