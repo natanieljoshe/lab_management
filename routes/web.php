@@ -32,7 +32,7 @@ use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\FundingController;
 
 Route::get('/', function () {
-    return view('user.landing', ['title' => 'User | Landing Page']);
+    return view('user.landing', ['title' => 'Lab Gedung P']);
 })->name('user.landing');
 
 Route::get('/login', [UnitController::class, 'login'])->name('user.login');
