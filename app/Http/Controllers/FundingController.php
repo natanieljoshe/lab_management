@@ -161,12 +161,25 @@ class FundingController extends Controller
         return redirect()->route('admin.funding')->with('success', 'Transaksi kas berhasil diedit.');
     }
 
-    public function exportExcel(){
+    public function exportExcel(Request $request){
 
-        $fileName = 'laporan-kas-lab-' . date('Y-m-d') . '.csv';
-        $transactions = FundTransaction::with(['category', 'lab', 'recorder'])
-            ->latest('transaction_date')
-            ->get();
+        $periodId = $request->query('period_id');
+        $periodLabel = 'semua-periode';
+
+        $query = FundTransaction::with(['category', 'lab', 'recorder', 'period'])
+            ->latest('transaction_date');
+
+        if ($periodId && $periodId !== 'all') {
+            $query->where('period_id', $periodId);
+            $period = Period::find($periodId);
+            if ($period) {
+                $safe = preg_replace('/[^a-zA-Z0-9\-]/', '-', $period->academic_year . '-' . $period->semester);
+                $periodLabel = strtolower($safe);
+            }
+        }
+
+        $transactions = $query->get();
+        $fileName = 'laporan-kas-lab-' . $periodLabel . '-' . date('Y-m-d') . '.csv';
 
         $headers = [
             "Content-type"        => "text/csv; charset=UTF-8",
