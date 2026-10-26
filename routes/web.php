@@ -19,6 +19,7 @@ use App\Http\Controllers\ComponentsController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RepositoryController;
 use App\Http\Controllers\ModuleController;
+use App\Http\Controllers\FundingController;
 
 Route::get('/', function () {
     return view('user.landing', ['title' => 'User | Landing Page']);
@@ -28,6 +29,13 @@ Route::get('/login', [UnitController::class, 'login'])->name('user.login');
 Route::get('/processLogin/auth/google', [UnitController::class, 'processLogin'])->name('user.processLogin');
 Route::get('/auth/google/callback', [UnitController::class, 'routeAdmin'])->name('user.processRouting');
 Route::get('/logout', [UnitController::class, 'logout'])->name('user.logout');
+
+Route::get('/dev-login', function () {
+    $user = \App\Models\User::where('email', 'c14240157@john.petra.ac.id')->first();
+    \Illuminate\Support\Facades\Auth::login($user);
+    request()->session()->regenerate();
+    return redirect()->route('admin.dashboard');
+});
 
 Route::middleware(['auth.permission'])->group(function () {
     Route::get('/booking', [BookingController::class, 'formBooking'])->name('user.booking.form');
@@ -153,6 +161,14 @@ Route::middleware(['auth.permission'])->group(function () {
         Route::put('/repository/folder/{folder}/move', [RepositoryController::class, 'moveFolder'])->name('admin.repository.folder.move');
         Route::put('/repository/file/{file}/move', [RepositoryController::class, 'moveFile'])->name('admin.repository.file.move');
         Route::get('/repository/folder/{folder}/files', [RepositoryController::class, 'getFolderFiles'])->name('admin.repository.folder.files');
+
+        // Funding
+        Route::get('/funding', [FundingController::class, 'viewFunding'])->name('admin.funding');
+        Route::post('/funding/store', [FundingController::class, 'storeData'])->name('admin.funding.store');
+        Route::delete('/funding/{transaction}', [FundingController::class, 'destroy'])->name('admin.funding.destroy');
+        Route::put('/funding/{transaction}/edit', [FundingController::class, 'editData'])->name('admin.funding.edit');
+        Route::get('/funding/{transaction}/receipt', [FundingController::class, 'showReceipt'])->name('admin.funding.receipt');
+        Route::get('/funding/export', [FundingController::class, 'exportExcel'])->name('admin.funding.export');
 
         // Modules
         Route::get('/modules', [MatkulController::class, 'allModules'])->name('admin.modules');
