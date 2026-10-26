@@ -5,9 +5,28 @@
 @section('style')
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Open+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Open+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <style>
+        /* ============================================================
+               TOKENS — Editorial Luxury (#FBFAF5, #1A2D4A, #F57E21)
+               ============================================================ */
         :root {
+            --clr-bg: #FBFAF5;
+            --clr-navy: #1A2D4A;
+            --clr-orange: #F57E21;
+            --panel: #FEFDFA;
+            --clr-muted: rgba(26, 45, 74, .65);
+            --line: rgba(26, 45, 74, .16);
+            --line-light: rgba(251, 250, 245, .18);
+            --ok: #2F7A55;
+            --danger: #B3362A;
+            --serif: 'Cormorant Garamond', 'Times New Roman', serif;
+            --sans: 'Open Sans', sans-serif;
+            --ease: cubic-bezier(0.22, 1, 0.36, 1);
+            --ease-io: cubic-bezier(0.76, 0, 0.24, 1);
+
             --petra-blue: #1A2D4A;
             --petra-yellow: #F57E21;
             --petra-wood: #8b4513;
@@ -17,57 +36,517 @@
             --booking-line: rgba(26, 45, 74, .16);
         }
 
-        ::-webkit-scrollbar { width: 10px; height: 10px; }
-        ::-webkit-scrollbar-track { background: #FBFAF5; }
-        ::-webkit-scrollbar-thumb { background: #1A2D4A; border: 2px solid #FBFAF5; border-radius: 8px; }
-        ::-webkit-scrollbar-thumb:hover { background: #F57E21; }
-        * { scrollbar-width: thin; scrollbar-color: #1A2D4A #FBFAF5; }
-
-        .booking-page { background: #FBFAF5; color: #1A2D4A; font-family: 'Open Sans', sans-serif; }
-        .booking-page .booking-wrap { width: 100%; max-width: 1240px; margin: 0 auto; padding: 0 28px; }
-        .booking-page .booking-intro { padding: 150px 0 54px; }
-        .booking-page .booking-eyebrow { display: inline-flex; align-items: center; gap: 14px; color: #F57E21; font-size: .7rem; font-weight: 700; letter-spacing: .32em; text-transform: uppercase; }
-        .booking-page .booking-eyebrow::before { content: ''; width: 46px; height: 1px; background: currentColor; }
-        .booking-page .booking-title { margin: 22px 0 16px; color: #1A2D4A; font-family: 'Cormorant Garamond', Georgia, serif; font-size: clamp(2.8rem, 6vw, 5rem); font-weight: 500; line-height: .98; letter-spacing: -.015em; }
-        .booking-page .booking-lead { max-width: 620px; color: var(--booking-muted); font-size: 1rem; line-height: 1.85; }
-
-        .booking-card {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 2px solid #e2e8f0;
-            background: white;
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
         }
 
-        .booking-card:hover {
-            border-color: var(--petra-blue);
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        ::-webkit-scrollbar-track {
+            background: var(--clr-bg);
         }
 
-        .booking-card.active {
-            border-color: var(--petra-blue) !important;
-            background-color: rgba(26, 35, 126, 0.05);
-            box-shadow: 0 0 0 3px rgba(26, 35, 126, 0.1);
+        ::-webkit-scrollbar-thumb {
+            background: var(--clr-navy);
+            border: 2px solid var(--clr-bg);
+            border-radius: 8px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--clr-orange);
+        }
+
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: var(--clr-navy) var(--clr-bg);
+        }
+
+        /* ============================================================
+               BASE PAGE & WRAPPER
+               ============================================================ */
+        .booking-page {
+            position: relative;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background: var(--clr-bg);
+            color: var(--clr-navy);
+            font-family: var(--sans);
+            padding: 150px 0 100px;
+        }
+
+        .booking-page::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 720px;
+            pointer-events: none;
+            background: radial-gradient(540px circle at 75% 20%, rgba(245, 126, 33, 0.1), transparent 60%);
+        }
+
+        .booking-wrap {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 0 28px;
+        }
+
+        .booking-grain {
+            position: fixed;
+            inset: 0;
+            z-index: 60;
+            pointer-events: none;
+            opacity: .055;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .1 0 0 0 0 .18 0 0 0 0 .29 0 0 0 .9 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+        }
+
+        .booking-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            width: 100%;
+            z-index: 1001;
+            background: linear-gradient(90deg, var(--clr-orange), #ffb066);
+            transform-origin: left center;
+            transform: scaleX(0);
+        }
+
+        /* Intro */
+        .booking-intro {
+            position: relative;
+            margin-bottom: 52px;
+        }
+
+        .booking-ghost {
+            position: absolute;
+            right: -10px;
+            top: -30px;
+            pointer-events: none;
+            user-select: none;
+            white-space: nowrap;
+            font-family: var(--serif);
+            font-style: italic;
+            font-weight: 500;
+            font-size: clamp(6rem, 16vw, 13rem);
+            line-height: 1;
+            color: transparent;
+            -webkit-text-stroke: 1px rgba(26, 45, 74, .09);
+        }
+
+        .booking-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 14px;
+            color: var(--clr-orange);
+            font-size: .7rem;
+            font-weight: 700;
+            letter-spacing: .32em;
+            text-transform: uppercase;
+        }
+
+        .booking-eyebrow::before {
+            content: '';
+            width: 46px;
+            height: 1px;
+            background: currentColor;
+            display: block;
+        }
+
+        .booking-title {
+            margin: 22px 0 14px;
+            color: var(--clr-navy);
+            font-family: var(--serif);
+            font-size: clamp(2.8rem, 6vw, 5.2rem);
+            font-weight: 500;
+            line-height: .98;
+            letter-spacing: -.015em;
+        }
+
+        .booking-title em {
+            font-style: italic;
+            font-weight: 500;
+            color: var(--clr-orange);
+        }
+
+        .booking-lead {
+            max-width: 620px;
+            color: var(--clr-muted);
+            font-size: 1rem;
+            line-height: 1.85;
+        }
+
+        /* Form Shell */
+        .booking-shell {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            box-shadow: 0 50px 90px -60px rgba(26, 45, 74, .45);
+        }
+
+        .booking-header {
+            padding: 32px 40px;
+            border-bottom: 1px solid var(--line);
+            background: rgba(26, 45, 74, .02);
+        }
+
+        .booking-header h2 {
+            font-family: var(--serif);
+            font-weight: 500;
+            font-size: 1.85rem;
+            line-height: 1.1;
+            color: var(--clr-navy);
+            margin: 0;
+        }
+
+        .booking-header h2 em {
+            font-style: italic;
+            color: var(--clr-orange);
+        }
+
+        .booking-header p {
+            margin-top: 6px;
+            font-size: .88rem;
+            color: var(--clr-muted);
+        }
+
+        .booking-context {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border: 1px solid var(--line);
+            font-size: .66rem;
+            font-weight: 700;
+            letter-spacing: .2em;
+            text-transform: uppercase;
+            color: var(--clr-navy);
+        }
+
+        .booking-context i {
+            color: var(--clr-orange);
+            font-size: .85rem;
+        }
+
+        /* Step Title */
+        .booking-step-title {
+            display: flex;
+            align-items: baseline;
+            gap: 16px;
+            margin-bottom: 28px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .form-step {
+            font-family: var(--serif);
+            font-style: italic;
+            font-size: 1.6rem;
+            color: var(--clr-orange);
+            font-weight: 500;
+            line-height: 1;
+        }
+
+        .booking-step-title h3 {
+            font-family: var(--serif);
+            font-weight: 600;
+            font-size: clamp(1.4rem, 2.4vw, 1.9rem);
+            line-height: 1.1;
+            color: var(--clr-navy);
+            margin: 0;
+        }
+
+        /* Type Cards (Pilihan Tipe Peminjaman) */
+        .type-card {
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            border: 1px solid var(--line);
+            background: transparent;
+            padding: 32px 26px;
+            height: 100%;
+            transition: color .5s var(--ease), border-color .5s var(--ease), box-shadow .5s var(--ease);
+        }
+
+        .type-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            background: var(--clr-navy);
+            clip-path: inset(100% 0 0 0);
+            transition: clip-path .75s var(--ease-io);
+        }
+
+        .type-card>* {
+            position: relative;
+            z-index: 1;
+        }
+
+        .type-card:hover {
+            border-color: var(--clr-navy);
+        }
+
+        .type-card:hover::before {
+            clip-path: inset(calc(100% - 3px) 0 0 0);
         }
 
         input[name="booking_type"]:checked+.type-card {
-            border-color: var(--petra-blue);
-            background: #f8fafc;
+            color: var(--clr-bg);
+            border-color: var(--clr-navy);
+            box-shadow: 0 20px 40px -20px rgba(26, 45, 74, .4);
         }
 
+        input[name="booking_type"]:checked+.type-card::before {
+            clip-path: inset(0 0 0 0);
+        }
+
+        .type-icon-box {
+            width: 52px;
+            height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--line);
+            margin-bottom: 18px;
+            color: var(--clr-orange);
+            font-size: 1.25rem;
+            transition: border-color .5s var(--ease);
+        }
+
+        input[name="booking_type"]:checked+.type-card .type-icon-box {
+            border-color: var(--line-light);
+        }
+
+        .type-card h4 {
+            font-family: var(--serif);
+            font-weight: 600;
+            font-size: 1.45rem;
+            line-height: 1.15;
+            margin: 0 0 8px;
+            color: inherit;
+        }
+
+        .type-card p {
+            font-size: .84rem;
+            line-height: 1.7;
+            color: var(--clr-muted);
+            margin: 0;
+            transition: color .5s var(--ease);
+        }
+
+        input[name="booking_type"]:checked+.type-card p {
+            color: rgba(251, 250, 245, .75);
+        }
+
+        /* Form Inputs */
+        .form-input {
+            width: 100%;
+            background: transparent;
+            border: 1px solid rgba(26, 45, 74, .25);
+            border-radius: 0;
+            padding: 13px 16px;
+            font-family: var(--sans);
+            font-size: .92rem;
+            color: var(--clr-navy);
+            transition: border-color .4s var(--ease), box-shadow .4s var(--ease), background .4s var(--ease);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--clr-orange);
+            box-shadow: 0 0 0 2px rgba(245, 126, 33, .14);
+            background: #fff;
+        }
+
+        select.form-input {
+            appearance: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+            padding-right: 36px;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' fill='none' stroke='%231A2D4A' stroke-width='1.5'/></svg>");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+        }
+
+        select.form-input option {
+            background: #FBFAF5;
+            color: #1A2D4A;
+        }
+
+        textarea.form-input {
+            resize: vertical;
+            line-height: 1.7;
+        }
+
+        /* Notes & Tips */
+        .booking-note {
+            border: 1px solid var(--line);
+            border-left: 2px solid var(--clr-orange);
+            background: rgba(245, 126, 33, .06);
+            padding: 16px 20px;
+            font-size: .84rem;
+            line-height: 1.7;
+            color: var(--clr-navy);
+        }
+
+        .booking-note i {
+            color: var(--clr-orange);
+        }
+
+        /* Buttons — two-layer sweep: ::before = navy base, ::after = orange sweep */
+        #add-set-lab-btn,
+        #browse-items-btn {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            overflow: hidden;
+            min-height: 48px;
+            padding: 0 24px;
+            border: 1px solid var(--clr-navy);
+            background: transparent;
+            color: var(--clr-bg);
+            font-family: var(--sans);
+            font-weight: 700;
+            font-size: .7rem;
+            letter-spacing: .18em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: border-color .4s var(--ease);
+        }
+
+        #add-set-lab-btn::before,
+        #browse-items-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            background: var(--clr-navy);
+        }
+
+        #add-set-lab-btn::after,
+        #browse-items-btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            background: var(--clr-orange);
+            transform: translateX(-101%);
+            transition: transform .6s var(--ease-io);
+        }
+
+        #add-set-lab-btn>*,
+        #browse-items-btn>* {
+            position: relative;
+            z-index: 2;
+        }
+
+        #add-set-lab-btn span,
+        #browse-items-btn span {
+            position: relative;
+            z-index: 2;
+        }
+
+        #add-set-lab-btn i,
+        #browse-items-btn i {
+            position: relative;
+            z-index: 2;
+        }
+
+        #add-set-lab-btn:hover,
+        #browse-items-btn:hover {
+            border-color: var(--clr-orange);
+        }
+
+        #add-set-lab-btn:hover::after,
+        #browse-items-btn:hover::after {
+            transform: translateX(0);
+        }
+
+        .booking-submit-btn {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            overflow: hidden;
+            padding: 20px 42px;
+            border: 1px solid var(--clr-navy);
+            background: transparent;
+            color: var(--clr-bg);
+            font-family: var(--sans);
+            font-weight: 700;
+            font-size: .78rem;
+            letter-spacing: .24em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: border-color .5s var(--ease);
+        }
+
+        .booking-submit-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            background: var(--clr-navy);
+        }
+
+        .booking-submit-btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            background: var(--clr-orange);
+            transform: translateX(-101%);
+            transition: transform .65s var(--ease-io);
+        }
+
+        .booking-submit-btn>* {
+            position: relative;
+            z-index: 2;
+        }
+
+        .booking-submit-btn span,
+        .booking-submit-btn i {
+            position: relative;
+            z-index: 2;
+        }
+
+        .booking-submit-btn:hover {
+            border-color: var(--clr-orange);
+        }
+
+        .booking-submit-btn:hover::after {
+            transform: translateX(0);
+        }
+
+        .booking-submit-btn i {
+            color: var(--clr-orange);
+            transition: transform .5s var(--ease), color .4s var(--ease);
+        }
+
+        .booking-submit-btn:hover i {
+            color: var(--clr-bg);
+            transform: translateX(5px);
+        }
+
+        /* Desk Map & Cards */
         .desk-grid-container {
             display: grid;
             gap: 1rem;
             padding: 1.5rem;
-            background: var(--petra-gray);
-            border-radius: 0.75rem;
-            border: 2px solid #e2e8f0;
+            background: rgba(26, 45, 74, .025);
+            border: 1px solid var(--line);
             min-width: fit-content;
         }
 
         .desk-card {
             transition: all 0.2s ease;
-            min-height: 100px;
-            border: 2px solid #cbd5e1;
-            border-radius: 0.5rem;
+            min-height: 86px;
+            border: 1px solid var(--line);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -79,114 +558,75 @@
         }
 
         .desk-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-color: var(--clr-navy);
         }
 
         .desk-card.available {
-            border-color: #10b981;
+            border-color: var(--ok);
         }
 
         .desk-card.available:hover {
-            border-color: var(--petra-blue);
+            border-color: var(--clr-navy);
         }
 
         .desk-card.full {
-            border-color: #f87171;
-            background-color: #fef2f2;
+            border-color: rgba(179, 54, 42, .4);
+            background-color: #fcf4f4;
             cursor: not-allowed;
         }
 
         .desk-card.empty {
-            border-color: #e2e8f0;
-            background-color: #f8fafc;
+            border-color: var(--line);
+            background-color: rgba(26, 45, 74, .02);
             cursor: default;
         }
 
         .desk-card.selected {
-            border-color: var(--petra-blue) !important;
-            background-color: rgba(26, 35, 126, 0.1) !important;
-            box-shadow: 0 0 0 3px rgba(26, 35, 126, 0.2);
+            border-color: var(--clr-navy) !important;
+            background-color: var(--clr-navy) !important;
+            color: var(--clr-bg) !important;
             z-index: 10;
         }
 
+        .desk-card.selected * {
+            color: var(--clr-bg) !important;
+        }
+
         .item-card {
-            border: 2px solid #e2e8f0;
-            border-radius: 0.5rem;
+            border: 1px solid var(--line);
             padding: 1rem;
             background: white;
-            transition: all 0.2s;
+            transition: border-color .3s, box-shadow .3s;
         }
 
         .item-card:hover {
-            border-color: var(--petra-blue);
-            transform: translateY(-1px);
+            border-color: var(--clr-navy);
         }
 
         .item-card.selected {
-            border-color: var(--petra-yellow);
-            background-color: rgba(255, 202, 40, 0.1);
+            border-color: var(--clr-orange) !important;
+            background-color: rgba(245, 126, 33, .06);
         }
 
         .item-card.unavailable {
-            opacity: 0.6;
+            opacity: 0.55;
             background-color: #f1f5f9;
             cursor: not-allowed;
         }
 
         .cart-item {
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 1px solid var(--line);
             padding: 0.75rem;
-            transition: all 0.2s;
+            transition: background-color .2s;
         }
 
         .cart-item:hover {
-            background-color: #f8fafc;
+            background-color: rgba(26, 45, 74, .02);
         }
 
         .booking-section {
             transition: all 0.3s ease;
             overflow: hidden;
-        }
-
-        .form-input {
-            border: 2px solid #e2e8f0;
-            border-radius: 0.5rem;
-            padding: 0.75rem 1rem;
-            transition: all 0.2s;
-        }
-
-        .form-input:focus {
-            border-color: var(--petra-blue);
-            box-shadow: 0 0 0 3px rgba(26, 35, 126, 0.1);
-            outline: none;
-        }
-
-        @media (min-width: 1024px) {
-            .split-layout {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 2rem;
-            }
-        }
-
-        .overflow-auto::-webkit-scrollbar {
-            width: 10px;
-            height: 10px;
-        }
-
-        .overflow-auto::-webkit-scrollbar-track {
-            background: #FBFAF5;
-        }
-
-        .overflow-auto::-webkit-scrollbar-thumb {
-            background: #1A2D4A;
-            border: 2px solid #FBFAF5;
-            border-radius: 8px;
-        }
-
-        .overflow-auto::-webkit-scrollbar-thumb:hover {
-            background: #F57E21;
         }
 
         #item-list-container {
@@ -225,140 +665,123 @@
 
         .component-card {
             background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 0.5rem;
+            border: 1px solid var(--line);
             padding: 0.75rem;
             transition: all 0.2s;
         }
 
         .component-card:hover {
-            border-color: #cbd5e1;
+            border-color: var(--clr-navy);
             background: #f1f5f9;
         }
 
-        .booking-page .booking-shell {
-            border: 1px solid var(--booking-line);
-            border-radius: 0;
-            box-shadow: none;
-            background: transparent;
+        /* Help Box */
+        .booking-help {
+            position: relative;
+            overflow: hidden;
+            background: var(--clr-navy);
+            color: var(--clr-bg);
+            padding: 56px 48px;
         }
-        .booking-page .booking-header {
-            background: transparent;
-            color: #1A2D4A;
-            border-bottom: 1px solid var(--booking-line);
+
+        .booking-help::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            opacity: .45;
+            background-image: linear-gradient(var(--line-light) 1px, transparent 1px), linear-gradient(90deg, var(--line-light) 1px, transparent 1px);
+            background-size: 70px 70px;
+            -webkit-mask-image: radial-gradient(ellipse at 15% 0%, #000 5%, transparent 70%);
+            mask-image: radial-gradient(ellipse at 15% 0%, #000 5%, transparent 70%);
         }
-        .booking-page .booking-header p { color: var(--booking-muted); }
-        .booking-page .booking-header .booking-context {
-            background: transparent;
-            color: #1A2D4A;
-            border: 1px solid var(--booking-line);
-            border-radius: 0;
-            font-size: .7rem;
-            font-weight: 700;
-            letter-spacing: .14em;
-            text-transform: uppercase;
-        }
-        .booking-page .booking-card {
-            border-width: 1px;
-            border-radius: 0;
-            box-shadow: none;
-            background: transparent;
-            border-color: var(--booking-line);
-        }
-        .booking-page .booking-card:hover {
-            transform: none;
-            box-shadow: none;
-            border-color: #F57E21;
-        }
-        .booking-page .booking-card.active,
-        .booking-page input[name="booking_type"]:checked + .type-card { border-color: #F57E21 !important; background: rgba(245, 126, 33, .06); box-shadow: none; }
-        .booking-page .text-petra-blue { color: #1A2D4A; }
-        .booking-page .bg-petra-blue { background-color: #1A2D4A; }
-        .booking-page .hover\:bg-blue-800:hover { background-color: #F57E21; }
-        .booking-page .type-card {
+
+        .booking-help-inner {
+            position: relative;
             display: grid;
-            grid-template-columns: 2.5rem minmax(0, 1fr);
-            column-gap: .75rem;
-            row-gap: .15rem;
-            text-align: left;
-            padding: 1rem;
+            grid-template-columns: 1.1fr .9fr;
+            gap: 48px;
+            align-items: center;
         }
-        .booking-page .type-card > div:first-child {
-            width: 2.5rem;
-            height: 2.5rem;
+
+        .booking-help h4 {
+            font-family: var(--serif);
+            font-weight: 500;
+            font-size: clamp(2rem, 3.8vw, 3rem);
+            line-height: 1;
+            color: var(--clr-bg);
+            margin: 12px 0;
+        }
+
+        .booking-help h4 em {
+            font-style: italic;
+            color: var(--clr-orange);
+        }
+
+        .booking-help p {
+            font-size: .9rem;
+            line-height: 1.8;
+            color: rgba(251, 250, 245, .7);
             margin: 0;
-            border-radius: 0;
-            flex-shrink: 0;
-            grid-row: span 2;
-            background: rgba(245, 126, 33, .09);
-            color: #F57E21;
         }
-        .booking-page .type-card > div:first-child i { color: #F57E21; }
-        .booking-page .booking-context i,
-        .booking-page .booking-shell h3 .form-step,
-        .booking-page .booking-shell h4 i,
-        .booking-page .booking-shell label > i { color: #F57E21; }
-        .booking-page .booking-shell h3 .form-step { background: #1A2D4A; }
-        .booking-page .booking-note {
-            border: 1px solid var(--booking-line);
-            border-left: 3px solid #F57E21;
-            border-radius: 0;
-            background: rgba(26, 45, 74, .035);
+
+        .booking-contact-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
         }
-        .booking-page .booking-note i { color: #F57E21; }
-        .booking-page .booking-note p,
-        .booking-page .booking-note p span { color: #1A2D4A; }
-        .booking-page .booking-help {
-            border: 1px solid #1A2D4A;
-            border-top: 3px solid #F57E21;
-            border-radius: 0;
-            background: #1A2D4A;
-            color: #FBFAF5;
+
+        .booking-contact-list li {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 0;
+            border-top: 1px solid var(--line-light);
+            font-size: .92rem;
+            color: var(--clr-bg);
         }
-        .booking-page .booking-help .booking-help-icon { background: rgba(245, 126, 33, .12); }
-        .booking-page .booking-help .booking-help-icon i,
-        .booking-page .booking-help .booking-contact i { color: #F57E21; }
-        .booking-page .booking-help h4 { color: #FBFAF5; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1.65rem; font-weight: 600; }
-        .booking-page .booking-help p { color: rgba(251, 250, 245, .72); }
-        .booking-page .booking-help .booking-contact { color: #FBFAF5; }
-        .booking-page .type-card h4 { font-size: .95rem; margin-bottom: .25rem; color: #1A2D4A; }
-        .booking-page .type-card p { grid-column: 2; }
-        .booking-page .desk-grid-container,
-        .booking-page .item-card,
-        .booking-page .form-input { border-width: 1px; }
-        .booking-page .form-input { border-radius: 0; border-color: var(--booking-line); background: transparent; color: #1A2D4A; }
-        .booking-page .form-input:focus { border-color: #F57E21; box-shadow: 0 0 0 2px rgba(245, 126, 33, .12); }
-        .booking-page .desk-card:hover,
-        .booking-page .item-card:hover { transform: none; box-shadow: none; }
-        .booking-page h2, .booking-page h3 { color: #1A2D4A; }
-        .booking-page h3 { font-size: 1rem; letter-spacing: .12em; text-transform: uppercase; }
-        .booking-page .form-step {
-            width: 1.75rem;
-            height: 1.75rem;
-            font-size: .75rem;
-            flex-shrink: 0;
+
+        .booking-contact-list li:last-child {
+            border-bottom: 1px solid var(--line-light);
         }
-        .booking-page #submit-btn { box-shadow: none; border-radius: 0; background: #1A2D4A; letter-spacing: .16em; text-transform: uppercase; }
-        .booking-page #submit-btn:hover { background: #F57E21; }
-        .booking-page #add-set-lab-btn {
-            min-height: 44px;
-            flex-shrink: 0;
-            padding: 0 22px;
-            border: 1px solid #1A2D4A;
-            border-radius: 0;
-            background: #1A2D4A;
-            color: #FBFAF5;
-            font-size: .72rem;
-            font-weight: 700;
-            letter-spacing: .14em;
-            text-transform: uppercase;
-            transition: background .25s ease, border-color .25s ease, color .25s ease;
+
+        .booking-contact-list i {
+            color: var(--clr-orange);
+            width: 18px;
+            text-align: center;
         }
-        .booking-page #add-set-lab-btn:hover { border-color: #F57E21; background: #F57E21; color: #1A2D4A; }
-        .booking-page #add-set-lab-btn:focus-visible { outline: 2px solid #F57E21; outline-offset: 3px; }
+
+        @media (max-width: 899px) {
+            .booking-help-inner {
+                grid-template-columns: 1fr;
+                gap: 32px;
+            }
+
+            .booking-header {
+                padding: 24px 20px;
+            }
+
+            .booking-ghost {
+                display: none;
+            }
+        }
+
         @media (max-width: 639px) {
-            .booking-page .booking-wrap { padding: 0 20px; }
-            .booking-page .booking-intro { padding: 120px 0 40px; }
+            .booking-page {
+                padding: 118px 0 80px;
+            }
+
+            .booking-wrap {
+                padding: 0 20px;
+            }
+
+            .booking-help {
+                padding: 36px 24px;
+            }
+
+            .booking-submit-btn {
+                width: 100%;
+            }
         }
     </style>
 @endsection
@@ -368,29 +791,29 @@
     <main class="booking-page min-h-screen pb-12">
         <div class="booking-wrap">
 
-            <div class="booking-intro max-w-3xl">
+            {{-- Intro Header --}}
+            <div class="booking-intro relative">
+                <div class="booking-ghost" aria-hidden="true">Reservasi</div>
                 <p class="booking-eyebrow">Reservasi fasilitas laboratorium</p>
-                <h1 class="booking-title">Buat peminjaman</h1>
+                <h1 class="booking-title">Buat <em>peminjaman</em></h1>
                 <p class="booking-lead">
-                    Ajukan peminjaman fasilitas laboratorium untuk keperluan akademik Anda
+                    Ajukan peminjaman fasilitas dan inventaris laboratorium untuk keperluan akademik Anda.
                 </p>
             </div>
 
             <!-- Main Form Card -->
-            <div class="booking-shell bg-white overflow-hidden mb-8">
+            <div class="booking-shell overflow-hidden mb-8">
 
                 <!-- Form Header -->
-                <div class="booking-header p-6 md:p-8">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h2 class="text-xl font-bold text-gray-900">Detail peminjaman</h2>
-                            <p class="mt-1">Isi formulir sesuai kebutuhan Anda.</p>
-                        </div>
-                        <div class="hidden md:block">
-                            <div class="booking-context flex items-center gap-2 px-4 py-2 rounded-lg">
-                                <i class="fa-solid fa-calendar-check"></i>
-                                <span>Sistem Reservasi Online</span>
-                            </div>
+                <div class="booking-header flex items-center justify-between">
+                    <div>
+                        <h2>Detail <em>Peminjaman</em></h2>
+                        <p>Isi formulir sesuai kebutuhan kegiatan akademik Anda.</p>
+                    </div>
+                    <div class="hidden md:block">
+                        <div class="booking-context">
+                            <i class="fa-solid fa-calendar-check"></i>
+                            <span>Sistem Reservasi Online</span>
                         </div>
                     </div>
                 </div>
@@ -400,49 +823,45 @@
 
                     <!-- Step 1: Tipe Peminjaman -->
                     <div class="mb-12">
-                        <h3 class="text-xl font-bold text-petra-blue mb-6 flex items-center gap-3">
-                            <span
-                                 class="form-step flex items-center justify-center rounded-full bg-petra-blue text-white">1</span>
-                            Tipe Peminjaman
-                        </h3>
+                        <div class="booking-step-title">
+                            <span class="form-step">01</span>
+                            <h3>Pilih Tipe Peminjaman</h3>
+                        </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
                             <!-- Lab Booking -->
                             <label class="cursor-pointer">
                                 <input type="radio" name="booking_type" value="lab" class="sr-only peer" checked>
-                                <div class="type-card booking-card p-6 text-center peer-checked:border-petra-blue">
-                                    <div
-                                        class="w-16 h-16 mx-auto mb-4 rounded-full bg-blue-100 flex items-center justify-center">
-                                        <i class="fa-solid fa-building text-2xl text-petra-blue"></i>
+                                <div class="type-card">
+                                    <div class="type-icon-box">
+                                        <i class="fa-solid fa-building"></i>
                                     </div>
-                                    <h4 class="font-bold text-lg text-petra-blue mb-2">Laboratorium</h4>
-                                    <p class="text-sm text-gray-600">Reservasi ruang lab untuk kegiatan</p>
+                                    <h4>Laboratorium</h4>
+                                    <p>Reservasi ruang lab terpadu untuk kegiatan praktikum</p>
                                 </div>
                             </label>
 
                             <!-- Set Booking -->
                             <label class="cursor-pointer">
                                 <input type="radio" name="booking_type" value="sets" class="sr-only peer">
-                                <div class="type-card booking-card p-6 text-center peer-checked:border-petra-blue">
-                                    <div
-                                        class="w-16 h-16 mx-auto mb-4 rounded-full bg-yellow-100 flex items-center justify-center">
-                                        <i class="fa-solid fa-desktop text-2xl text-petra-yellow"></i>
+                                <div class="type-card">
+                                    <div class="type-icon-box">
+                                        <i class="fa-solid fa-desktop"></i>
                                     </div>
-                                    <h4 class="font-bold text-lg text-petra-blue mb-2">Set Lengkap</h4>
-                                    <p class="text-sm text-gray-600">PC + Monitor untuk kebutuhan khusus</p>
+                                    <h4>Set Lengkap</h4>
+                                    <p>Unit PC + Monitor spesifikasi tinggi untuk tugas khusus</p>
                                 </div>
                             </label>
 
                             <!-- Item Booking -->
                             <label class="cursor-pointer">
                                 <input type="radio" name="booking_type" value="items" class="sr-only peer">
-                                <div class="type-card booking-card p-6 text-center peer-checked:border-petra-blue">
-                                    <div
-                                        class="w-16 h-16 mx-auto mb-4 rounded-full bg-green-100 flex items-center justify-center">
-                                        <i class="fa-solid fa-microchip text-2xl text-green-600"></i>
+                                <div class="type-card">
+                                    <div class="type-icon-box">
+                                        <i class="fa-solid fa-microchip"></i>
                                     </div>
-                                    <h4 class="font-bold text-lg text-petra-blue mb-2">Item Individual</h4>
-                                    <p class="text-sm text-gray-600">Pinjam peralatan elektronik spesifik</p>
+                                    <h4>Item Individual</h4>
+                                    <p>Peminjaman peralatan elektronik &amp; sensor spesifik</p>
                                 </div>
                             </label>
                         </div>
@@ -450,45 +869,48 @@
 
                     <!-- Step 2: Detail Umum -->
                     <div class="mb-12">
-                        <h3 class="text-xl font-bold text-petra-blue mb-6 flex items-center gap-3">
-                            <span
-                                class="form-step flex items-center justify-center rounded-full bg-petra-blue text-white">2</span>
-                            Detail Umum
-                        </h3>
+                        <div class="booking-step-title">
+                            <span class="form-step">02</span>
+                            <h3>Detail Umum Kegiatan</h3>
+                        </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <!-- Left Column -->
                             <div class="space-y-6">
                                 <!-- Nama Kegiatan -->
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">
                                         Nama Kegiatan <span class="text-red-500">*</span>
                                     </label>
-                                    <input type="text" id="event_name" required placeholder="Contoh: Praktikum Jarkom" class="form-input w-full">
-                                    <p id="error-event_name" class="hidden text-xs text-red-500 mt-1 flex items-center gap-1">
+                                    <input type="text" id="event_name" required
+                                        placeholder="Contoh: Praktikum Jaringan Komputer" class="form-input">
+                                    <p id="error-event_name"
+                                        class="hidden text-xs text-red-500 mt-1 flex items-center gap-1">
                                         <i class="fa-solid fa-circle-exclamation"></i> <span></span>
                                     </p>
-                                    
                                 </div>
 
                                 <!-- Tanggal Mulai -->
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">
                                         Mulai Pinjam <span class="text-red-500">*</span>
                                     </label>
-                                    <input type="datetime-local" id="borrowed_at" required class="form-input w-full">
-                                    <p id="error-borrowed_at" class="hidden text-xs text-red-500 mt-1 flex items-center gap-1">
+                                    <input type="datetime-local" id="borrowed_at" required class="form-input">
+                                    <p id="error-borrowed_at"
+                                        class="hidden text-xs text-red-500 mt-1 flex items-center gap-1">
                                         <i class="fa-solid fa-circle-exclamation"></i> <span></span>
                                     </p>
                                 </div>
 
                                 <!-- Nomor WhatsApp -->
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">
                                         No. WhatsApp <span class="text-red-500">*</span>
                                     </label>
-                                    <input type="tel" id="phone_number" required pattern="^\d{10,20}$" placeholder="08123456789" class="form-input w-full">
-                                    <p id="error-phone_number" class="hidden text-xs text-red-500 mt-1 flex items-center gap-1">
+                                    <input type="tel" id="phone_number" required pattern="^\d{10,20}$"
+                                        placeholder="08123456789" class="form-input">
+                                    <p id="error-phone_number"
+                                        class="hidden text-xs text-red-500 mt-1 flex items-center gap-1">
                                         <i class="fa-solid fa-circle-exclamation"></i> <span></span>
                                     </p>
                                 </div>
@@ -498,10 +920,10 @@
                             <div class="space-y-6">
                                 <!-- Tipe Penggunaan -->
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">
                                         Tipe Penggunaan <span class="text-red-500">*</span>
                                     </label>
-                                    <select id="type" required class="form-input w-full">
+                                    <select id="type" required class="form-input">
                                         <option value="0">Onsite</option>
                                         <option value="1">Remote</option>
                                         <option value="2">Keluar Lab</option>
@@ -510,21 +932,24 @@
 
                                 <!-- Tanggal Selesai -->
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">
                                         Selesai Pinjam <span class="text-red-500">*</span>
                                     </label>
-                                    <input type="datetime-local" id="return_deadline_at" required class="form-input w-full">
-                                    <p id="error-return_deadline_at" class="hidden text-xs text-red-500 mt-1 flex items-center gap-1">
+                                    <input type="datetime-local" id="return_deadline_at" required class="form-input">
+                                    <p id="error-return_deadline_at"
+                                        class="hidden text-xs text-red-500 mt-1 flex items-center gap-1">
                                         <i class="fa-solid fa-circle-exclamation"></i> <span></span>
                                     </p>
                                 </div>
 
                                 <!-- Detail Akademik (Opsional) -->
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">
                                         Detail Akademik (Opsional)
                                     </label>
-                                    <textarea id="academic_detail" placeholder="Keterangan tambahan..." rows="3" class="form-input w-full"></textarea>
+                                    <textarea id="academic_detail"
+                                        placeholder="Keterangan tambahan tujuan peminjaman atau tugas besar..." rows="3"
+                                        class="form-input"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -534,45 +959,45 @@
                     <div id="booking-details">
                         <!-- Lab Booking Section -->
                         <div id="lab-section" class="booking-section">
-                            <h3 class="text-xl font-bold text-petra-blue mb-6 flex items-center gap-3">
-                                <span
-                                    class="form-step flex items-center justify-center rounded-full bg-petra-blue text-white">3</span>
-                                Detail Laboratorium
-                            </h3>
+                            <div class="booking-step-title">
+                                <span class="form-step">03</span>
+                                <h3>Detail Laboratorium</h3>
+                            </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <!-- Pilih Lab -->
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">
                                         Pilih Laboratorium <span class="text-red-500">*</span>
                                     </label>
-                                    <select id="lab-select" class="form-input w-full">
+                                    <select id="lab-select" class="form-input">
                                         <option value="">-- Pilih Lab --</option>
                                     </select>
-                                    
-                                    <small id="lab-capacity-info" class="hidden text-gray-500 mt-2 block transition-all duration-300">
-                                    <i class="fa-solid fa-users text-petra-blue mr-1"></i> 
-                                        Kapasitas Maksimal: <span id="capacity-value" class="font-bold text-gray-800">0</span> orang
-                                    </small>
 
+                                    <small id="lab-capacity-info"
+                                        class="hidden text-gray-500 mt-2 block transition-all duration-300">
+                                        <i class="fa-solid fa-users text-petra-blue mr-1"></i>
+                                        Kapasitas Maksimal: <span id="capacity-value"
+                                            class="font-bold text-gray-800">0</span> orang
+                                    </small>
                                 </div>
 
                                 <!-- Jumlah Peserta -->
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-2">
                                         Jumlah Peserta <span class="text-red-500">*</span>
                                     </label>
                                     <input type="number" id="attendee_count" min="1" placeholder="Contoh: 20"
-                                        class="form-input w-full">
-                                        <p id="capacity-error-msg" class="hidden text-xs text-red-500 mt-1">
-                                            Jumlah peserta melebihi kapasitas lab!
-                                        </p>
+                                        class="form-input">
+                                    <p id="capacity-error-msg" class="hidden text-xs text-red-500 mt-1">
+                                        Jumlah peserta melebihi kapasitas lab!
+                                    </p>
                                 </div>
                             </div>
 
-                            <div class="booking-note mt-6 p-4">
+                            <div class="booking-note mt-6">
                                 <div class="flex items-start gap-3">
-                                    <i class="fa-solid fa-info-circle mt-1"></i>
+                                    <i class="fa-solid fa-circle-info mt-1"></i>
                                     <div>
                                         <p class="text-sm">
                                             <span class="font-semibold">Catatan:</span> Peminjaman lab mencakup akses ke
@@ -585,19 +1010,19 @@
 
                         <!-- Set Booking Section -->
                         <div id="sets-section" class="booking-section hidden">
-                            <h3 class="text-xl font-bold text-petra-blue mb-6 flex items-center gap-3">
-                                <span
-                                    class="form-step flex items-center justify-center rounded-full bg-petra-blue text-white">3</span>
-                                Detail Set Lengkap
-                            </h3>
+                            <div class="booking-step-title">
+                                <span class="form-step">03</span>
+                                <h3>Detail Set Lengkap</h3>
+                            </div>
 
                             <div class="mb-6">
-                                <div class="flex gap-2">
+                                <div class="flex gap-3">
                                     <select id="set-lab-select" class="form-input flex-1">
                                         <option value="">-- Pilih Lab --</option>
                                     </select>
                                     <button type="button" id="add-set-lab-btn">
-                                        Tambah Lab
+                                        <i class="fa-solid fa-plus"></i>
+                                        <span>Tambah Lab</span>
                                     </button>
                                 </div>
                             </div>
@@ -607,7 +1032,7 @@
                                 <!-- Dynamic content will be added here -->
                             </div>
 
-                            <div class="booking-note mt-6 p-4">
+                            <div class="booking-note mt-6">
                                 <div class="flex items-start gap-3">
                                     <i class="fa-solid fa-lightbulb mt-1"></i>
                                     <div>
@@ -622,24 +1047,23 @@
 
                         <!-- Item Booking Section -->
                         <div id="items-section" class="booking-section hidden">
-                            <h3 class="text-xl font-bold text-petra-blue mb-6 flex items-center gap-3">
-                                <span
-                                    class="form-step flex items-center justify-center rounded-full bg-petra-blue text-white">3</span>
-                                Pilih Item
-                            </h3>
+                            <div class="booking-step-title">
+                                <span class="form-step">03</span>
+                                <h3>Pilih Item &amp; Denah</h3>
+                            </div>
 
                             <!-- Lab Selection -->
                             <div class="mb-8">
-                                <label class="block text-sm font-semibold text-gray-700 mb-3">
+                                <label class="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-3">
                                     Pilih Laboratorium <span class="text-red-500">*</span>
                                 </label>
                                 <div class="flex gap-3">
                                     <select id="item-lab-select" class="form-input flex-1">
                                         <option value="">-- Pilih Lab --</option>
                                     </select>
-                                    <button type="button" id="browse-items-btn"
-                                        class="px-6 bg-petra-blue text-white font-semibold rounded-lg hover:bg-blue-800 transition">
-                                        Tampilkan Denah
+                                    <button type="button" id="browse-items-btn">
+                                        <i class="fa-solid fa-map-location-dot"></i>
+                                        <span>Tampilkan Denah</span>
                                     </button>
                                 </div>
                             </div>
@@ -648,13 +1072,13 @@
                             <div id="item-selection-container" class="hidden">
                                 <!-- Lab Storage Section -->
                                 <div id="lab-storage-section" class="mb-6 hidden">
-                                    <div class="bg-white rounded-xl border border-gray-200">
-                                        <div class=" bg-gray-50 px-4 py-3 border-b border-gray-200">
-                                            <h4 class="font-bold text-gray-700 flex items-center gap-2">
-                                                <i class="fa-solid fa-warehouse"></i>
+                                    <div class="bg-white border border-gray-200">
+                                        <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                                            <h4 class="font-bold text-gray-700 flex items-center gap-2 text-sm">
+                                                <i class="fa-solid fa-warehouse text-orange-500"></i>
                                                 Lab Storage
                                                 <span id="storage-count"
-                                                    class="ml-2 bg-white text-gray-700 px-2 py-1 rounded-full text-xs">0</span>
+                                                    class="ml-2 bg-white text-gray-700 px-2 py-0.5 text-xs border border-gray-300 font-bold">0</span>
                                             </h4>
                                         </div>
                                         <div id="lab-storage-container" class="p-4 max-h-96 overflow-y-auto">
@@ -665,52 +1089,49 @@
                                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                                     <!-- Left: Desk Map -->
                                     <div class="lg:col-span-2">
-                                        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                                        <div class="bg-white border border-gray-200 overflow-hidden">
                                             <div
                                                 class="bg-gray-50 px-4 py-3 border-b border-gray-200 flex justify-between items-center flex-wrap gap-2">
                                                 <div>
-                                                    <h4 class="font-bold text-gray-700">
-                                                        Denah & Ketersediaan
-                                                        <span id="selected-lab-name" class="text-petra-blue ml-2"></span>
+                                                    <h4 class="font-bold text-gray-700 text-sm">
+                                                        Denah &amp; Ketersediaan
+                                                        <span id="selected-lab-name"
+                                                            class="text-petra-blue ml-2 font-bold"></span>
                                                     </h4>
                                                     <div class="flex flex-wrap gap-3 mt-1 text-xs text-gray-600">
                                                         <div class="flex items-center gap-1">
-                                                            <div class="w-2 h-2 rounded-full bg-green-500"></div>Ada
+                                                            <div class="w-2.5 h-2.5 bg-green-500"></div>Ada
                                                         </div>
                                                         <div class="flex items-center gap-1">
-                                                            <div class="w-2 h-2 rounded-full bg-red-400"></div>Penuh
+                                                            <div class="w-2.5 h-2.5 bg-red-400"></div>Penuh
                                                         </div>
                                                         <div class="flex items-center gap-1">
-                                                            <div class="w-2 h-2 rounded-full bg-blue-600"></div>Pilih
+                                                            <div class="w-2.5 h-2.5 bg-blue-900"></div>Pilih
                                                         </div>
                                                     </div>
                                                 </div>
 
-                                                <div
-                                                    class="flex items-center bg-white rounded-lg border border-gray-300 shadow-sm p-1">
+                                                <div class="flex items-center bg-white border border-gray-300 p-1">
                                                     <button type="button" onclick="adjustZoom(-0.1)"
-                                                        class="p-1.5 hover:bg-gray-100 rounded text-gray-600"
-                                                        title="Zoom Out">
+                                                        class="p-1.5 hover:bg-gray-100 text-gray-600" title="Zoom Out">
                                                         <i class="fa-solid fa-magnifying-glass-minus"></i>
                                                     </button>
                                                     <span id="zoom-level-text"
                                                         class="text-xs font-mono w-12 text-center text-gray-500 select-none">100%</span>
                                                     <button type="button" onclick="adjustZoom(0.1)"
-                                                        class="p-1.5 hover:bg-gray-100 rounded text-gray-600"
-                                                        title="Zoom In">
+                                                        class="p-1.5 hover:bg-gray-100 text-gray-600" title="Zoom In">
                                                         <i class="fa-solid fa-magnifying-glass-plus"></i>
                                                     </button>
                                                     <div class="w-px h-4 bg-gray-300 mx-1"></div>
                                                     <button type="button" onclick="resetZoom()"
-                                                        class="p-1.5 hover:bg-gray-100 rounded text-gray-600"
-                                                        title="Reset Zoom">
+                                                        class="p-1.5 hover:bg-gray-100 text-gray-600" title="Reset Zoom">
                                                         <i class="fa-solid fa-rotate"></i>
                                                     </button>
                                                 </div>
                                             </div>
 
                                             <div class="p-4 relative">
-                                                <div class="overflow-auto overscroll-auto border border-gray-200 rounded-lg bg-gray-50 relative"
+                                                <div class="overflow-auto overscroll-auto border border-gray-200 bg-gray-50 relative"
                                                     id="map-scroll-container">
 
                                                     <div id="map-zoom-wrapper"
@@ -726,13 +1147,14 @@
 
                                     <!-- Right: Item List -->
                                     <div class="lg:col-span-1">
-                                        <div class="bg-white rounded-xl border border-gray-200 h-full flex flex-col">
+                                        <div class="bg-white border border-gray-200 h-full flex flex-col">
                                             <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
-                                                <h4 class="font-bold text-gray-700 flex items-center justify-between">
-                                                    <span>Item pada Meja: <span id="selected-desk"
-                                                            class="text-petra-blue">-</span></span>
+                                                <h4
+                                                    class="font-bold text-gray-700 flex items-center justify-between text-sm">
+                                                    <span>Item Meja: <span id="selected-desk"
+                                                            class="text-petra-blue font-bold">-</span></span>
                                                     <span
-                                                        class="text-xs font-normal bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                                                        class="text-xs font-normal bg-blue-100 text-blue-900 px-2 py-0.5 border border-blue-200">
                                                         <span id="available-count">0</span> tersedia
                                                     </span>
                                                 </h4>
@@ -749,23 +1171,23 @@
 
                                 <!-- Cart Section -->
                                 <div class="mt-8">
-                                    <div class="bg-white rounded-xl border border-gray-200">
+                                    <div class="bg-white border border-gray-200">
                                         <div
                                             class="bg-gray-50 px-4 py-3 border-b border-gray-200 flex justify-between items-center">
-                                            <h4 class="font-bold text-gray-700">
+                                            <h4 class="font-bold text-gray-700 text-sm">
                                                 Keranjang Item
                                                 <span id="cart-count"
-                                                    class="ml-2 bg-petra-blue text-white px-2 py-1 rounded-full text-xs">0</span>
+                                                    class="ml-2 bg-petra-blue text-white px-2 py-0.5 text-xs font-bold">0</span>
                                             </h4>
                                             <button type="button" id="clear-cart-btn"
-                                                class="text-sm text-red-600 hover:text-red-800">
+                                                class="text-xs font-bold uppercase tracking-wider text-red-600 hover:text-red-800">
                                                 <i class="fa-solid fa-trash mr-1"></i> Kosongkan
                                             </button>
                                         </div>
                                         <div id="cart-container" class="p-4">
                                             <div id="cart-items" class="space-y-2">
                                                 <div class="text-center py-8 text-gray-400">
-                                                    <i class="fa-solid fa-shopping-cart text-3xl mb-3"></i>
+                                                    <i class="fa-solid fa-cart-shopping text-3xl mb-3"></i>
                                                     <p>Belum ada item di keranjang</p>
                                                 </div>
                                             </div>
@@ -778,52 +1200,41 @@
 
                     <!-- Submit Button -->
                     <div class="mt-12 pt-8 border-t border-gray-200">
-                        <button type="button" id="submit-btn"
-                            class="w-full md:w-auto px-12 py-4 bg-petra-blue text-white font-bold rounded-lg hover:bg-blue-800 transition-all flex items-center justify-center gap-3 text-lg">
+                        <button type="button" id="submit-btn" class="booking-submit-btn">
                             <i class="fa-solid fa-paper-plane"></i>
-                            Ajukan Peminjaman
+                            <span>Ajukan Peminjaman</span>
                         </button>
 
                         <p class="text-sm text-gray-500 mt-4 text-center md:text-left">
-                            <i class="fa-solid fa-circle-info mr-1"></i>
-                            Pastikan semua data yang Anda isi sudah benar sebelum mengajukan
+                            <i class="fa-solid fa-circle-info mr-1 text-orange-500"></i>
+                            Pastikan semua data yang Anda isi sudah benar sebelum mengajukan reservasi
                         </p>
                     </div>
                 </div>
             </div>
 
             <!-- Info Box -->
-            <div class="booking-help p-6">
-                <div class="flex items-start gap-4">
-                    <div class="flex-shrink-0">
-                        <div class="booking-help-icon w-12 h-12 flex items-center justify-center">
-                            <i class="fa-solid fa-headset text-xl"></i>
-                        </div>
-                    </div>
+            <div class="booking-help">
+                <div class="booking-help-inner">
                     <div>
-                        <h4 class="font-bold mb-2">Butuh Bantuan?</h4>
-                        <p class="mb-3">
-                            Jika Anda mengalami kesulitan dalam mengisi formulir, silakan hubungi administrator
-                            laboratorium:
+                        <div class="booking-eyebrow" style="color:var(--clr-orange);">Hubungi kami</div>
+                        <h4>Butuh <em>Bantuan?</em></h4>
+                        <p>
+                            Jika Anda mengalami kendala dalam proses pengisian formulir atau memerlukan konsultasi fasilitas
+                            lab, hubungi tim pengelola kami:
                         </p>
-                        <div class="flex flex-wrap gap-4 text-sm">
-                            <span class="booking-contact inline-flex items-center gap-2">
-                                <i class="fa-solid fa-envelope"></i>
-                                <span>lab@petra.ac.id</span>
-                            </span>
-                            <span class="booking-contact inline-flex items-center gap-2">
-                                <i class="fa-solid fa-phone"></i>
-                                <span>(031) 1234-5678</span>
-                            </span>
-                        </div>
                     </div>
+                    <ul class="booking-contact-list">
+                        <li><i class="fa-solid fa-envelope"></i><span>lab@petra.ac.id</span></li>
+                        <li><i class="fa-solid fa-phone"></i><span>(031) 1234-5678</span></li>
+                    </ul>
                 </div>
             </div>
 
         </div>
     </main>
 
-    <!-- @include('user.partials.footer') -->
+    @include('user.partials.footer')
 @endsection
 
 @section('script')
@@ -846,7 +1257,27 @@
             components: []
         };
 
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
+            // Grain & Scroll progress
+            (function () {
+                var grain = document.createElement('div');
+                grain.className = 'booking-grain';
+                grain.setAttribute('aria-hidden', 'true');
+                document.body.appendChild(grain);
+
+                var bar = document.createElement('div');
+                bar.className = 'booking-progress';
+                document.body.appendChild(bar);
+
+                function onScroll() {
+                    var h = document.documentElement.scrollHeight - window.innerHeight;
+                    bar.style.transform = 'scaleX(' + (h > 0 ? Math.min(window.scrollY / h, 1) : 0) + ')';
+                }
+                window.addEventListener('scroll', onScroll, { passive: true });
+                window.addEventListener('resize', onScroll);
+                onScroll();
+            })();
+
             initializeForm();
             setupEventListeners();
             loadLabs();
@@ -868,7 +1299,7 @@
             showSection('lab');
 
             document.querySelectorAll('input[name="booking_type"]').forEach(radio => {
-                radio.addEventListener('change', function() {
+                radio.addEventListener('change', function () {
                     const type = this.value;
                     showSection(type);
                 });
@@ -1160,19 +1591,19 @@
                 itemClass += ' selected';
                 statusBadge = '<span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">Dipilih</span>';
                 actionButton = `
-                    <button onclick="removeFromCart('${item.id}', ${isComponent})" 
-                            class="px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600 text-sm">
-                        <i class="fa-solid fa-times mr-1"></i> Batal
-                    </button>
-                `;
+                        <button onclick="removeFromCart('${item.id}', ${isComponent})" 
+                                class="px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600 text-sm">
+                            <i class="fa-solid fa-times mr-1"></i> Batal
+                        </button>
+                    `;
             } else {
                 statusBadge = '<span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Tersedia</span>';
                 actionButton = `
-                    <button onclick="addToCart('${itemData}', ${isComponent})" 
-                            class="px-3 py-1 bg-petra-blue text-white rounded-lg hover:bg-blue-800 text-sm">
-                        <i class="fa-solid fa-plus mr-1"></i> Tambah
-                    </button>
-                `;
+                        <button onclick="addToCart('${itemData}', ${isComponent})" 
+                                class="px-3 py-1 bg-petra-blue text-white rounded-lg hover:bg-blue-800 text-sm">
+                            <i class="fa-solid fa-plus mr-1"></i> Tambah
+                        </button>
+                    `;
             }
 
             const hasComponents = !isComponent && item.components && item.components.length > 0;
@@ -1181,48 +1612,48 @@
                 '';
 
             return `
-                <div class="${itemClass}">
-                    <div class="flex justify-between items-start mb-2">
-                        <div class="flex-1">
-                            <div class="flex items-center gap-2 mb-1 flex-wrap">
-                                <span class="${typeClass} text-xs px-2 py-1 rounded font-semibold">${typeName}</span>
-                                ${componentBadge}
-                            </div>
-                            <div class="font-semibold text-gray-800">${item.name}</div>
-                            <div class="text-xs text-gray-500 font-mono mt-1">${item.serial_code || 'No Serial'}</div>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            ${statusBadge}
-                        </div>
-                    </div>
-
-                    ${hasComponents ? `
-                            <div class="mt-2 mb-2">
-                                <div class="text-xs text-gray-600 font-semibold mb-1">
-                                    <i class="fa-solid fa-puzzle-piece mr-1"></i>Components (${item.components.length})
+                    <div class="${itemClass}">
+                        <div class="flex justify-between items-start mb-2">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                    <span class="${typeClass} text-xs px-2 py-1 rounded font-semibold">${typeName}</span>
+                                    ${componentBadge}
                                 </div>
-                                <div class="flex flex-wrap gap-1">
-                                    ${item.components.slice(0, 3).map(comp => `
-                                    <span class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">${comp.type || 'N/A'}</span>
-                                `).join('')}
-                                    ${item.components.length > 3 ? `<span class="text-xs text-gray-500">+${item.components.length - 3} lagi</span>` : ''}
-                                </div>
+                                <div class="font-semibold text-gray-800">${item.name}</div>
+                                <div class="text-xs text-gray-500 font-mono mt-1">${item.serial_code || 'No Serial'}</div>
                             </div>
-                        ` : ''}
+                            <div class="flex items-center gap-2">
+                                ${statusBadge}
+                            </div>
+                        </div>
 
-                    <div class="flex justify-between items-center mt-2 gap-2">
-                        ${hasComponents || (item.specifications && item.specifications.length > 0) ? `
-                                <button onclick="showItemDetail('${itemData}')" 
-                                        class="text-xs text-petra-blue hover:text-blue-800">
-                                    <i class="fa-solid fa-info-circle mr-1"></i> Lihat Detail
-                                </button>
-                            ` : '<div></div>'}
-                        <div>${actionButton}</div>
+                        ${hasComponents ? `
+                                <div class="mt-2 mb-2">
+                                    <div class="text-xs text-gray-600 font-semibold mb-1">
+                                        <i class="fa-solid fa-puzzle-piece mr-1"></i>Components (${item.components.length})
+                                    </div>
+                                    <div class="flex flex-wrap gap-1">
+                                        ${item.components.slice(0, 3).map(comp => `
+                                        <span class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">${comp.type || 'N/A'}</span>
+                                    `).join('')}
+                                        ${item.components.length > 3 ? `<span class="text-xs text-gray-500">+${item.components.length - 3} lagi</span>` : ''}
+                                    </div>
+                                </div>
+                            ` : ''}
+
+                        <div class="flex justify-between items-center mt-2 gap-2">
+                            ${hasComponents || (item.specifications && item.specifications.length > 0) ? `
+                                    <button onclick="showItemDetail('${itemData}')" 
+                                            class="text-xs text-petra-blue hover:text-blue-800">
+                                        <i class="fa-solid fa-info-circle mr-1"></i> Lihat Detail
+                                    </button>
+                                ` : '<div></div>'}
+                            <div>${actionButton}</div>
+                        </div>
+
+                        ${statusText}
                     </div>
-
-                    ${statusText}
-                </div>
-            `;
+                `;
         }
 
         function destroyMapLenis() {
@@ -1262,7 +1693,7 @@
             document.getElementById('browse-items-btn')?.addEventListener('click', browseItems);
             document.getElementById('clear-cart-btn')?.addEventListener('click', clearCart);
             document.getElementById('submit-btn')?.addEventListener('click', submitBooking);
-            document.getElementById('borrowed_at').addEventListener('change', function() {
+            document.getElementById('borrowed_at').addEventListener('change', function () {
                 // Re-validate return date jika sudah ada isinya
                 const returnInput = document.getElementById('return_deadline_at');
                 if (returnInput.value) {
@@ -1275,7 +1706,7 @@
             // TAMBAHKAN INI: Listener saat Lab dipilih
             const labSelect = document.getElementById('lab-select');
             if (labSelect) {
-                labSelect.addEventListener('change', function() {
+                labSelect.addEventListener('change', function () {
                     const labId = this.value;
                     const lab = allLabs.find(l => l.id == labId);
                     const capacityInfo = document.getElementById('lab-capacity-info');
@@ -1286,10 +1717,10 @@
                         // Update UI Kapasitas
                         capacityValue.textContent = lab.capacity;
                         capacityInfo.classList.remove('hidden');
-                        
+
                         // Set atribut max pada input number agar browser juga membatasi (native)
-                        attendeeInput.max = lab.capacity; 
-                        
+                        attendeeInput.max = lab.capacity;
+
                         // Validasi ulang attendee_count jika user sudah terlanjur mengisi angka
                         validateField({ target: attendeeInput });
                     } else {
@@ -1317,29 +1748,29 @@
         function showError(fieldId, message) {
             const field = document.getElementById(fieldId);
             const errorEl = document.getElementById(`error-${fieldId}`);
-            
+
             if (field) {
                 field.classList.remove('border-green-500', 'border-gray-300');
                 field.classList.add('border-red-500');
             }
-            
+
             if (errorEl) {
                 errorEl.querySelector('span').textContent = message;
                 errorEl.classList.remove('hidden');
                 // Animasi kecil
-                gsap.fromTo(errorEl, {y: -5, opacity: 0}, {y: 0, opacity: 1, duration: 0.2});
+                gsap.fromTo(errorEl, { y: -5, opacity: 0 }, { y: 0, opacity: 1, duration: 0.2 });
             }
         }
 
         function clearError(fieldId) {
             const field = document.getElementById(fieldId);
             const errorEl = document.getElementById(`error-${fieldId}`);
-            
+
             if (field) {
                 field.classList.remove('border-red-500');
                 field.classList.add('border-green-500');
             }
-            
+
             if (errorEl) {
                 errorEl.classList.add('hidden');
             }
@@ -1393,7 +1824,7 @@
                 case 'return_deadline_at':
                     const returnDate = new Date(value);
                     const borrowInput = document.getElementById('borrowed_at').value;
-                    
+
                     if (isNaN(returnDate.getTime())) {
                         isValid = false;
                         errorMessage = "Format tanggal tidak valid";
@@ -1420,22 +1851,22 @@
                     if (!value || count < 1) {
                         isValid = false;
                         // Khusus attendee, kita pakai elemen error yang sudah dibuat sebelumnya atau disatukan
-                        if(capErrorMsg) {
+                        if (capErrorMsg) {
                             capErrorMsg.textContent = "Jumlah peserta minimal 1";
                             capErrorMsg.classList.remove('hidden');
                         }
                         field.classList.add('border-red-500');
-                        return false; 
+                        return false;
                     } else if (selectedLab && selectedLab.capacity && count > selectedLab.capacity) {
                         isValid = false;
-                        if(capErrorMsg) {
+                        if (capErrorMsg) {
                             capErrorMsg.textContent = `Melebihi kapasitas lab (${selectedLab.capacity} orang)`;
                             capErrorMsg.classList.remove('hidden');
                         }
                         field.classList.add('border-red-500');
                         return false;
                     } else {
-                        if(capErrorMsg) capErrorMsg.classList.add('hidden');
+                        if (capErrorMsg) capErrorMsg.classList.add('hidden');
                         field.classList.remove('border-red-500');
                         field.classList.add('border-green-500');
                         return true;
@@ -1482,31 +1913,31 @@
                 const div = document.createElement('div');
                 div.className = 'bg-gray-50 rounded-lg p-4 border border-gray-200';
                 div.innerHTML = `
-                    <div class="flex justify-between items-center mb-3">
+                        <div class="flex justify-between items-center mb-3">
+                            <div>
+                                <span class="font-bold text-gray-800">${lab.name}</span>
+                                <span class="ml-2 text-sm text-gray-500">(Tersedia: ${data.available_count} set)</span>
+                            </div>
+                            <button type="button" 
+                                    onclick="removeSetLab(this)"
+                                    class="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50">
+                                <i class="fa-solid fa-times"></i>
+                            </button>
+                        </div>
                         <div>
-                            <span class="font-bold text-gray-800">${lab.name}</span>
-                            <span class="ml-2 text-sm text-gray-500">(Tersedia: ${data.available_count} set)</span>
+                            <label class="block text-sm text-gray-600 mb-1">Jumlah Set</label>
+                            <div class="flex items-center gap-3">
+                                <button type="button" onclick="adjustSetQuantity(this, -1)" class="w-8 h-8 rounded-full border border-gray-300 hover:bg-gray-100">-</button>
+                                <input type="number" 
+                                       data-lab-id="${labId}"
+                                       value="1"
+                                       min="1"
+                                       max="${data.available_count}"
+                                       class="form-input w-20 text-center">
+                                <button type="button" onclick="adjustSetQuantity(this, 1)" class="w-8 h-8 rounded-full border border-gray-300 hover:bg-gray-100">+</button>
+                            </div>
                         </div>
-                        <button type="button" 
-                                onclick="removeSetLab(this)"
-                                class="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50">
-                            <i class="fa-solid fa-times"></i>
-                        </button>
-                    </div>
-                    <div>
-                        <label class="block text-sm text-gray-600 mb-1">Jumlah Set</label>
-                        <div class="flex items-center gap-3">
-                            <button type="button" onclick="adjustSetQuantity(this, -1)" class="w-8 h-8 rounded-full border border-gray-300 hover:bg-gray-100">-</button>
-                            <input type="number" 
-                                   data-lab-id="${labId}"
-                                   value="1"
-                                   min="1"
-                                   max="${data.available_count}"
-                                   class="form-input w-20 text-center">
-                            <button type="button" onclick="adjustSetQuantity(this, 1)" class="w-8 h-8 rounded-full border border-gray-300 hover:bg-gray-100">+</button>
-                        </div>
-                    </div>
-                `;
+                    `;
 
                 container.appendChild(div);
                 gsap.from(div, {
@@ -1635,10 +2066,10 @@
                     statusText = '<span class="text-xs text-red-500 font-semibold">Penuh</span>';
                 } else {
                     statusText = `
-                        <div class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                            ${availableItems} tersedia
-                        </div>
-                    `;
+                            <div class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                                ${availableItems} tersedia
+                            </div>
+                        `;
                 }
 
                 const deskData = encodeURIComponent(JSON.stringify(desk));
@@ -1646,13 +2077,13 @@
                 const cursorClass = clickable ? 'cursor-pointer' : 'cursor-default';
 
                 gridHTML += `
-                    <div style="grid-area: ${row} / ${col}"
-                         class="desk-card ${statusClass} ${cursorClass}"
-                         ${onClick}>
-                        <div class="text-lg font-bold mb-2">${desk.location}</div>
-                        ${statusText}
-                    </div>
-                `;
+                        <div style="grid-area: ${row} / ${col}"
+                             class="desk-card ${statusClass} ${cursorClass}"
+                             ${onClick}>
+                            <div class="text-lg font-bold mb-2">${desk.location}</div>
+                            ${statusText}
+                        </div>
+                    `;
             });
 
             for (let r = 1; r <= maxRow; r++) {
@@ -1704,11 +2135,11 @@
 
             if (desk.items.length === 0) {
                 container.innerHTML = `
-                    <div class="text-center py-8 text-gray-400">
-                        <i class="fa-solid fa-ban text-3xl mb-3"></i>
-                        <p>Tidak ada item pada meja ini</p>
-                    </div>
-                `;
+                        <div class="text-center py-8 text-gray-400">
+                            <i class="fa-solid fa-ban text-3xl mb-3"></i>
+                            <p>Tidak ada item pada meja ini</p>
+                        </div>
+                    `;
                 return;
             }
 
@@ -1746,66 +2177,66 @@
                     statusBadge =
                         '<span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">Dipilih</span>';
                     actionButton = `
-                        <button onclick="removeFromCart('${item.id}')" 
-                                class="px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600 text-sm">
-                            <i class="fa-solid fa-times mr-1"></i> Batal
-                        </button>
-                    `;
+                            <button onclick="removeFromCart('${item.id}')" 
+                                    class="px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600 text-sm">
+                                <i class="fa-solid fa-times mr-1"></i> Batal
+                            </button>
+                        `;
                 } else {
                     statusBadge =
                         '<span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Tersedia</span>';
                     actionButton = `
-                        <button onclick="addToCart('${itemData}')" 
-                                class="px-3 py-1 bg-petra-blue text-white rounded-lg hover:bg-blue-800 text-sm">
-                            <i class="fa-solid fa-plus mr-1"></i> Tambah
-                        </button>
-                    `;
+                            <button onclick="addToCart('${itemData}')" 
+                                    class="px-3 py-1 bg-petra-blue text-white rounded-lg hover:bg-blue-800 text-sm">
+                                <i class="fa-solid fa-plus mr-1"></i> Tambah
+                            </button>
+                        `;
                 }
 
                 const hasComponents = item.components && item.components.length > 0;
 
                 itemsHTML += `
-                    <div class="${itemClass}">
-                        <div class="flex justify-between items-start mb-2">
-                            <div class="flex-1">
-                                <div class="flex items-center gap-2 mb-1">
-                                    <span class="${typeClass} text-xs px-2 py-1 rounded font-semibold">${typeName}</span>
-                                </div>
-                                <div class="font-semibold text-gray-800">${item.name}</div>
-                                <div class="text-xs text-gray-500 font-mono mt-1">${item.serial_code || 'No Serial'}</div>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                ${statusBadge}
-                            </div>
-                        </div>
-
-                        ${hasComponents ? `
-                                <div class="mt-2 mb-2">
-                                    <div class="text-xs text-gray-600 font-semibold mb-1">
-                                        <i class="fa-solid fa-puzzle-piece mr-1"></i>Components (${item.components.length})
+                        <div class="${itemClass}">
+                            <div class="flex justify-between items-start mb-2">
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="${typeClass} text-xs px-2 py-1 rounded font-semibold">${typeName}</span>
                                     </div>
-                                    <div class="flex flex-wrap gap-1">
-                                        ${item.components.slice(0, 3).map(comp => `
-                                        <span class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">${comp.type || 'N/A'}</span>
-                                    `).join('')}
-                                        ${item.components.length > 3 ? `<span class="text-xs text-gray-500">+${item.components.length - 3} lagi</span>` : ''}
-                                    </div>
+                                    <div class="font-semibold text-gray-800">${item.name}</div>
+                                    <div class="text-xs text-gray-500 font-mono mt-1">${item.serial_code || 'No Serial'}</div>
                                 </div>
-                            ` : ''}
+                                <div class="flex items-center gap-2">
+                                    ${statusBadge}
+                                </div>
+                            </div>
 
-                        <div class="flex justify-between items-center mt-2 gap-2">
                             ${hasComponents ? `
-                                    <button onclick="showItemDetail('${itemData}')" 
-                                            class="text-xs text-petra-blue hover:text-blue-800">
-                                        <i class="fa-solid fa-info-circle mr-1"></i> Lihat Detail
-                                    </button>
-                                ` : '<div></div>'}
-                            <div>${actionButton}</div>
-                        </div>
+                                    <div class="mt-2 mb-2">
+                                        <div class="text-xs text-gray-600 font-semibold mb-1">
+                                            <i class="fa-solid fa-puzzle-piece mr-1"></i>Components (${item.components.length})
+                                        </div>
+                                        <div class="flex flex-wrap gap-1">
+                                            ${item.components.slice(0, 3).map(comp => `
+                                            <span class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">${comp.type || 'N/A'}</span>
+                                        `).join('')}
+                                            ${item.components.length > 3 ? `<span class="text-xs text-gray-500">+${item.components.length - 3} lagi</span>` : ''}
+                                        </div>
+                                    </div>
+                                ` : ''}
 
-                        ${statusText}
-                    </div>
-                `;
+                            <div class="flex justify-between items-center mt-2 gap-2">
+                                ${hasComponents ? `
+                                        <button onclick="showItemDetail('${itemData}')" 
+                                                class="text-xs text-petra-blue hover:text-blue-800">
+                                            <i class="fa-solid fa-info-circle mr-1"></i> Lihat Detail
+                                        </button>
+                                    ` : '<div></div>'}
+                                <div>${actionButton}</div>
+                            </div>
+
+                            ${statusText}
+                        </div>
+                    `;
             });
 
             itemsHTML += '</div>';
@@ -1828,74 +2259,74 @@
             const typeClass = getTypeClass(typeName.toUpperCase());
 
             let detailHTML = `
-                <div class="space-y-4">
-                    <div class="border-b pb-4">
-                        <div class="flex items-center gap-2 mb-2">
-                            <span class="${typeClass} text-sm px-3 py-1 rounded font-semibold">${typeName}</span>
-                            <span class="text-xs ${item.condition === 1 ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'} px-2 py-1 rounded-full">
-                                ${item.condition === 1 ? 'Baik' : 'Rusak'}
-                            </span>
+                    <div class="space-y-4">
+                        <div class="border-b pb-4">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="${typeClass} text-sm px-3 py-1 rounded font-semibold">${typeName}</span>
+                                <span class="text-xs ${item.condition === 1 ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'} px-2 py-1 rounded-full">
+                                    ${item.condition === 1 ? 'Baik' : 'Rusak'}
+                                </span>
+                            </div>
+                            <h4 class="text-xl font-bold text-gray-800">${item.name}</h4>
+                            <p class="text-sm text-gray-500 font-mono mt-1">${item.serial_code || 'No Serial'}</p>
                         </div>
-                        <h4 class="text-xl font-bold text-gray-800">${item.name}</h4>
-                        <p class="text-sm text-gray-500 font-mono mt-1">${item.serial_code || 'No Serial'}</p>
-                    </div>
 
-                    ${item.specifications && item.specifications.length > 0 ? `
-                            <div>
-                                <h5 class="font-semibold text-gray-700 mb-2"><i class="fa-solid fa-list mr-2"></i>Spesifikasi Item</h5>
-                                <div class="bg-gray-50 rounded-lg p-3 space-y-1">
-                                    ${item.specifications.map(spec => `
-                                    <div class="flex justify-between text-sm">
-                                        <span class="text-gray-600">${spec.name}:</span>
-                                        <span class="font-medium text-gray-800">${spec.value}</span>
-                                    </div>
-                                `).join('')}
-                                </div>
-                            </div>
-                        ` : ''}
-
-                    ${item.components && item.components.length > 0 ? `
-                            <div>
-                                <h5 class="font-semibold text-gray-700 mb-2">
-                                    <i class="fa-solid fa-puzzle-piece mr-2"></i>Components (${item.components.length})
-                                </h5>
-                                <div id="component-list-scroll" style="max-height: 400px; overflow-y: auto;">
-                                    <div class="space-y-2">
-                                    ${item.components.map(comp => {
-                                        const compTypeName = comp.type || 'N/A';
-                                        const compTypeClass = getTypeClass(compTypeName.toUpperCase());
-                                        return `
-                                        <div class="component-card">
-                                            <div class="flex items-start justify-between mb-2">
-                                                <div class="flex-1">
-                                                    <div class="flex items-center gap-2 mb-1">
-                                                        <span class="${compTypeClass} text-xs px-2 py-1 rounded font-semibold">${compTypeName}</span>
-                                                    </div>
-                                                    <div class="font-medium text-gray-800">${comp.name}</div>
-                                                    <div class="text-xs text-gray-500 font-mono mt-1">${comp.serial_code || 'No Serial'}</div>
-                                                </div>
-                                            </div>
-                                            ${comp.specifications && comp.specifications.length > 0 ? `
-                                                    <div class="mt-2 pt-2 border-t border-gray-200">
-                                                        <div class="text-xs text-gray-600 space-y-1">
-                                                            ${comp.specifications.map(spec => `
-                                                            <div class="flex justify-between">
-                                                                <span>${spec.name}:</span>
-                                                                <span class="font-medium">${spec.value}</span>
-                                                            </div>
-                                                        `).join('')}
-                                                        </div>
-                                                    </div>
-                                                ` : ''}
+                        ${item.specifications && item.specifications.length > 0 ? `
+                                <div>
+                                    <h5 class="font-semibold text-gray-700 mb-2"><i class="fa-solid fa-list mr-2"></i>Spesifikasi Item</h5>
+                                    <div class="bg-gray-50 rounded-lg p-3 space-y-1">
+                                        ${item.specifications.map(spec => `
+                                        <div class="flex justify-between text-sm">
+                                            <span class="text-gray-600">${spec.name}:</span>
+                                            <span class="font-medium text-gray-800">${spec.value}</span>
                                         </div>
-                                    `;
-                                    }).join('')}
+                                    `).join('')}
                                     </div>
                                 </div>
-                            </div>
-                        ` : ''}
-                </div>
-            `;
+                            ` : ''}
+
+                        ${item.components && item.components.length > 0 ? `
+                                <div>
+                                    <h5 class="font-semibold text-gray-700 mb-2">
+                                        <i class="fa-solid fa-puzzle-piece mr-2"></i>Components (${item.components.length})
+                                    </h5>
+                                    <div id="component-list-scroll" style="max-height: 400px; overflow-y: auto;">
+                                        <div class="space-y-2">
+                                        ${item.components.map(comp => {
+                const compTypeName = comp.type || 'N/A';
+                const compTypeClass = getTypeClass(compTypeName.toUpperCase());
+                return `
+                                            <div class="component-card">
+                                                <div class="flex items-start justify-between mb-2">
+                                                    <div class="flex-1">
+                                                        <div class="flex items-center gap-2 mb-1">
+                                                            <span class="${compTypeClass} text-xs px-2 py-1 rounded font-semibold">${compTypeName}</span>
+                                                        </div>
+                                                        <div class="font-medium text-gray-800">${comp.name}</div>
+                                                        <div class="text-xs text-gray-500 font-mono mt-1">${comp.serial_code || 'No Serial'}</div>
+                                                    </div>
+                                                </div>
+                                                ${comp.specifications && comp.specifications.length > 0 ? `
+                                                        <div class="mt-2 pt-2 border-t border-gray-200">
+                                                            <div class="text-xs text-gray-600 space-y-1">
+                                                                ${comp.specifications.map(spec => `
+                                                                <div class="flex justify-between">
+                                                                    <span>${spec.name}:</span>
+                                                                    <span class="font-medium">${spec.value}</span>
+                                                                </div>
+                                                            `).join('')}
+                                                            </div>
+                                                        </div>
+                                                    ` : ''}
+                                            </div>
+                                        `;
+            }).join('')}
+                                        </div>
+                                    </div>
+                                </div>
+                            ` : ''}
+                    </div>
+                `;
 
             showLayoutModal(`Detail: ${item.name}`, detailHTML);
 
@@ -1964,11 +2395,11 @@
 
             if (cart.length === 0) {
                 container.innerHTML = `
-                    <div class="text-center py-8 text-gray-400">
-                        <i class="fa-solid fa-shopping-cart text-3xl mb-3"></i>
-                        <p>Belum ada item di keranjang</p>
-                    </div>
-                `;
+                        <div class="text-center py-8 text-gray-400">
+                            <i class="fa-solid fa-shopping-cart text-3xl mb-3"></i>
+                            <p>Belum ada item di keranjang</p>
+                        </div>
+                    `;
                 return;
             }
 
@@ -1979,17 +2410,17 @@
                     '<span class="text-xs bg-purple-100 text-purple-800 px-1.5 py-0.5 rounded ml-1">Comp</span>' :
                     '';
                 cartHTML += `
-                    <div class="cart-item flex justify-between items-center">
-                        <div class="flex-1">
-                            <div class="font-medium text-gray-800">${item.name}${badge}</div>
-                            <div class="text-xs text-gray-500">${item.serial_code || 'No Serial'}</div>
+                        <div class="cart-item flex justify-between items-center">
+                            <div class="flex-1">
+                                <div class="font-medium text-gray-800">${item.name}${badge}</div>
+                                <div class="text-xs text-gray-500">${item.serial_code || 'No Serial'}</div>
+                            </div>
+                            <button onclick="removeFromCart('${item.id}', ${item.is_component || false})" 
+                                    class="text-red-500 hover:text-red-700 ml-2">
+                                <i class="fa-solid fa-times"></i>
+                            </button>
                         </div>
-                        <button onclick="removeFromCart('${item.id}', ${item.is_component || false})" 
-                                class="text-red-500 hover:text-red-700 ml-2">
-                            <i class="fa-solid fa-times"></i>
-                        </button>
-                    </div>
-                `;
+                    `;
             });
 
             cartHTML += '</div>';

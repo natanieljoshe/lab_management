@@ -97,20 +97,24 @@ html { scroll-behavior: smooth; }
 /* ============================================================
    BUTTONS & LINKS
    ============================================================ */
+/* two-layer sweep: ::before = navy base, ::after = orange sweep */
 .hx-btn {
-    position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 14px; overflow: hidden; isolation: isolate;
-    padding: 18px 32px; border: 1px solid var(--clr-navy); background: var(--clr-navy); color: var(--clr-bg);
+    position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 14px; overflow: hidden;
+    padding: 18px 32px; border: 1px solid var(--clr-navy); background: transparent; color: var(--clr-bg);
     font-family: var(--sans); font-weight: 700; font-size: .72rem; letter-spacing: .22em; text-transform: uppercase;
-    cursor: pointer; transition: color .5s var(--ease), border-color .5s var(--ease);
+    cursor: pointer; transition: border-color .5s var(--ease);
 }
-.hx-btn::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--clr-orange); transform: translateX(-101%); transition: transform .65s var(--ease-io); }
-.hx-btn:hover { color: var(--clr-bg); border-color: var(--clr-orange); }
-.hx-btn:hover::before { transform: translateX(0); }
+.hx-btn::before { content: ''; position: absolute; inset: 0; z-index: 0; background: var(--clr-navy); }
+.hx-btn::after  { content: ''; position: absolute; inset: 0; z-index: 1; background: var(--clr-orange); transform: translateX(-101%); transition: transform .65s var(--ease-io); }
+.hx-btn > * { position: relative; z-index: 2; }
+.hx-btn:hover { border-color: var(--clr-orange); }
+.hx-btn:hover::after { transform: translateX(0); }
 .hx-btn i { transition: transform .5s var(--ease); }
 .hx-btn:hover i.arrow { transform: translateX(6px); }
-.hx-btn.ghost { background: transparent; color: var(--clr-navy); }
-.hx-btn.ghost::before { background: var(--clr-navy); }
-.hx-btn.ghost:hover { color: var(--clr-bg); border-color: var(--clr-navy); }
+.hx-btn.ghost { color: var(--clr-navy); }
+.hx-btn.ghost::before { background: transparent; }
+.hx-btn.ghost::after  { background: var(--clr-navy); }
+.hx-btn.ghost:hover   { color: var(--clr-bg); border-color: var(--clr-navy); }
 .hx-btn.sm { padding: 13px 22px; font-size: .66rem; }
 
 .hx-link {
