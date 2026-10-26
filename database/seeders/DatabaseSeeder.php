@@ -32,6 +32,7 @@ class DatabaseSeeder extends Seeder
             FilesSeeder::class,
             MatkulSeeder::class,
             ModuleSeeder::class,
+            FundSeeder::class
         ]);
     }
 }

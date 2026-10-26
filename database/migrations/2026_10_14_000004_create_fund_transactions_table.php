@@ -12,12 +12,12 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->foreignUuid('category_id')->constrained('fund_categories')->cascadeOnDelete();
             $table->foreignUuid('period_id')->constrained('periods')->cascadeOnDelete();
-            $table->foreignUuid('lab_id')->nullable()->constrained('labs')->nullOnDelete();
-            $table->enum('type', ['INCOME', 'EXPENSE']);
+            $table->foreignUuid('lab_id')->constrained('labs')->cascadeOnDelete();
             $table->decimal('amount', 15, 2);
-            $table->string('description');
+            $table->text('description');
             $table->date('transaction_date');
             $table->string('receipt_number')->nullable();
+            $table->string('receipt_file')->nullable();
             $table->foreignUuid('recorded_by')->constrained('users')->cascadeOnDelete();
             $table->foreignUuid('approved_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('approved_at')->nullable();

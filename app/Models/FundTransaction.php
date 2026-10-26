@@ -14,11 +14,11 @@ class FundTransaction extends Model
         'category_id',
         'period_id',
         'lab_id',
-        'type',
         'amount',
         'description',
         'transaction_date',
         'receipt_number',
+        'receipt_file',
         'recorded_by',
         'approved_by',
         'approved_at',
@@ -29,6 +29,8 @@ class FundTransaction extends Model
         'transaction_date' => 'date',
         'approved_at' => 'datetime',
     ];
+
+    protected $appends = ['type'];
 
     public function category()
     {
@@ -53,5 +55,9 @@ class FundTransaction extends Model
     public function approver()
     {
         return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    public function getTypeAttribute(){
+        return $this->category?->type;
     }
 }
