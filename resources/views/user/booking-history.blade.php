@@ -3,14 +3,17 @@
 @section('title', 'Riwayat Peminjaman Saya')
 
 @section('style')
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Open+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
     tailwind.config = {
         theme: {
             extend: {
                 colors: {
-                    'petra-blue': '#1a237e',
-                    'petra-yellow': '#ffca28',
+                    'petra-blue': '#1A2D4A',
+                    'petra-yellow': '#F57E21',
                     'petra-darkgray': '#424242',
                 }
             }
@@ -18,18 +21,60 @@
     }
 </script>
 <style>
-    .card-hover:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    }
-
-    .booking-card {
-        transition: all 0.3s ease-in-out;
-    }
-
-    .hidden-card {
-        display: none;
-    }
+    :root { --history-bg: #FBFAF5; --history-navy: #1A2D4A; --history-orange: #F57E21; --history-muted: rgba(26, 45, 74, .65); --history-line: rgba(26, 45, 74, .16); }
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-track { background: var(--history-bg); }
+    ::-webkit-scrollbar-thumb { background: var(--history-navy); border: 2px solid var(--history-bg); border-radius: 8px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--history-orange); }
+    * { scrollbar-width: thin; scrollbar-color: var(--history-navy) var(--history-bg); }
+    .history-page { min-height: 100vh; background: var(--history-bg); color: var(--history-navy); font-family: 'Open Sans', sans-serif; }
+    .history-page .history-wrap { width: 100%; max-width: 1240px; margin: 0 auto; padding: 150px 28px 48px; }
+    .history-page .history-eyebrow { display: inline-flex; align-items: center; gap: 14px; color: var(--history-orange); font-size: .7rem; font-weight: 700; letter-spacing: .32em; text-transform: uppercase; }
+    .history-page .history-eyebrow::before { content: ''; width: 46px; height: 1px; background: currentColor; }
+    .history-page .history-title { margin: 18px 0 8px; color: var(--history-navy); font-family: 'Cormorant Garamond', Georgia, serif; font-size: clamp(2.7rem, 5vw, 4.5rem); font-weight: 500; line-height: .98; }
+    .history-page .history-subtitle { color: var(--history-muted); line-height: 1.8; }
+    .history-page .history-new-btn { min-height: 48px; border: 1px solid var(--history-navy); border-radius: 0; background: var(--history-navy); box-shadow: none; font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; transition: background .25s ease, border-color .25s ease; }
+    .history-page .history-new-btn:hover { border-color: var(--history-orange); background: var(--history-orange); }
+    .history-page .history-new-btn i { color: var(--history-orange); transition: transform .4s ease, color .25s ease; }
+    .history-page .history-new-btn:hover i { color: var(--history-navy); transform: translateX(4px); }
+    .history-page .history-filters { border: 1px solid var(--history-line); border-radius: 0; background: transparent; box-shadow: none; }
+    .history-page input:not([type="date"]), .history-page select { border-radius: 0; border-color: var(--history-line); background-color: transparent; color: var(--history-navy); box-shadow: none; }
+    .history-page input[type="date"] { color: var(--history-navy); }
+    .history-page .history-date-filter { border-color: var(--history-line); border-radius: 0; background: rgba(26, 45, 74, .035); }
+    .history-page input:focus, .history-page select:focus { border-color: var(--history-orange); --tw-ring-color: rgba(245, 126, 33, .18); outline-color: var(--history-orange); }
+    .history-page .filter-icon { color: var(--history-orange); }
+    .history-page .reset-filter { border-radius: 0; color: var(--history-muted); }
+    .history-page .reset-filter:hover { border-color: var(--history-orange); background: rgba(245, 126, 33, .08); color: var(--history-navy); }
+    .history-page .history-empty, .history-page .booking-card { border: 1px solid var(--history-line); border-radius: 0; background: transparent; box-shadow: none; }
+    .history-page .booking-card { transition: border-color .3s ease; }
+    .history-page .booking-card:hover { border-color: rgba(245, 126, 33, .65); }
+    .history-page .booking-card-head { border-bottom: 1px solid var(--history-line); background: rgba(26, 45, 74, .035); }
+    .history-page .booking-card-head .fa-calendar-check { color: var(--history-orange); }
+    .history-page .booking-card h2 { color: var(--history-navy); font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1.8rem; font-weight: 600; }
+    .history-page .booking-meta { color: var(--history-muted); }
+    .history-page .booking-meta-icon { color: var(--history-orange); }
+    .history-page .booking-note { border: 1px solid var(--history-line); border-left: 3px solid var(--history-orange); border-radius: 0; background: rgba(26, 45, 74, .035); color: var(--history-navy); }
+    .history-page .booking-note i { color: var(--history-orange); }
+    .history-page .booking-items { border: 1px solid var(--history-line); border-radius: 0; background: rgba(26, 45, 74, .025); }
+    .history-page .booking-items-title { color: var(--history-muted); }
+    .history-page .booking-items-count { background: rgba(245, 126, 33, .12); color: var(--history-navy); }
+    .history-page .lab-tag { border-radius: 0; background: rgba(245, 126, 33, .12); color: #9A4C0D; }
+    .history-page .booking-item-icon { color: var(--history-orange); }
+    .history-page .toggle-items { border-color: var(--history-line); border-radius: 0; color: var(--history-navy); }
+    .history-page .toggle-items:hover { background: rgba(245, 126, 33, .08); }
+    .history-page .status-pending { border-color: rgba(245, 126, 33, .45); background: rgba(245, 126, 33, .1); color: #9A4C0D; }
+    .history-page .status-approved { border-color: #A7CDB8; background: #EAF3ED; color: #276347; }
+    .history-page .status-rejected { border-color: #E2B4B0; background: #F8EEEC; color: #91433C; }
+    .history-page .history-more { border-color: var(--history-line); border-radius: 0; color: var(--history-navy); box-shadow: none; }
+    .history-page .history-more:hover { border-color: var(--history-orange); background: rgba(245, 126, 33, .08); color: var(--history-navy); }
+    .history-page .empty-icon { background: rgba(245, 126, 33, .1); color: var(--history-orange); }
+    .history-page .empty-title { color: var(--history-navy); font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1.7rem; }
+    .history-page .empty-copy { color: var(--history-muted); }
+    .history-page .empty-reset { color: var(--history-orange); }
+    .history-page .empty-reset:hover { color: var(--history-navy); }
+    .history-footer { border-color: var(--history-line); background: var(--history-bg); color: var(--history-muted); }
+    .hidden-card { display: none; }
+    @media (max-width: 639px) { .history-page .history-wrap { padding: 120px 20px 40px; } }
 </style>
 @endsection
 
@@ -37,27 +82,29 @@
 
 @include('user.partials.navbar')
 
-<div class="container mx-auto px-4 pt-24 pb-12 max-w-5xl">
+<main class="history-page">
+<div class="history-wrap">
 
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
-            <h1 class="text-3xl font-bold text-petra-blue">Riwayat Peminjaman</h1>
-            <p class="text-gray-500 mt-1">Pantau status pengajuan peminjaman aset laboratorium Anda.</p>
+            <p class="history-eyebrow">Reservasi fasilitas laboratorium</p>
+            <h1 class="history-title">Riwayat Peminjaman</h1>
+            <p class="history-subtitle">Pantau status pengajuan peminjaman aset laboratorium Anda.</p>
         </div>
-        <a href="{{ route('user.booking.form') }}" class="group bg-petra-blue text-white px-5 py-2.5 rounded-lg shadow-md hover:bg-blue-800 transition-all flex items-center gap-2 font-medium">
-            <i class="fa-solid fa-plus transition-transform group-hover:rotate-90"></i>
+        <a href="{{ route('user.booking.form') }}" class="history-new-btn group text-white px-5 py-2.5 flex items-center gap-2">
+            <i class="fa-solid fa-plus"></i>
             <span class="hidden sm:inline">Buat Peminjaman</span>
             <span class="sm:hidden">Baru</span>
         </a>
     </div>
 
     @if(!$bookings->isEmpty())
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-8">
+    <div class="history-filters p-4 mb-8">
         <div class="flex flex-col xl:flex-row gap-4 items-start xl:items-center justify-between">
 
             <div class="relative w-full xl:w-1/3">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <i class="fa-solid fa-search text-gray-400"></i>
+                    <i class="filter-icon fa-solid fa-search"></i>
                 </div>
                 <input type="text" id="searchInput" placeholder="Cari judul kegiatan..."
                     class="pl-10 w-full rounded-lg border-gray-300 border px-3 py-2 text-sm focus:ring-petra-blue focus:border-petra-blue transition-colors shadow-sm"
@@ -66,7 +113,7 @@
 
             <div class="flex flex-col sm:flex-row gap-3 w-full xl:w-auto flex-wrap">
 
-                <div class="flex items-center gap-2 w-full sm:w-auto bg-gray-50 rounded-lg border border-gray-200 p-1">
+                <div class="history-date-filter flex items-center gap-2 w-full sm:w-auto border p-1">
                     <div class="relative flex-grow sm:flex-grow-0">
                         <input type="date" id="startDateFilter"
                             class="w-full sm:w-36 bg-transparent border-none text-sm focus:ring-0 text-gray-600 p-1"
@@ -86,7 +133,7 @@
 
                 <div class="relative w-full sm:w-auto">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i class="fa-solid fa-sort text-gray-400"></i>
+                        <i class="filter-icon fa-solid fa-sort"></i>
                     </div>
                     <select id="sortFilter"
                         class="pl-10 w-full sm:w-48 rounded-lg border-gray-300 border px-3 py-2 text-sm focus:ring-petra-blue focus:border-petra-blue text-gray-600 shadow-sm appearance-none"
@@ -98,7 +145,7 @@
                     </select>
                 </div>
 
-                <button onclick="resetFilters()" class="px-4 py-2 text-sm text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-100 whitespace-nowrap">
+                <button onclick="resetFilters()" class="reset-filter px-4 py-2 text-sm transition-colors border border-transparent whitespace-nowrap">
                     Reset
                 </button>
             </div>
@@ -107,23 +154,23 @@
     @endif
 
     @if($bookings->isEmpty())
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center flex flex-col items-center">
-        <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-            <i class="fa-regular fa-folder-open text-3xl text-gray-400"></i>
+    <div class="history-empty p-12 text-center flex flex-col items-center">
+        <div class="empty-icon w-20 h-20 flex items-center justify-center mb-4">
+            <i class="fa-regular fa-folder-open text-3xl"></i>
         </div>
-        <h3 class="text-xl font-bold text-gray-700 mb-2">Belum ada riwayat</h3>
-        <p class="text-gray-500 max-w-md mx-auto mb-6">Anda belum pernah mengajukan peminjaman.</p>
+        <h3 class="empty-title font-semibold mb-2">Belum ada riwayat</h3>
+        <p class="empty-copy max-w-md mx-auto mb-6">Anda belum pernah mengajukan peminjaman.</p>
     </div>
     @else
     <div class="grid gap-6" id="bookingList">
         @foreach($bookings as $booking)
-        <div class="booking-card bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden transition-all duration-300 card-hover"
+        <div class="booking-card overflow-hidden"
             data-title="{{ strtolower($booking->event_name) }}"
             data-submit-date="{{ $booking->created_at->timestamp }}"
             data-event-date="{{ \Carbon\Carbon::parse($booking->event_started_at)->timestamp }}"
             data-event-date-str="{{ \Carbon\Carbon::parse($booking->event_started_at)->format('Y-m-d') }}">
 
-            <div class="px-6 py-4 bg-gray-50 border-b border-gray-100 flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+            <div class="booking-card-head px-6 py-4 flex flex-col sm:flex-row justify-between sm:items-center gap-3">
                 <div class="flex items-center gap-2">
                     <i class="fa-regular fa-calendar-check text-petra-blue"></i>
                     <span class="text-sm font-semibold text-gray-600">
@@ -132,16 +179,16 @@
                 </div>
 
                 @php
-                $statusClass = 'bg-yellow-100 text-yellow-700 border-yellow-200';
+                $statusClass = 'status-pending';
                 $statusIcon = 'fa-clock';
                 $statusText = 'Menunggu Persetujuan';
 
                 if($booking->approved === 1) {
-                $statusClass = 'bg-green-100 text-green-700 border-green-200';
+                $statusClass = 'status-approved';
                 $statusIcon = 'fa-check-circle';
                 $statusText = 'Disetujui';
                 } elseif($booking->approved === 0) {
-                $statusClass = 'bg-red-100 text-red-700 border-red-200';
+                $statusClass = 'status-rejected';
                 $statusIcon = 'fa-times-circle';
                 $statusText = 'Ditolak';
                 }
@@ -156,9 +203,9 @@
                 <div class="grid md:grid-cols-3 gap-6">
                     <div class="col-span-2">
                         <h2 class="text-xl font-bold text-petra-blue mb-1">{{ $booking->event_name }}</h2>
-                        <div class="flex flex-col gap-2 text-sm text-gray-600 mt-3">
+                        <div class="booking-meta flex flex-col gap-2 text-sm mt-3">
                             <div class="flex items-center gap-2">
-                                <i class="fa-solid fa-clock text-gray-400 w-5 text-center"></i>
+                                <i class="booking-meta-icon fa-solid fa-clock w-5 text-center"></i>
                                 <span>
                                     {{ \Carbon\Carbon::parse($booking->event_started_at)->format('d M H:i') }}
                                     <span class="mx-1 text-gray-300">|</span>
@@ -167,37 +214,37 @@
                             </div>
                             @if($booking->thesis_title)
                             <div class="flex items-start gap-2">
-                                <i class="fa-solid fa-graduation-cap text-gray-400 w-5 text-center mt-0.5"></i>
+                                <i class="booking-meta-icon fa-solid fa-graduation-cap w-5 text-center mt-0.5"></i>
                                 <span>Judul Skripsi: <span class="font-medium text-gray-800 italic">"{{ $booking->thesis_title }}"</span></span>
                             </div>
                             @endif
                             @if($booking->supervisor)
                             <div class="flex items-center gap-2">
-                                <i class="fa-solid fa-user-tie text-gray-400 w-5 text-center"></i>
+                                <i class="booking-meta-icon fa-solid fa-user-tie w-5 text-center"></i>
                                 <span>Pembimbing: <span class="font-medium text-gray-800">{{ $booking->supervisor->name }}</span></span>
                             </div>
                             @endif
                         </div>
                         @if($booking->booking_detail)
-                        <div class="mt-4 p-3 bg-blue-50 rounded-lg text-sm text-blue-800 border border-blue-100 flex gap-2">
+                        <div class="booking-note mt-4 p-3 text-sm flex gap-2">
                             <i class="fa-solid fa-circle-info mt-0.5"></i>
                             <div><span class="font-bold">Catatan:</span> {{ $booking->booking_detail }}</div>
                         </div>
                         @endif
                     </div>
-                    <div class="col-span-1 bg-gray-50 rounded-lg p-4 border border-gray-100 h-fit">
-                        <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 flex justify-between items-center">
+                    <div class="booking-items col-span-1 p-4 h-fit">
+                        <h4 class="booking-items-title text-xs font-bold uppercase tracking-wider mb-3 flex justify-between items-center">
                             Item Dipinjam
-                            <span class="bg-gray-200 text-gray-600 py-0.5 px-2 rounded-full text-[10px]">{{ $booking->bookings_items->count() }}</span>
+                            <span class="booking-items-count py-0.5 px-2 text-[10px]">{{ $booking->bookings_items->count() }}</span>
                         </h4>
                         <ul class="space-y-2">
                             @foreach($booking->bookings_items as $index => $item)
                             <li class="flex items-start gap-2 text-sm text-gray-700 {{ $index >= 3 ? 'hidden extra-item-'.$booking->id : '' }}">
-                                <i class="fa-solid fa-box text-petra-blue mt-1 text-xs"></i>
+                                <i class="booking-item-icon fa-solid fa-box mt-1 text-xs"></i>
                                 <span class="leading-tight">
                                     {{ $item->bookable->name ?? 'Unknown Item' }}
                                     @if(str_contains($item->bookable_type, 'Labs'))
-                                    <span class="text-[10px] bg-indigo-100 text-indigo-700 px-1 rounded ml-1 font-bold">LAB</span>
+                                    <span class="lab-tag text-[10px] px-1 ml-1 font-bold">LAB</span>
                                     @endif
                                 </span>
                             </li>
@@ -205,7 +252,7 @@
                         </ul>
                         @if($booking->bookings_items->count() > 3)
                         <button onclick="toggleItems('{{ $booking->id }}', this)"
-                            class="w-full mt-3 text-xs text-petra-blue font-bold hover:bg-blue-50 py-1 rounded transition-colors flex items-center justify-center gap-1 border border-dashed border-petra-blue/30">
+                            class="toggle-items w-full mt-3 text-xs font-bold py-2 transition-colors flex items-center justify-center gap-1 border border-dashed">
                             <span>+ {{ $booking->bookings_items->count() - 3 }} item lainnya</span>
                             <i class="fa-solid fa-chevron-down"></i>
                         </button>
@@ -218,7 +265,7 @@
 
     </div> 
     <div id="loadMoreWrapper" class="text-center mt-8 hidden">
-        <button onclick="loadMore()" class="group px-6 py-2.5 rounded-full border border-gray-300 text-gray-600 font-medium text-sm hover:border-petra-blue hover:text-petra-blue hover:bg-blue-50 transition-all shadow-sm">
+        <button onclick="loadMore()" class="history-more group px-6 py-2.5 border font-medium text-sm transition-all">
             <span id="loadMoreText">Muat Lebih Banyak</span>
             <i class="fa-solid fa-chevron-down ml-2 text-xs transition-transform group-hover:translate-y-0.5"></i>
         </button>
@@ -227,17 +274,18 @@
 </div>
 
 <div id="noResultState" class="hidden mt-8 text-center py-12">
-    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
-        <i class="fa-solid fa-calendar-xmark text-gray-400 text-2xl"></i>
+    <div class="empty-icon inline-flex items-center justify-center w-16 h-16 mb-4">
+        <i class="fa-solid fa-calendar-xmark text-2xl"></i>
     </div>
-    <h3 class="text-lg font-bold text-gray-700">Tidak ditemukan</h3>
-    <p class="text-gray-500">Tidak ada peminjaman dalam rentang tanggal atau kata kunci tersebut.</p>
-    <button onclick="resetFilters()" class="mt-4 text-petra-blue font-bold hover:underline">Reset Filter</button>
+    <h3 class="empty-title font-semibold">Tidak ditemukan</h3>
+    <p class="empty-copy">Tidak ada peminjaman dalam rentang tanggal atau kata kunci tersebut.</p>
+    <button onclick="resetFilters()" class="empty-reset mt-4 font-bold hover:underline">Reset Filter</button>
 </div>
 @endif
 </div>
+</main>
 
-<footer class="bg-white border-t border-gray-200 mt-12 py-8">
+<footer class="history-footer border-t mt-12 py-8">
     <div class="container mx-auto px-4 text-center text-gray-500 text-sm">
         &copy; {{ date('Y') }} Laboratorium Gedung P - UK Petra. All rights reserved.
     </div>
