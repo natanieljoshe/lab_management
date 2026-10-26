@@ -3,14 +3,33 @@
 @section('title', 'Formulir Peminjaman')
 
 @section('style')
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Open+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --petra-blue: #1a237e;
-            --petra-yellow: #ffca28;
+            --petra-blue: #1A2D4A;
+            --petra-yellow: #F57E21;
             --petra-wood: #8b4513;
             --petra-darkgray: #424242;
-            --petra-gray: #f1f5f9;
+            --petra-gray: #FBFAF5;
+            --booking-muted: rgba(26, 45, 74, .65);
+            --booking-line: rgba(26, 45, 74, .16);
         }
+
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
+        ::-webkit-scrollbar-track { background: #FBFAF5; }
+        ::-webkit-scrollbar-thumb { background: #1A2D4A; border: 2px solid #FBFAF5; border-radius: 8px; }
+        ::-webkit-scrollbar-thumb:hover { background: #F57E21; }
+        * { scrollbar-width: thin; scrollbar-color: #1A2D4A #FBFAF5; }
+
+        .booking-page { background: #FBFAF5; color: #1A2D4A; font-family: 'Open Sans', sans-serif; }
+        .booking-page .booking-wrap { width: 100%; max-width: 1240px; margin: 0 auto; padding: 0 28px; }
+        .booking-page .booking-intro { padding: 150px 0 54px; }
+        .booking-page .booking-eyebrow { display: inline-flex; align-items: center; gap: 14px; color: #F57E21; font-size: .7rem; font-weight: 700; letter-spacing: .32em; text-transform: uppercase; }
+        .booking-page .booking-eyebrow::before { content: ''; width: 46px; height: 1px; background: currentColor; }
+        .booking-page .booking-title { margin: 22px 0 16px; color: #1A2D4A; font-family: 'Cormorant Garamond', Georgia, serif; font-size: clamp(2.8rem, 6vw, 5rem); font-weight: 500; line-height: .98; letter-spacing: -.015em; }
+        .booking-page .booking-lead { max-width: 620px; color: var(--booking-muted); font-size: 1rem; line-height: 1.85; }
 
         .booking-card {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -152,22 +171,22 @@
         }
 
         .overflow-auto::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
+            width: 10px;
+            height: 10px;
         }
 
         .overflow-auto::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 4px;
+            background: #FBFAF5;
         }
 
         .overflow-auto::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 4px;
+            background: #1A2D4A;
+            border: 2px solid #FBFAF5;
+            border-radius: 8px;
         }
 
         .overflow-auto::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
+            background: #F57E21;
         }
 
         #item-list-container {
@@ -217,32 +236,45 @@
             background: #f1f5f9;
         }
 
-        .booking-page { background: #f7f8fa; }
         .booking-page .booking-shell {
-            border: 1px solid #e5e7eb;
-            border-radius: 1rem;
-            box-shadow: 0 8px 24px rgba(15, 23, 42, .04);
+            border: 1px solid var(--booking-line);
+            border-radius: 0;
+            box-shadow: none;
+            background: transparent;
         }
         .booking-page .booking-header {
-            background: #fff;
-            color: #111827;
-            border-bottom: 1px solid #e5e7eb;
+            background: transparent;
+            color: #1A2D4A;
+            border-bottom: 1px solid var(--booking-line);
         }
-        .booking-page .booking-header p { color: #6b7280; }
+        .booking-page .booking-header p { color: var(--booking-muted); }
         .booking-page .booking-header .booking-context {
-            background: #f8fafc;
-            color: var(--petra-blue);
-            border: 1px solid #dbe2ea;
+            background: transparent;
+            color: #1A2D4A;
+            border: 1px solid var(--booking-line);
+            border-radius: 0;
+            font-size: .7rem;
+            font-weight: 700;
+            letter-spacing: .14em;
+            text-transform: uppercase;
         }
         .booking-page .booking-card {
             border-width: 1px;
-            border-radius: .75rem;
+            border-radius: 0;
             box-shadow: none;
+            background: transparent;
+            border-color: var(--booking-line);
         }
         .booking-page .booking-card:hover {
             transform: none;
-            box-shadow: 0 4px 12px rgba(15, 23, 42, .05);
+            box-shadow: none;
+            border-color: #F57E21;
         }
+        .booking-page .booking-card.active,
+        .booking-page input[name="booking_type"]:checked + .type-card { border-color: #F57E21 !important; background: rgba(245, 126, 33, .06); box-shadow: none; }
+        .booking-page .text-petra-blue { color: #1A2D4A; }
+        .booking-page .bg-petra-blue { background-color: #1A2D4A; }
+        .booking-page .hover\:bg-blue-800:hover { background-color: #F57E21; }
         .booking-page .type-card {
             display: grid;
             grid-template-columns: 2.5rem minmax(0, 1fr);
@@ -255,38 +287,91 @@
             width: 2.5rem;
             height: 2.5rem;
             margin: 0;
-            border-radius: .5rem;
+            border-radius: 0;
             flex-shrink: 0;
             grid-row: span 2;
+            background: rgba(245, 126, 33, .09);
+            color: #F57E21;
         }
-        .booking-page .type-card h4 { font-size: .95rem; margin-bottom: .25rem; }
+        .booking-page .type-card > div:first-child i { color: #F57E21; }
+        .booking-page .booking-context i,
+        .booking-page .booking-shell h3 .form-step,
+        .booking-page .booking-shell h4 i,
+        .booking-page .booking-shell label > i { color: #F57E21; }
+        .booking-page .booking-shell h3 .form-step { background: #1A2D4A; }
+        .booking-page .booking-note {
+            border: 1px solid var(--booking-line);
+            border-left: 3px solid #F57E21;
+            border-radius: 0;
+            background: rgba(26, 45, 74, .035);
+        }
+        .booking-page .booking-note i { color: #F57E21; }
+        .booking-page .booking-note p,
+        .booking-page .booking-note p span { color: #1A2D4A; }
+        .booking-page .booking-help {
+            border: 1px solid #1A2D4A;
+            border-top: 3px solid #F57E21;
+            border-radius: 0;
+            background: #1A2D4A;
+            color: #FBFAF5;
+        }
+        .booking-page .booking-help .booking-help-icon { background: rgba(245, 126, 33, .12); }
+        .booking-page .booking-help .booking-help-icon i,
+        .booking-page .booking-help .booking-contact i { color: #F57E21; }
+        .booking-page .booking-help h4 { color: #FBFAF5; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1.65rem; font-weight: 600; }
+        .booking-page .booking-help p { color: rgba(251, 250, 245, .72); }
+        .booking-page .booking-help .booking-contact { color: #FBFAF5; }
+        .booking-page .type-card h4 { font-size: .95rem; margin-bottom: .25rem; color: #1A2D4A; }
         .booking-page .type-card p { grid-column: 2; }
         .booking-page .desk-grid-container,
         .booking-page .item-card,
         .booking-page .form-input { border-width: 1px; }
-        .booking-page .form-input { border-radius: .625rem; }
+        .booking-page .form-input { border-radius: 0; border-color: var(--booking-line); background: transparent; color: #1A2D4A; }
+        .booking-page .form-input:focus { border-color: #F57E21; box-shadow: 0 0 0 2px rgba(245, 126, 33, .12); }
         .booking-page .desk-card:hover,
         .booking-page .item-card:hover { transform: none; box-shadow: none; }
-        .booking-page h3 { font-size: 1rem; letter-spacing: .01em; }
+        .booking-page h2, .booking-page h3 { color: #1A2D4A; }
+        .booking-page h3 { font-size: 1rem; letter-spacing: .12em; text-transform: uppercase; }
         .booking-page .form-step {
             width: 1.75rem;
             height: 1.75rem;
             font-size: .75rem;
             flex-shrink: 0;
         }
-        .booking-page #submit-btn { box-shadow: none; border-radius: .625rem; }
+        .booking-page #submit-btn { box-shadow: none; border-radius: 0; background: #1A2D4A; letter-spacing: .16em; text-transform: uppercase; }
+        .booking-page #submit-btn:hover { background: #F57E21; }
+        .booking-page #add-set-lab-btn {
+            min-height: 44px;
+            flex-shrink: 0;
+            padding: 0 22px;
+            border: 1px solid #1A2D4A;
+            border-radius: 0;
+            background: #1A2D4A;
+            color: #FBFAF5;
+            font-size: .72rem;
+            font-weight: 700;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+            transition: background .25s ease, border-color .25s ease, color .25s ease;
+        }
+        .booking-page #add-set-lab-btn:hover { border-color: #F57E21; background: #F57E21; color: #1A2D4A; }
+        .booking-page #add-set-lab-btn:focus-visible { outline: 2px solid #F57E21; outline-offset: 3px; }
+        @media (max-width: 639px) {
+            .booking-page .booking-wrap { padding: 0 20px; }
+            .booking-page .booking-intro { padding: 120px 0 40px; }
+        }
     </style>
 @endsection
 
 @section('body')
     @include('user.partials.navbar')
-    <div class="booking-page min-h-screen pt-24 pb-12">
-        <div class="container mx-auto px-4 max-w-6xl">
+    <main class="booking-page min-h-screen pb-12">
+        <div class="booking-wrap">
 
-            <div class="mb-8 max-w-3xl">
-                <p class="text-xs font-bold uppercase tracking-[.18em] text-gray-500 mb-3">Reservasi fasilitas laboratorium</p>
-                <h1 class="text-3xl md:text-4xl font-bold tracking-tight text-petra-blue mb-3">Buat peminjaman</h1>
-                <p class="text-gray-600 max-w-2xl">
+            <div class="booking-intro max-w-3xl">
+                <p class="booking-eyebrow">Reservasi fasilitas laboratorium</p>
+                <h1 class="booking-title">Buat peminjaman</h1>
+                <p class="booking-lead">
                     Ajukan peminjaman fasilitas laboratorium untuk keperluan akademik Anda
                 </p>
             </div>
@@ -485,11 +570,11 @@
                                 </div>
                             </div>
 
-                            <div class="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
+                            <div class="booking-note mt-6 p-4">
                                 <div class="flex items-start gap-3">
-                                    <i class="fa-solid fa-info-circle text-blue-600 mt-1"></i>
+                                    <i class="fa-solid fa-info-circle mt-1"></i>
                                     <div>
-                                        <p class="text-sm text-blue-800">
+                                        <p class="text-sm">
                                             <span class="font-semibold">Catatan:</span> Peminjaman lab mencakup akses ke
                                             semua fasilitas dalam ruangan selama periode yang dipilih.
                                         </p>
@@ -511,8 +596,7 @@
                                     <select id="set-lab-select" class="form-input flex-1">
                                         <option value="">-- Pilih Lab --</option>
                                     </select>
-                                    <button type="button" id="add-set-lab-btn"
-                                        class="px-6 bg-petra-yellow text-petra-blue font-semibold rounded-lg hover:bg-yellow-400 transition">
+                                    <button type="button" id="add-set-lab-btn">
                                         Tambah Lab
                                     </button>
                                 </div>
@@ -523,11 +607,11 @@
                                 <!-- Dynamic content will be added here -->
                             </div>
 
-                            <div class="mt-6 p-4 bg-yellow-50 rounded-lg border border-yellow-100">
+                            <div class="booking-note mt-6 p-4">
                                 <div class="flex items-start gap-3">
-                                    <i class="fa-solid fa-lightbulb text-yellow-600 mt-1"></i>
+                                    <i class="fa-solid fa-lightbulb mt-1"></i>
                                     <div>
-                                        <p class="text-sm text-yellow-800">
+                                        <p class="text-sm">
                                             <span class="font-semibold">Tip:</span> Set lengkap mencakup 1 unit PC +
                                             Monitor. Anda bisa meminjam dari beberapa lab sekaligus.
                                         </p>
@@ -709,26 +793,26 @@
             </div>
 
             <!-- Info Box -->
-            <div class="bg-white rounded-xl border border-gray-200 p-6">
+            <div class="booking-help p-6">
                 <div class="flex items-start gap-4">
                     <div class="flex-shrink-0">
-                        <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
-                            <i class="fa-solid fa-headset text-xl text-petra-blue"></i>
+                        <div class="booking-help-icon w-12 h-12 flex items-center justify-center">
+                            <i class="fa-solid fa-headset text-xl"></i>
                         </div>
                     </div>
                     <div>
-                        <h4 class="font-bold text-lg text-petra-blue mb-2">Butuh Bantuan?</h4>
-                        <p class="text-gray-600 mb-3">
+                        <h4 class="font-bold mb-2">Butuh Bantuan?</h4>
+                        <p class="mb-3">
                             Jika Anda mengalami kesulitan dalam mengisi formulir, silakan hubungi administrator
                             laboratorium:
                         </p>
                         <div class="flex flex-wrap gap-4 text-sm">
-                            <span class="inline-flex items-center gap-2">
-                                <i class="fa-solid fa-envelope text-petra-blue"></i>
+                            <span class="booking-contact inline-flex items-center gap-2">
+                                <i class="fa-solid fa-envelope"></i>
                                 <span>lab@petra.ac.id</span>
                             </span>
-                            <span class="inline-flex items-center gap-2">
-                                <i class="fa-solid fa-phone text-petra-blue"></i>
+                            <span class="booking-contact inline-flex items-center gap-2">
+                                <i class="fa-solid fa-phone"></i>
                                 <span>(031) 1234-5678</span>
                             </span>
                         </div>
@@ -737,7 +821,7 @@
             </div>
 
         </div>
-    </div>
+    </main>
 
     <!-- @include('user.partials.footer') -->
 @endsection
@@ -1855,7 +1939,7 @@
                 text: 'Semua item di keranjang akan dihapus',
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#1a237e',
+                confirmButtonColor: '#1A2D4A',
                 cancelButtonColor: '#6b7280',
                 confirmButtonText: 'Ya, Kosongkan',
                 cancelButtonText: 'Batal'
@@ -1952,7 +2036,7 @@
                         icon: 'success',
                         title: 'Berhasil!',
                         text: 'Peminjaman berhasil diajukan',
-                        confirmButtonColor: '#1a237e'
+                        confirmButtonColor: '#1A2D4A'
                     });
 
                     window.location.href = "{{ route('user.booking.history') }}";
@@ -1968,7 +2052,7 @@
                     icon: 'error',
                     title: 'Gagal!',
                     text: error.message,
-                    confirmButtonColor: '#1a237e'
+                    confirmButtonColor: '#1A2D4A'
                 });
             }
         }
