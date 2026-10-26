@@ -27,7 +27,7 @@
     ::-webkit-scrollbar-thumb { background: var(--history-navy); border: 2px solid var(--history-bg); border-radius: 8px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--history-orange); }
     * { scrollbar-width: thin; scrollbar-color: var(--history-navy) var(--history-bg); }
-    .history-page { min-height: 100vh; background: var(--history-bg); color: var(--history-navy); font-family: 'Open Sans', sans-serif; }
+    .history-page { min-height: 100vh; background-color: var(--history-bg); background-image: radial-gradient(520px circle at var(--mx, 70%) var(--my, 30%), rgba(245, 126, 33, .11), transparent 60%); background-repeat: no-repeat; color: var(--history-navy); font-family: 'Open Sans', sans-serif; transition: background .2s ease; }
     .history-page .history-wrap { width: 100%; max-width: 1240px; margin: 0 auto; padding: 150px 28px 48px; }
     .history-page .history-eyebrow { display: inline-flex; align-items: center; gap: 14px; color: var(--history-orange); font-size: .7rem; font-weight: 700; letter-spacing: .32em; text-transform: uppercase; }
     .history-page .history-eyebrow::before { content: ''; width: 46px; height: 1px; background: currentColor; }
@@ -285,11 +285,7 @@
 </div>
 </main>
 
-<footer class="history-footer border-t mt-12 py-8">
-    <div class="container mx-auto px-4 text-center text-gray-500 text-sm">
-        &copy; {{ date('Y') }} Laboratorium Gedung P - UK Petra. All rights reserved.
-    </div>
-</footer>
+@include('user.partials.footer')
 
 @endsection
 
@@ -297,6 +293,14 @@
 <script>
     const ITEMS_PER_PAGE = 5; 
     let currentVisibleCount = ITEMS_PER_PAGE;
+    const bookingHistoryPage = document.querySelector('.history-page');
+    if (bookingHistoryPage && !window.matchMedia('(pointer: coarse), (prefers-reduced-motion: reduce)').matches) {
+        bookingHistoryPage.addEventListener('pointermove', (event) => {
+            const bounds = bookingHistoryPage.getBoundingClientRect();
+            bookingHistoryPage.style.setProperty('--mx', `${((event.clientX - bounds.left) / bounds.width) * 100}%`);
+            bookingHistoryPage.style.setProperty('--my', `${((event.clientY - bounds.top) / bounds.height) * 100}%`);
+        });
+    }
 
     function toggleItems(bookingId, btn) {
         const hiddenItems = document.querySelectorAll(`.extra-item-${bookingId}`);

@@ -23,7 +23,7 @@
         ::-webkit-scrollbar-thumb:hover { background: #F57E21; }
         * { scrollbar-width: thin; scrollbar-color: #1A2D4A #FBFAF5; }
 
-        .booking-page { background: #FBFAF5; color: #1A2D4A; font-family: 'Open Sans', sans-serif; }
+        .booking-page { background-color: #FBFAF5; background-image: radial-gradient(520px circle at var(--mx, 70%) var(--my, 30%), rgba(245, 126, 33, .11), transparent 60%); background-repeat: no-repeat; color: #1A2D4A; font-family: 'Open Sans', sans-serif; transition: background .2s ease; }
         .booking-page .booking-wrap { width: 100%; max-width: 1240px; margin: 0 auto; padding: 0 28px; }
         .booking-page .booking-intro { padding: 150px 0 54px; }
         .booking-page .booking-eyebrow { display: inline-flex; align-items: center; gap: 14px; color: #F57E21; font-size: .7rem; font-weight: 700; letter-spacing: .32em; text-transform: uppercase; }
@@ -823,12 +823,20 @@
         </div>
     </main>
 
-    <!-- @include('user.partials.footer') -->
+    @include('user.partials.footer')
 @endsection
 
 @section('script')
     <script>
         const csrfToken = '{{ csrf_token() }}';
+        const bookingPage = document.querySelector('.booking-page');
+        if (bookingPage && !window.matchMedia('(pointer: coarse), (prefers-reduced-motion: reduce)').matches) {
+            bookingPage.addEventListener('pointermove', (event) => {
+                const bounds = bookingPage.getBoundingClientRect();
+                bookingPage.style.setProperty('--mx', `${((event.clientX - bounds.left) / bounds.width) * 100}%`);
+                bookingPage.style.setProperty('--my', `${((event.clientY - bounds.top) / bounds.height) * 100}%`);
+            });
+        }
         let allLabs = [];
         let cart = [];
         let currentDeskMap = [];

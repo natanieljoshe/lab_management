@@ -2,14 +2,52 @@
 
 @section('title', 'Manajemen Bookings')
 
+@section('style')
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Open+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .admin-bookings-page {
+            --booking-bg: #FBFAF5;
+            --booking-navy: #1A2D4A;
+            --booking-orange: #F57E21;
+            position: relative;
+            min-height: 100vh;
+            padding-top: 1px;
+            background-color: var(--booking-bg);
+            background-image: radial-gradient(520px circle at var(--mx, 70%) var(--my, 30%), rgba(245, 126, 33, .11), transparent 60%);
+            background-repeat: no-repeat;
+            color: var(--booking-navy);
+            font-family: 'Open Sans', sans-serif;
+            transition: background .2s ease;
+        }
+        .admin-bookings-page .admin-bookings-title {
+            color: var(--booking-navy);
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: clamp(2.6rem, 5vw, 4rem);
+            font-weight: 500;
+            letter-spacing: -.015em;
+        }
+        .admin-bookings-page .admin-surface { border: 1px solid rgba(26, 45, 74, .16); border-radius: 0; box-shadow: none; transition: border-color .3s ease; }
+        .admin-bookings-page .admin-surface:hover { border-color: rgba(245, 126, 33, .65); }
+        .admin-bookings-page .admin-surface-title { color: var(--booking-navy); font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1.55rem; font-weight: 600; }
+        .admin-bookings-page .filter-input:focus, .admin-bookings-page #search-input:focus { border-color: var(--booking-orange); --tw-ring-color: rgba(245, 126, 33, .2); }
+        .admin-bookings-page #bookings-table tbody tr { transition: background-color .2s ease; }
+        .admin-bookings-page #bookings-table tbody tr:hover { background-color: rgba(245, 126, 33, .06); }
+        .admin-bookings-page #bookings-table thead { background-color: rgba(26, 45, 74, .045); }
+        .admin-bookings-page #bookings-table th { color: rgba(26, 45, 74, .65); }
+    </style>
+@endsection
+
 @section('body')
-    <div class="flex flex-col md:flex-row w-full py-4 shadow-md items-center justify-center mb-5 px-6 md:px-4">
-        <h1 class="text-center text-4xl uppercase font-bold mb-2 md:mb-0">Kelola Bookings</h1>
+    <main class="admin-bookings-page" id="adminBookingsPage">
+    <div class="flex flex-col md:flex-row w-full py-4 items-center justify-center mb-5 px-6 md:px-4">
+        <h1 class="admin-bookings-title text-center uppercase mb-2 md:mb-0">Kelola Bookings</h1>
     </div>
 
     <div class="max-w-7xl mx-auto px-6 pb-6">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-8">
-            <h2 class="text-xl font-semibold text-gray-800 mb-4">Filter & Pencarian</h2>
+        <div class="admin-surface bg-white p-6 md:p-8">
+            <h2 class="admin-surface-title mb-4">Filter & Pencarian</h2>
 
             {{-- Filter Inputs --}}
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 filter-select">
@@ -112,9 +150,9 @@
     </div>
 
     <div class="max-w-7xl mx-auto px-6 pb-12 space-y-8">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div class="admin-surface bg-white">
             <div class="p-6 border-b border-gray-200">
-                <h2 class="text-xl font-semibold text-gray-800">Daftar Bookings</h2>
+                <h2 class="admin-surface-title">Daftar Bookings</h2>
             </div>
             <div class="p-6">
                 {{-- Container Table --}}
@@ -232,6 +270,8 @@
             </div>
         </div>
     </div>
+    </main>
+    @include('user.partials.footer')
 @endsection
 
 @section('script')
@@ -335,6 +375,15 @@
 <script>
 document.getElementById('bookings').classList.add('bg-slate-100');
 document.getElementById('bookings').classList.add('active');
+
+const adminBookingsPage = document.getElementById('adminBookingsPage');
+if (adminBookingsPage && !window.matchMedia('(pointer: coarse), (prefers-reduced-motion: reduce)').matches) {
+    adminBookingsPage.addEventListener('pointermove', (event) => {
+        const bounds = adminBookingsPage.getBoundingClientRect();
+        adminBookingsPage.style.setProperty('--mx', `${((event.clientX - bounds.left) / bounds.width) * 100}%`);
+        adminBookingsPage.style.setProperty('--my', `${((event.clientY - bounds.top) / bounds.height) * 100}%`);
+    });
+}
 
 let tomSelects = {};
 let dataTableInstance;
