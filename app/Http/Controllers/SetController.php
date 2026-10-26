@@ -14,7 +14,7 @@ class SetController extends Controller
     {
         $labs = Labs::orderBy('name')->get();
         $sets = Set::with(['items.type', 'items.desk.lab', 'items.components', 'items.repairs' => function($q) {
-            $q->where('repairs_items.status', 1);
+            $q->whereIn('repairs_items.status', [0, 1]);
         }])->orderBy('name')->get();
         
         $types = \App\Models\Type::orderBy('name')->get();

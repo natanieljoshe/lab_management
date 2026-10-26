@@ -44,7 +44,17 @@
                         </a>
 
                         <a href="{{ route('user.booking.history') }}" class="block px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-petra-blue transition-colors">
-                            <i class="fa-solid fa-clock-rotate-left w-5 mr-2 text-center text-petra-blue"></i>Riwayat Saya
+                            <i class="fa-solid fa-clock-rotate-left w-5 mr-2 text-center text-petra-blue"></i>Riwayat Peminjaman
+                        </a>
+
+                        <div class="border-t border-gray-100"></div>
+
+                        <a href="{{ route('user.helpdesk.index') }}" class="block px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-petra-blue transition-colors">
+                            <i class="fa-solid fa-headset w-5 mr-2 text-center text-petra-blue"></i>Pusat Bantuan / Lapor
+                        </a>
+
+                        <a href="{{ route('user.helpdesk.history') }}" class="block px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-petra-blue transition-colors">
+                            <i class="fa-solid fa-clipboard-list w-5 mr-2 text-center text-petra-blue"></i>Riwayat Tiket Saya
                         </a>
 
                         <div class="border-t border-gray-100 mt-1"></div>
@@ -67,6 +77,7 @@
         <div class="flex flex-col p-4 space-y-3 font-medium">
             <a href="{{ route('user.landing') }}#about" class="text-petra-darkgray hover:text-petra-blue py-2 border-b border-gray-50">TENTANG</a>
             <a href="{{ route('user.landing') }}#services" class="text-petra-darkgray hover:text-petra-blue py-2 border-b border-gray-50">LAYANAN</a>
+            <a href="{{ route('user.helpdesk.index') }}" class="text-petra-darkgray hover:text-petra-blue py-2 border-b border-gray-50">HELPDESK</a>
 
             @guest
             <a href="{{ route('user.login') }}" class="mt-2 w-full text-center px-5 py-3 rounded text-sm font-bold bg-petra-blue text-white hover:bg-petra-yellow hover:text-petra-blue transition-all shadow-sm">
@@ -81,7 +92,13 @@
                     <i class="fa-regular fa-calendar-plus w-6"></i> Buat Peminjaman
                 </a>
                 <a href="{{ route('user.booking.history') }}" class="flex items-center text-petra-darkgray hover:text-petra-blue py-2">
-                    <i class="fa-solid fa-clock-rotate-left w-6"></i> Riwayat Saya
+                    <i class="fa-solid fa-clock-rotate-left w-6"></i> Riwayat Peminjaman
+                </a>
+                <a href="{{ route('user.helpdesk.index') }}" class="flex items-center text-petra-darkgray hover:text-petra-blue py-2">
+                    <i class="fa-solid fa-headset w-6"></i> Pusat Bantuan / Lapor
+                </a>
+                <a href="{{ route('user.helpdesk.history') }}" class="flex items-center text-petra-darkgray hover:text-petra-blue py-2">
+                    <i class="fa-solid fa-clipboard-list w-6"></i> Riwayat Tiket Saya
                 </a>
                 <a href="{{ route('user.logout') }}" class="flex items-center text-red-500 py-2 mt-2">
                     <i class="fa-solid fa-arrow-right-from-bracket w-6"></i> Logout

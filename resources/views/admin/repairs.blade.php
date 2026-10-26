@@ -2,6 +2,81 @@
 
 @section('title', 'Manajemen Perbaikan')
 
+@section('style')
+    <style>
+        .dataTables_wrapper .dataTables_filter { display: none; }
+        .dataTables_wrapper .dataTables_length select {
+            padding: .3rem .75rem;
+            padding-right: 2rem;
+            font-size: .875rem;
+            border-radius: .5rem;
+            border-color: #d1d5db;
+            cursor: pointer;
+        }
+        .dataTables_wrapper .dataTables_length select:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, .2);
+        }
+        .dataTables_wrapper .dataTables_info {
+            font-size: .875rem;
+            color: #6b7280;
+            padding-top: .5rem;
+        }
+        #repairs-datatable-wrapper {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+        }
+        #repairs-datatable-wrapper .dataTables_wrapper {
+            max-width: 100%;
+        }
+        #repairs-table {
+            min-width: 1080px;
+        }
+        .dataTables_wrapper .dataTables_paginate {
+            display: flex;
+            align-items: center;
+            gap: .25rem;
+            padding-top: .5rem;
+        }
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: .375rem .75rem;
+            margin-left: 0;
+            font-size: .875rem;
+            font-weight: 500;
+            border-radius: .5rem;
+            border: 1px solid #e5e7eb;
+            background: #fff;
+            color: #374151;
+            cursor: pointer;
+            transition: all .2s;
+        }
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover:not(.disabled) {
+            background: #f9fafb;
+            color: #4f46e5;
+            border-color: #c7d2fe;
+        }
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+            background: #4f46e5 !important;
+            color: #fff !important;
+            border-color: #4f46e5 !important;
+        }
+        .dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
+            opacity: .5;
+            cursor: not-allowed;
+            background: #f9fafb;
+        }
+        table.dataTable.no-footer { border-bottom: 1px solid #e5e7eb !important; }
+    </style>
+@endsection
+
 @section('body')
     <div class="flex flex-col md:flex-row w-full py-4 shadow-md items-center justify-center mb-5 px-6 md:px-4">
         <h1 class="text-center text-4xl uppercase font-bold mb-2 md:mb-0">Daftar Perbaikan</h1>
@@ -21,6 +96,7 @@
                         Item</label>
                     <select id="filter_repair_status" class="filter-input" placeholder="Semua Status...">
                         <option value="">Semua Status</option>
+                        <option value="0">Pending</option>
                         <option value="1">In Progress</option>
                         <option value="2">Completed</option>
                     </select>
@@ -125,37 +201,37 @@
                 <h2 class="text-xl font-semibold text-gray-800">Daftar Laporan Perbaikan</h2>
             </div>
             <div class="p-6">
-                <div id="repairs-datatable-wrapper" class="overflow-x-auto">
-                    <table id="repairs-table" class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
+                <div id="repairs-datatable-wrapper" class="w-full min-w-0">
+                    <table id="repairs-table" class="w-full text-sm pb-3 text-left text-gray-500 display responsive" style="width:100%">
+                        <thead class="text-xs text-gray-500 uppercase bg-gray-50 border-b border-gray-100">
                             <tr>
                                 <th scope="col"
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                    class="px-6 py-4 font-bold tracking-wider"
                                     data-te-datatable-sortable="true">
                                     Barang & Tipe</th>
                                 <th scope="col"
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                    class="px-6 py-4 font-bold tracking-wider"
                                     data-te-datatable-sortable="true">
                                     Lokasi / Lab</th>
                                 <th scope="col"
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    class="px-6 py-4 font-bold tracking-wider">
                                     Keluhan & Catatan</th>
                                 <th scope="col"
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    class="px-6 py-4 font-bold tracking-wider">
                                     Pelapor & Tiket</th>
                                 <th scope="col"
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    class="px-6 py-4 font-bold tracking-wider">
                                     Status</th>
                                 <th scope="col"
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                    class="px-6 py-4 font-bold tracking-wider"
                                     data-te-datatable-sortable="true">
                                     Waktu</th>
                                 <th scope="col"
-                                    class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    class="px-6 py-4 font-bold tracking-wider text-center">
                                     Aksi</th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
+                        <tbody class="bg-white divide-y divide-gray-100">
                             @foreach ($repairs as $repair)
                                 {{-- Merge Items dan Components dalam satu loop --}}
                                 @php
@@ -212,9 +288,13 @@
                                         $statusLabel = '';
                                         $statusClass = '';
                                         switch ($pivot->status) {
+                                            case 0:
+                                                $statusLabel = 'Pending';
+                                                $statusClass = 'bg-gray-100 text-gray-700';
+                                                break;
                                             case 1:
                                                 $statusLabel = 'In Progress';
-                                                $statusClass = 'bg-blue-100 text-blue-800';
+                                                $statusClass = 'bg-amber-100 text-amber-800';
                                                 break;
                                             case 2:
                                                 $statusLabel = $pivot->is_successful
@@ -315,6 +395,9 @@
                                                 data-current-notes="{{ $pivot->repair_notes }}"
                                                 data-item-name="{{ $itemName }}"
                                                 data-issue="{{ $pivot->issue_description }}">
+                                                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="h-3.5 w-3.5 inline-block mr-1 align-[-2px]">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M20.49 9A9 9 0 0 0 5.64 5.64L3 8m0 0V3m0 5h5M3.51 15A9 9 0 0 0 18.36 18.36L21 16m0 0v5m0-5h-5" />
+                                                </svg>
                                                 Update
                                             </button>
                                         </td>
@@ -364,6 +447,7 @@
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-2">Status Baru</label>
                             <select id="modal-status-select" name="status" class="w-full">
+                                <option value="0">Pending (Menunggu Diproses)</option>
                                 <option value="1">In Progress (Sedang Dikerjakan)</option>
                                 <option value="2">Completed (Selesai)</option>
                             </select>
@@ -471,7 +555,8 @@
                     if (!value) {
                         tomSelects.specVal.disable();
                     } else {
-                        const selectedOption = tomSelects.specAttr.getOption(value);
+                        const selectedOption = Array.from(document.querySelectorAll('#filter_spec_attr option'))
+                            .find(option => option.value === value);
                         if (selectedOption && selectedOption.dataset.values) {
                             try {
                                 const values = JSON.parse(selectedOption.dataset.values);
@@ -490,62 +575,69 @@
             });
 
             // --- 2. INIT DATATABLE ---
-            try {
-                const tableEl = document.getElementById('repairs-table');
-                dataTableInstance = new te.Datatable(tableEl, {
-                    hover: true,
-                    fixedHeader: true,
-                    pagination: true,
-                    entries: 10,
-                    entriesOptions: [5, 10, 25, 50],
-                    noFoundMessage: 'Belum ada data perbaikan.',
-                });
+            dataTableInstance = $('#repairs-table').DataTable({
+                responsive: true,
+                autoWidth: false,
+                dom: 't<"flex flex-col md:flex-row justify-between items-center gap-4 px-6 py-6 border-t border-gray-100"<"flex items-center gap-4"li>p>',
+                pageLength: 10,
+                order: [[5, 'desc']],
+                lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, 'All']],
+                language: {
+                    lengthMenu: 'Show _MENU_',
+                    emptyTable: 'Belum ada data perbaikan.',
+                    zeroRecords: 'Tidak ada data perbaikan yang cocok.',
+                    paginate: {
+                        previous: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>',
+                        next: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>'
+                    }
+                },
+                columnDefs: [{ orderable: false, targets: 6 }]
+            });
 
-                document.getElementById('datatable-search-input').addEventListener('input', (e) => {
-                    dataTableInstance.search(e.target.value);
-                    applyClientSideFilter();
-                });
-            } catch (e) {
-                console.warn("DataTable init failed", e);
-            }
+            document.getElementById('datatable-search-input').addEventListener('input', (e) => {
+                dataTableInstance.search(e.target.value).draw();
+                applyClientSideFilter();
+            });
 
             // --- 3. CLIENT SIDE FILTER LOGIC ---
-            function applyClientSideFilter() {
+            function matchesRepairFilters(row) {
                 const statusVal = tomSelects.status.getValue();
                 const labVal = tomSelects.lab.getValue();
                 const typeVal = tomSelects.type.getValue();
                 const reporterVal = tomSelects.reporter.getValue();
                 const specValVal = tomSelects.specVal.getValue();
 
-                const rows = document.querySelectorAll('.repair-row');
-                let visibleCount = 0;
+                const rowStatus = row.dataset.repairStatus;
+                const rowLab = row.dataset.labId;
+                const rowType = row.dataset.typeId;
+                const rowReporter = row.dataset.reporter;
+                const rowSpecs = JSON.parse(row.dataset.specs || '[]');
 
-                rows.forEach(row => {
-                    const rowStatus = row.dataset.repairStatus;
-                    const rowLab = row.dataset.labId;
-                    const rowType = row.dataset.typeId;
-                    const rowReporter = row.dataset.reporter;
-                    const rowSpecs = JSON.parse(row.dataset.specs || '[]');
+                return (statusVal === "" || rowStatus === statusVal)
+                    && (labVal === "" || rowLab === labVal)
+                    && (typeVal === "" || rowType === typeVal)
+                    && (reporterVal === "" || rowReporter === reporterVal)
+                    && (specValVal === "" || rowSpecs.map(String).includes(String(specValVal)));
+            }
 
-                    let matchStatus = (statusVal === "" || rowStatus === statusVal);
-                    let matchLab = (labVal === "" || rowLab === labVal);
-                    let matchType = (typeVal === "" || rowType === typeVal);
-                    let matchReporter = (reporterVal === "" || rowReporter === reporterVal);
-                    let matchSpec = (specValVal === "" || rowSpecs.includes(parseInt(specValVal)));
-
-                    if (matchStatus && matchLab && matchType && matchReporter && matchSpec) {
-                        row.style.display = '';
-                        visibleCount++;
-                    } else {
-                        row.style.display = 'none';
-                    }
+            $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+                    if (settings.nTable.id !== 'repairs-table') return true;
+                    const row = dataTableInstance.row(dataIndex).node();
+                    return row ? matchesRepairFilters(row) : true;
                 });
 
+            function applyClientSideFilter() {
+                const rows = document.querySelectorAll('.repair-row');
+                dataTableInstance.draw();
+                const visibleCount = dataTableInstance.rows({ search: 'applied' }).count();
+
                 const noResultRow = document.getElementById('filter-no-result');
-                if (visibleCount === 0 && rows.length > 0) {
-                    noResultRow.classList.remove('hidden');
-                } else {
-                    noResultRow.classList.add('hidden');
+                if (noResultRow) {
+                    if (visibleCount === 0 && rows.length > 0) {
+                        noResultRow.classList.remove('hidden');
+                    } else {
+                        noResultRow.classList.add('hidden');
+                    }
                 }
             }
 
@@ -608,6 +700,20 @@
                     document.getElementById('modal-issue').textContent = issue;
                     document.getElementById('modal-repair-notes').value = notes;
 
+                    tomSelectStatusModal.clearOptions();
+                    const currentStatusNumber = Number(currentStatus);
+                    const statusOptions = currentStatusNumber === 0
+                        ? [
+                            { value: '0', text: 'Pending (Menunggu Diproses)' },
+                            { value: '1', text: 'In Progress (Sedang Dikerjakan)' }
+                        ]
+                        : currentStatusNumber === 1
+                            ? [
+                                { value: '1', text: 'In Progress (Sedang Dikerjakan)' },
+                                { value: '2', text: 'Completed (Selesai)' }
+                            ]
+                            : [{ value: '2', text: 'Completed (Selesai)' }];
+                    tomSelectStatusModal.addOptions(statusOptions);
                     tomSelectStatusModal.setValue(currentStatus);
 
                     // Reset Radio

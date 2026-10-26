@@ -42,7 +42,7 @@ class AdminController extends Controller
         'specSetValues.specAttributes', 
         'desk.lab',
         'repairs' => function($q) {
-            $q->where('repairs_items.status', 1); 
+            $q->whereIn('repairs_items.status', [0, 1]);
         }
     ])->orderBy('name')->get();
 
@@ -52,10 +52,10 @@ class AdminController extends Controller
         'specSetValues.specAttributes', 
         'item.desk.lab',
         'repairs' => function($q) {
-            $q->where('repairs_items.status', 1);
+            $q->whereIn('repairs_items.status', [0, 1]);
         },
         'item.repairs' => function($q) {
-            $q->where('repairs_items.status', 1);
+            $q->whereIn('repairs_items.status', [0, 1]);
         }
     ])->orderBy('name')->get();
 

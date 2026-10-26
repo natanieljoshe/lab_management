@@ -27,6 +27,8 @@ use App\Http\Controllers\Schedule\VersionController;
 use App\Http\Controllers\Schedule\SettingsController;
 use App\Http\Controllers\Schedule\ExportController;
 use App\Http\Controllers\Schedule\PublicScheduleController;
+use App\Http\Controllers\UserHelpdeskController;
+use App\Http\Controllers\FeedbackController;
 
 Route::get('/', function () {
     return view('user.landing', ['title' => 'User | Landing Page']);
@@ -47,6 +49,15 @@ Route::middleware(['auth.permission'])->group(function () {
     Route::get('/get/items/by-lab/{lab}', [ItemsController::class, 'getItemsByLab'])->name('user.get.items.by.lab');
     Route::get('/labs/{lab}/available-sets', [LabsController::class, 'getAvailableSets'])->name('user.labs.availableSets');
     Route::get('/labs/{lab}/desk-map', [LabsController::class, 'getDeskMapWithAvailability'])->name('user.labs.deskMap');
+
+    // User Helpdesk
+    Route::prefix('helpdesk')->group(function () {
+        Route::get('/', [UserHelpdeskController::class, 'index'])->name('user.helpdesk.index');
+        Route::post('/repair', [UserHelpdeskController::class, 'storeRepair'])->name('user.helpdesk.repair.store');
+        Route::post('/feedback', [UserHelpdeskController::class, 'storeFeedback'])->name('user.helpdesk.feedback.store');
+        Route::get('/history', [UserHelpdeskController::class, 'history'])->name('user.helpdesk.history');
+        Route::get('/feedback/{feedback}', [UserHelpdeskController::class, 'feedbackDetail'])->name('user.helpdesk.feedback.detail');
+    });
 
     Route::prefix('admin')->group(function () {
         Route::get('/', [AdminController::class, 'dashboard'])->name('admin.dashboard');
@@ -92,6 +103,12 @@ Route::middleware(['auth.permission'])->group(function () {
         Route::get('/repairs/view', [RepairController::class, 'viewRepairs'])->name('admin.repairs');
         Route::patch('/repairs/{repair}/status', [RepairController::class, 'updateRepairStatus'])->name('admin.repairs.updateStatus');
         Route::post('/item/items/repair', [RepairController::class, 'applyRepair'])->name('admin.items.repair');
+
+        // feedback (Keluhan & Saran)
+        Route::get('/feedbacks', [FeedbackController::class, 'index'])->name('admin.feedbacks.index');
+        Route::get('/feedbacks/{feedback}/details', [FeedbackController::class, 'show'])->name('admin.feedbacks.show');
+        Route::post('/feedbacks/{feedback}/respond', [FeedbackController::class, 'respond'])->name('admin.feedbacks.respond');
+        Route::patch('/feedbacks/{feedback}/status', [FeedbackController::class, 'updateStatus'])->name('admin.feedbacks.updateStatus');
 
         // booking
         Route::get('/bookings', [BookingController::class, 'bookings'])->name('admin.bookings');

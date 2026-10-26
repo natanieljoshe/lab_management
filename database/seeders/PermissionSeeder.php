@@ -20,6 +20,13 @@ class PermissionSeeder extends Seeder
                 ['name' => 'View Booking Form', 'route' => 'user.booking.form', 'action' => 'GET'],
                 ['name' => 'Submit Booking Request', 'route' => 'user.booking.request', 'action' => 'POST'],
             ],
+            'Helpdesk System' => [
+                ['name' => 'View Helpdesk Form', 'route' => 'user.helpdesk.index', 'action' => 'GET'],
+                ['name' => 'Submit Repair Request', 'route' => 'user.helpdesk.repair.store', 'action' => 'POST'],
+                ['name' => 'Submit Feedback', 'route' => 'user.helpdesk.feedback.store', 'action' => 'POST'],
+                ['name' => 'View Helpdesk History', 'route' => 'user.helpdesk.history', 'action' => 'GET'],
+                ['name' => 'View Feedback Detail', 'route' => 'user.helpdesk.feedback.detail', 'action' => 'GET'],
+            ],
             'Public Resources' => [
                 ['name' => 'View Labs List', 'route' => 'user.get.labs', 'action' => 'GET'],
                 ['name' => 'View All Items', 'route' => 'user.get.items', 'action' => 'GET'],
@@ -53,6 +60,13 @@ class PermissionSeeder extends Seeder
                 ['name' => 'View Repairs List', 'route' => 'admin.repairs', 'action' => 'GET'],
                 ['name' => 'Update Repair Status', 'route' => 'admin.repairs.updateStatus', 'action' => 'PATCH'],
                 ['name' => 'Apply/Report Repair', 'route' => 'admin.items.repair', 'action' => 'POST'],
+            ],
+            'Feedback Management' => [
+                ['name' => 'View Feedbacks List', 'route' => 'admin.feedbacks.index', 'action' => 'GET'],
+                ['name' => 'View Feedback Details', 'route' => 'admin.feedbacks.show', 'action' => 'GET'],
+                ['name' => 'Respond to Feedback', 'route' => 'admin.feedbacks.respond', 'action' => 'POST'],
+                ['name' => 'Assign Feedback', 'route' => 'admin.feedbacks.assign', 'action' => 'PATCH'],
+                ['name' => 'Update Feedback Status', 'route' => 'admin.feedbacks.updateStatus', 'action' => 'PATCH'],
             ],
             'Access Management' => [
                 ['name' => 'View Permissions', 'route' => 'admin.permissions', 'action' => 'GET'],
