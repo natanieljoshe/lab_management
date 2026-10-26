@@ -8,13 +8,13 @@
         <h1 class="text-center md:text-left text-3xl md:text-4xl uppercase font-bold text-gray-800">Kas & Keuangan Lab</h1>
 
         <div class="flex items-center gap-3 mt-3 md:mt-0">
-            <a href="{{ route('admin.funding.export') }}" 
+            <button type="button" onclick="openExportModal()"
                class="inline-flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-lg shadow-sm transition">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                 </svg>
                 Export CSV
-            </a>
+            </button>
             <button type="button" onclick="openAddModal()" 
                     class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg shadow-sm transition">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -30,6 +30,18 @@
 
         {{-- Ringkasan Saldo Kas (Cards) --}}
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between">
+                <div>
+                    <p class="text-xs uppercase tracking-wider font-semibold text-gray-500">Sisa Saldo Kas</p>
+                    <p class="text-2xl font-bold text-indigo-600 mt-1">{{ $balance_formatted }}</p>
+                </div>
+                <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+            </div>
+
             <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between">
                 <div>
                     <p class="text-xs uppercase tracking-wider font-semibold text-gray-500">Total Pemasukan</p>
@@ -50,18 +62,6 @@
                 <div class="w-12 h-12 rounded-full bg-rose-100 flex items-center justify-center text-rose-600">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 13l-5 5m0 0l-5-5m5 5V6"/>
-                    </svg>
-                </div>
-            </div>
-
-            <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between">
-                <div>
-                    <p class="text-xs uppercase tracking-wider font-semibold text-gray-500">Sisa Saldo Kas</p>
-                    <p class="text-2xl font-bold text-indigo-600 mt-1">{{ $balance_formatted }}</p>
-                </div>
-                <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
                 </div>
             </div>
@@ -257,6 +257,57 @@
                         </tr>
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+
+    {{-- ========================================================= --}}
+    {{-- MODAL EXPORT CSV (PILIH PERIODE)                         --}}
+    {{-- ========================================================= --}}
+    <div id="exportModal" class="fixed inset-0 z-[3000] hidden overflow-y-auto" aria-labelledby="export-modal-title" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-gray-900 bg-opacity-60 transition-opacity backdrop-blur-sm" onclick="closeExportModal()"></div>
+
+        <div class="flex min-h-full items-center justify-center p-4">
+            <div class="relative bg-white rounded-xl shadow-xl max-w-sm w-full p-6 z-10 space-y-5">
+                <div class="flex items-center justify-between pb-3 border-b border-gray-100">
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                        </div>
+                        <h3 id="export-modal-title" class="text-lg font-bold text-gray-800">Export CSV</h3>
+                    </div>
+                    <button type="button" onclick="closeExportModal()" class="text-gray-400 hover:text-gray-600 text-xl font-bold">&times;</button>
+                </div>
+
+                <div class="space-y-3">
+                    <p class="text-sm text-gray-500">Pilih periode yang ingin di-export. Data CSV akan langsung ter-download setelah klik tombol Download.</p>
+
+                    <div>
+                        <label for="export_period_id" class="block text-sm font-semibold text-gray-700 mb-1">Periode <span class="text-red-500">*</span></label>
+                        <select id="export_period_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                            <option value="all">📋 Semua Periode</option>
+                            @foreach ($periods as $p)
+                                <option value="{{ $p->id }}">{{ $p->academic_year }} &mdash; {{ $p->semester }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-3 border-t border-gray-100">
+                    <button type="button" onclick="closeExportModal()"
+                            class="px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition">
+                        Batal
+                    </button>
+                    <button type="button" onclick="doExport()"
+                            class="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-lg shadow-sm transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        Download CSV
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -683,6 +734,29 @@
                 noMatchEl.classList.add('hidden');
             }
         }
+    }
+
+    // -------------------------------------------------------------
+    // EXPORT MODAL
+    // -------------------------------------------------------------
+    const EXPORT_URL = '{{ route('admin.funding.export') }}';
+
+    function openExportModal() {
+        document.getElementById('exportModal').classList.remove('hidden');
+    }
+
+    function closeExportModal() {
+        document.getElementById('exportModal').classList.add('hidden');
+    }
+
+    function doExport() {
+        const periodId = document.getElementById('export_period_id').value;
+        let url = EXPORT_URL;
+        if (periodId && periodId !== 'all') {
+            url += '?period_id=' + encodeURIComponent(periodId);
+        }
+        closeExportModal();
+        window.location.href = url;
     }
 
     function resetFilters() {
