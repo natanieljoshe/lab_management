@@ -3,245 +3,240 @@
 @section('title', 'Formulir Helpdesk & Pengaduan')
 
 @section('style')
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'petra-blue': '#1a237e',
-                        'petra-yellow': '#ffca28',
-                        'petra-wood': '#8b4513',
-                        'petra-darkgray': '#424242',
-                        'petra-gray': '#f1f5f9',
-                    }
-                }
-            }
-        }
-    </script>
+    @include('user.partials.helpdesk-theme')
     <style>
-        :root {
-            --petra-blue: #1a237e;
-            --petra-yellow: #ffca28;
-            --petra-wood: #8b4513;
-            --petra-darkgray: #424242;
-            --petra-gray: #f1f5f9;
+        /* ============================================================
+           SHELL
+           ============================================================ */
+        .hx-shell {
+            background: var(--panel); border: 1px solid var(--line);
+            box-shadow: 0 50px 90px -60px rgba(26, 45, 74, .45);
         }
-
-        .booking-card {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 2px solid #e2e8f0;
-            background: white;
+        .hx-shell-head {
+            display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap;
+            padding: 36px 44px; border-bottom: 1px solid var(--line);
         }
+        .hx-shell-body { padding: 56px 44px 52px; }
 
-        .booking-card:hover {
-            border-color: var(--petra-blue);
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        /* Langkah */
+        .hx-section { margin-bottom: 76px; }
+        .hx-section:last-child { margin-bottom: 0; }
+        .hx-step { display: flex; align-items: baseline; gap: 18px; margin-bottom: 34px; }
+        .hx-step-no { font-family: var(--serif); font-style: italic; font-size: 1.7rem; color: var(--clr-orange); font-weight: 500; }
+        .hx-step h3 { font-family: var(--serif); font-weight: 500; font-size: clamp(1.5rem, 2.6vw, 2.1rem); line-height: 1.1; color: var(--clr-navy); }
+        .hx-step h3 .req { color: var(--clr-orange); }
+        .hx-step::after { content: ''; flex: 1; height: 1px; background: var(--line); align-self: center; }
+
+        /* ============================================================
+           OPSI TERPILIH (fill sweep)
+           ============================================================ */
+        .hx-opt-wrap { display: block; cursor: pointer; }
+        .hx-opt {
+            position: relative; overflow: hidden; isolation: isolate; cursor: pointer;
+            border: 1px solid var(--line); background: transparent; color: var(--clr-navy); height: 100%;
+            transition: color .6s var(--ease), border-color .6s var(--ease);
         }
-
-        .booking-card.active {
-            border-color: var(--petra-blue) !important;
-            background-color: rgba(26, 35, 126, 0.05);
-            box-shadow: 0 0 0 3px rgba(26, 35, 126, 0.1);
+        .hx-opt::before {
+            content: ''; position: absolute; inset: 0; z-index: -1; background: var(--clr-navy);
+            clip-path: inset(100% 0 0 0); transition: clip-path .85s var(--ease-io);
         }
+        .hx-opt:hover { border-color: var(--clr-navy); }
+        .hx-opt:hover:not(.active)::before { clip-path: inset(calc(100% - 3px) 0 0 0); }
+        .hx-opt.active { color: var(--clr-bg); border-color: var(--clr-navy); }
+        .hx-opt.active::before { clip-path: inset(0 0 0 0); }
+        .hx-opt p { color: var(--clr-muted); transition: color .6s var(--ease); }
+        .hx-opt.active p { color: rgba(251, 250, 245, .72); }
+        .hx-opt-icon {
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+            border: 1px solid var(--line); color: var(--clr-orange);
+            transition: border-color .6s var(--ease), background .6s var(--ease);
+        }
+        .hx-opt.active .hx-opt-icon { border-color: var(--line-light); }
 
+        /* Besar: pilih jenis pengajuan */
+        .hx-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+        .hx-opt--lg { display: grid; grid-template-columns: 60px 1fr; gap: 8px 24px; padding: 36px 32px; align-items: start; }
+        .hx-opt--lg .hx-opt-icon { width: 60px; height: 60px; font-size: 1.3rem; grid-row: span 2; }
+        .hx-opt--lg h4 { font-family: var(--serif); font-weight: 600; font-size: 1.75rem; line-height: 1.05; }
+        .hx-opt--lg p { font-size: .86rem; line-height: 1.75; }
+
+        /* Sedang: kategori masukan */
+        .hx-opt--md { display: flex; align-items: flex-start; gap: 18px; padding: 24px; }
+        .hx-opt--md .hx-opt-icon { width: 46px; height: 46px; font-size: 1rem; }
+        .hx-opt--md h5 { font-family: var(--serif); font-weight: 600; font-size: 1.3rem; line-height: 1.1; margin-bottom: 6px; }
+        .hx-opt--md p { font-size: .78rem; line-height: 1.7; }
+
+        /* Kecil: penempatan perangkat */
+        .hx-opt--sm { padding: 20px 14px; text-align: center; }
+        .hx-opt--sm i { display: block; font-size: 1.15rem; margin-bottom: 10px; color: var(--clr-orange); }
+        .hx-opt--sm span { font-size: .64rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
+
+        /* ============================================================
+           FIELDS
+           ============================================================ */
+        .hx-form { display: block; }
+        .hx-field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
+        .hx-fields { display: grid; gap: 40px; }
+        .hx-fields-sm { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+        /* Pilih meja */
+        .hx-desk-wrap { margin-top: 38px; padding-top: 30px; border-top: 1px solid var(--line); }
+        .hx-desk-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 16px; }
+        #desk-buttons-container {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(86px, 1fr)); gap: 8px;
+            padding: 16px; max-height: 240px; overflow-y: auto;
+            border: 1px solid var(--line); background: rgba(26, 45, 74, .03);
+        }
         .desk-card {
-            transition: all 0.2s ease;
-            min-height: 52px;
-            border: 2px solid #cbd5e1;
-            border-radius: 0.5rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: white;
-            cursor: pointer;
-            user-select: none;
-            position: relative;
+            position: relative; overflow: hidden; isolation: isolate; cursor: pointer; user-select: none;
+            min-height: 54px; padding: 8px; display: flex; align-items: center; justify-content: center;
+            border: 1px solid var(--line); background: transparent; color: var(--clr-navy);
+            font-family: var(--sans); font-size: .74rem; font-weight: 700; letter-spacing: .08em;
+            transition: color .5s var(--ease), border-color .5s var(--ease);
         }
+        .desk-card::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--clr-navy); transform: translateY(101%); transition: transform .6s var(--ease-io); }
+        .desk-card:hover { border-color: var(--clr-navy); }
+        .desk-card.selected { color: var(--clr-bg); border-color: var(--clr-navy); }
+        .desk-card.selected::before { transform: translateY(0); }
+        .desk-card:focus-visible { outline: 2px solid var(--clr-orange); outline-offset: 2px; }
 
-        .desk-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            border-color: var(--petra-blue);
-        }
-
-        .desk-card.selected {
-            border-color: var(--petra-blue) !important;
-            background-color: rgba(26, 35, 126, 0.1) !important;
-            box-shadow: 0 0 0 3px rgba(26, 35, 126, 0.2);
-            z-index: 10;
-        }
-
+        /* Daftar barang */
+        #items-list-container { display: grid; gap: 16px; }
         .item-card {
-            border: 2px solid #e2e8f0;
-            border-radius: 0.5rem;
-            padding: 1rem;
-            background: white;
-            transition: all 0.2s;
+            position: relative; padding: 24px 26px 24px 30px; border: 1px solid var(--line); background: rgba(255, 255, 255, .55);
+            transition: border-color .5s var(--ease), background .5s var(--ease);
+            animation: hx-in .8s var(--ease) both;
         }
+        .item-card::before {
+            content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--clr-orange);
+            transform: scaleY(0); transform-origin: top; transition: transform .6s var(--ease-io);
+        }
+        .item-card.selected { border-color: var(--clr-navy); background: #fff; }
+        .item-card.selected::before { transform: scaleY(1); }
+        .hx-item-head { display: flex; align-items: flex-start; gap: 18px; }
+        .hx-item-head > .hx-check { margin-top: 5px; }
+        .hx-item-main { flex: 1; min-width: 0; }
+        .hx-item-title { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+        .hx-item-name { font-family: var(--serif); font-weight: 600; font-size: 1.35rem; line-height: 1.15; cursor: pointer; color: var(--clr-navy); }
+        .hx-sn { margin-top: 6px; font-size: .74rem; color: var(--clr-muted); }
+        .hx-desc { margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--line); }
 
-        .item-card:hover {
-            border-color: var(--petra-blue);
-            transform: translateY(-1px);
-        }
+        .hx-comps { margin-top: 22px; padding-left: 20px; border-left: 1px solid var(--line); display: grid; gap: 10px; }
+        .hx-comps-label { font-size: .6rem; font-weight: 700; letter-spacing: .26em; text-transform: uppercase; color: var(--clr-orange); }
+        .hx-comp { display: flex; align-items: flex-start; gap: 14px; padding: 14px 16px; border: 1px solid var(--line); background: rgba(26, 45, 74, .03); }
+        .hx-comp > .hx-check { margin-top: 2px; width: 18px; height: 18px; }
+        .hx-comp > .hx-check::after { left: 5px; top: 1px; }
+        .hx-comp-name { font-weight: 700; font-size: .84rem; cursor: pointer; color: var(--clr-navy); }
+        .hx-comp-type { font-size: .7rem; color: var(--clr-muted); }
 
-        .item-card.selected {
-            border-color: var(--petra-blue);
-            background-color: rgba(26, 35, 126, 0.03);
-        }
+        .hx-empty-items { padding: 56px 20px; text-align: center; border: 1px dashed var(--line); font-size: .86rem; color: var(--clr-muted); }
 
-        .form-input {
-            border: 2px solid #e2e8f0;
-            border-radius: 0.5rem;
-            padding: 0.75rem 1rem;
-            transition: all 0.2s;
-            width: 100%;
-        }
+        .hx-submit { display: flex; justify-content: flex-end; margin-top: 56px; padding-top: 32px; border-top: 1px solid var(--line); }
 
-        .form-input:focus {
-            border-color: var(--petra-blue);
-            box-shadow: 0 0 0 3px rgba(26, 35, 126, 0.1);
-            outline: none;
+        /* ============================================================
+           KONTAK
+           ============================================================ */
+        .hx-contact { position: relative; margin-top: 56px; overflow: hidden; background: var(--clr-navy); color: var(--clr-bg); padding: 64px 52px; }
+        .hx-contact::before {
+            content: ''; position: absolute; inset: 0; pointer-events: none; opacity: .5;
+            background-image: linear-gradient(var(--line-light) 1px, transparent 1px), linear-gradient(90deg, var(--line-light) 1px, transparent 1px);
+            background-size: 80px 80px;
+            -webkit-mask-image: radial-gradient(ellipse at 15% 0%, #000 5%, transparent 70%);
+                    mask-image: radial-gradient(ellipse at 15% 0%, #000 5%, transparent 70%);
         }
+        .hx-contact-inner { position: relative; display: grid; grid-template-columns: 1.1fr .9fr; gap: 56px; align-items: end; }
+        .hx-contact .hx-eyebrow { margin-bottom: 22px; }
+        .hx-contact h3 { font-family: var(--serif); font-weight: 500; font-size: clamp(2.2rem, 4.4vw, 3.6rem); line-height: 1; color: var(--clr-bg); }
+        .hx-contact h3 em { font-style: italic; color: var(--clr-orange); }
+        .hx-contact p { margin-top: 18px; font-size: .92rem; line-height: 1.8; color: rgba(251, 250, 245, .7); max-width: 420px; }
+        .hx-contact-list { list-style: none; margin: 0; padding: 0; }
+        .hx-contact-list li { display: flex; align-items: center; gap: 18px; padding: 20px 0; border-top: 1px solid var(--line-light); font-size: .95rem; color: var(--clr-bg); }
+        .hx-contact-list li:last-child { border-bottom: 1px solid var(--line-light); }
+        .hx-contact-list i { color: var(--clr-orange); width: 18px; text-align: center; }
 
-        .helpdesk-page {
-            background: #f7f8fa;
+        /* ============================================================
+           RESPONSIVE
+           ============================================================ */
+        @media (max-width: 899px) {
+            .hx-shell-head { padding: 28px 24px; }
+            .hx-shell-body { padding: 40px 24px 36px; }
+            .hx-grid-2, .hx-field-grid { grid-template-columns: 1fr; gap: 22px; }
+            .hx-contact { padding: 44px 26px; }
+            .hx-contact-inner { grid-template-columns: 1fr; gap: 36px; }
+            .hx-section { margin-bottom: 56px; }
         }
-
-        .helpdesk-form-shell {
-            border: 1px solid #e5e7eb;
-            border-radius: 1rem;
-            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+        @media (max-width: 639px) {
+            .hx-opt--lg { grid-template-columns: 48px 1fr; padding: 26px 22px; gap: 6px 18px; }
+            .hx-opt--lg .hx-opt-icon { width: 48px; height: 48px; }
+            .hx-item-name { font-size: 1.15rem; }
+            .item-card { padding: 20px 18px 20px 22px; }
+            .hx-submit .hx-btn { width: 100%; }
         }
-
-        .helpdesk-form-header {
-            background: #fff;
-            color: #111827;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        .helpdesk-form-header p { color: #6b7280; }
-        .helpdesk-form-header a {
-            background: #f8fafc;
-            color: var(--petra-blue);
-            border: 1px solid #dbe2ea;
-        }
-        .helpdesk-form-header a:hover { background: #eef2f7; }
-
-        .helpdesk-page .booking-card {
-            border-width: 1px;
-            border-radius: .75rem;
-            box-shadow: none;
-        }
-        .helpdesk-page .booking-card:hover {
-            transform: none;
-            box-shadow: 0 4px 12px rgba(15, 23, 42, .05);
-        }
-        .helpdesk-page .booking-card.active {
-            box-shadow: inset 0 0 0 1px var(--petra-blue);
-        }
-        .helpdesk-page .desk-card,
-        .helpdesk-page .item-card,
-        .helpdesk-page .form-input { border-width: 1px; }
-        .helpdesk-page .desk-card:hover,
-        .helpdesk-page .item-card:hover { transform: none; box-shadow: none; }
-        .helpdesk-page .form-input { border-radius: .625rem; }
-        .helpdesk-step {
-            width: 1.75rem;
-            height: 1.75rem;
-            font-size: .75rem;
-            flex-shrink: 0;
-        }
-        .helpdesk-page h3 { font-size: 1rem; letter-spacing: .01em; }
-        .helpdesk-page .type-card {
-            display: grid;
-            grid-template-columns: 2.5rem minmax(0, 1fr);
-            column-gap: .75rem;
-            row-gap: .15rem;
-            text-align: left;
-            padding: 1rem;
-        }
-        .helpdesk-page .type-card > div:first-child {
-            width: 2.5rem;
-            height: 2.5rem;
-            margin: 0;
-            border-radius: .5rem;
-            flex-shrink: 0;
-            grid-row: span 2;
-        }
-        .helpdesk-page .type-card h4 { font-size: .95rem; margin-bottom: .25rem; }
-        .helpdesk-page .type-card p { grid-column: 2; }
     </style>
 @endsection
 
 @section('body')
     @include('user.partials.navbar')
 
-    <div class="helpdesk-page min-h-screen pt-24 pb-12">
-        <div class="container mx-auto px-4 max-w-6xl">
+    <div class="hx-page">
+        <div class="hx-wrap">
 
             {{-- Hero Header --}}
-            <div class="mb-8 max-w-3xl">
-                <p class="text-xs font-bold uppercase tracking-[.18em] text-gray-500 mb-3">Pusat bantuan laboratorium</p>
-                <h1 class="text-3xl md:text-4xl font-bold tracking-tight text-petra-blue mb-3">Buat laporan</h1>
-                <p class="text-gray-600 max-w-2xl">
+            <header class="hx-hero" data-reveal>
+                <div class="hx-ghost" aria-hidden="true">Helpdesk</div>
+                <div class="hx-eyebrow hx-fade">Pusat bantuan laboratorium</div>
+                <h1 class="hx-display hx-title">
+                    <span class="hx-mask" style="--d:.05s"><span>Buat</span></span>
+                    <span class="hx-mask" style="--d:.17s"><span><em>laporan</em></span></span>
+                </h1>
+                <p class="hx-lead hx-fade" style="--d:.4s">
                     Laporkan kerusakan fasilitas laboratorium atau sampaikan keluhan dan saran untuk kenyamanan akademik bersama
                 </p>
-            </div>
+            </header>
 
             {{-- Main Form Card --}}
-            <div class="helpdesk-form-shell bg-white overflow-hidden mb-8">
+            <section class="hx-shell hx-fade" data-reveal style="--d:.1s">
 
-                {{-- Form Header Banner --}}
-                <div class="helpdesk-form-header p-6 md:p-8">
-                    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                        <div>
-                            <h2 class="text-xl font-bold text-gray-900">Apa yang ingin Anda laporkan?</h2>
-                            <p class="mt-1">Pilih jenis laporan, lalu lengkapi detailnya.</p>
-                        </div>
-                        <div>
-                            <a href="{{ route('user.helpdesk.history') }}"
-                                class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-all">
-                                <i class="fa-solid fa-clock-rotate-left"></i>
-                                <span>Riwayat Laporan Saya</span>
-                            </a>
-                        </div>
+                {{-- Form Header --}}
+                <div class="hx-shell-head">
+                    <div>
+                        <h2 class="hx-h2">Apa yang ingin Anda <em>laporkan?</em></h2>
+                        <p class="hx-sub">Pilih jenis laporan, lalu lengkapi detailnya.</p>
                     </div>
+                    <a href="{{ route('user.helpdesk.history') }}" class="hx-btn ghost sm">
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                        <span>Riwayat Laporan Saya</span>
+                    </a>
                 </div>
 
                 {{-- Form Content --}}
-                <div class="p-6 md:p-8">
+                <div class="hx-shell-body">
 
                     {{-- Step 1: Tipe Pengajuan --}}
-                    <div class="mb-12">
-                        <h3 class="text-xl font-bold text-petra-blue mb-6 flex items-center gap-3">
-                            <span class="helpdesk-step flex items-center justify-center rounded-full bg-petra-blue text-white">1</span>
-                            Pilih Jenis Pengajuan
-                        </h3>
+                    <div class="hx-section">
+                        <div class="hx-step">
+                            <span class="hx-step-no">01</span>
+                            <h3>Pilih Jenis Pengajuan</h3>
+                        </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="hx-grid-2">
                             <!-- Opsi 1: Kerusakan Barang -->
-                            <label class="cursor-pointer" onclick="switchHelpdeskTab('repair')">
+                            <label class="hx-opt-wrap" onclick="switchHelpdeskTab('repair')">
                                 <input type="radio" name="helpdesk_service_type" value="repair" id="radio_type_repair" class="sr-only peer" checked>
-                                <div id="card_type_repair" class="type-card booking-card active p-6 text-center rounded-xl peer-checked:border-petra-blue">
-                                    <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-blue-100 flex items-center justify-center">
-                                        <i class="fa-solid fa-screwdriver-wrench text-2xl text-petra-blue"></i>
-                                    </div>
-                                    <h4 class="font-bold text-lg text-petra-blue mb-2">Lapor Kerusakan</h4>
-                                    <p class="text-sm text-gray-600">Perbaikan perangkat PC, monitor, periferal, atau komponen meja</p>
+                                <div id="card_type_repair" class="hx-opt hx-opt--lg active">
+                                    <div class="hx-opt-icon"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+                                    <h4>Lapor Kerusakan</h4>
+                                    <p>Perbaikan perangkat PC, monitor, periferal, atau komponen meja</p>
                                 </div>
                             </label>
 
                             <!-- Opsi 2: Keluhan & Saran -->
-                            <label class="cursor-pointer" onclick="switchHelpdeskTab('feedback')">
+                            <label class="hx-opt-wrap" onclick="switchHelpdeskTab('feedback')">
                                 <input type="radio" name="helpdesk_service_type" value="feedback" id="radio_type_feedback" class="sr-only peer">
-                                <div id="card_type_feedback" class="type-card booking-card p-6 text-center rounded-xl peer-checked:border-petra-blue">
-                                    <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-yellow-100 flex items-center justify-center">
-                                        <i class="fa-solid fa-comments text-2xl text-petra-yellow"></i>
-                                    </div>
-                                    <h4 class="font-bold text-lg text-petra-blue mb-2">Keluhan & Saran</h4>
-                                    <p class="text-sm text-gray-600">Saran fasilitas lab, kebersihan, AC, proyektor, atau kendala pelayanan</p>
+                                <div id="card_type_feedback" class="hx-opt hx-opt--lg">
+                                    <div class="hx-opt-icon"><i class="fa-solid fa-comments"></i></div>
+                                    <h4>Keluhan &amp; Saran</h4>
+                                    <p>Saran fasilitas lab, kebersihan, AC, proyektor, atau kendala pelayanan</p>
                                 </div>
                             </label>
                         </div>
@@ -251,47 +246,47 @@
                     {{-- TAB 1: FORM LAPOR KERUSAKAN BARANG                      --}}
                     {{-- ========================================================= --}}
                     <div id="tab-pane-repair">
-                        <form id="repair-form" class="space-y-10">
+                        <form id="repair-form" class="hx-form">
                             @csrf
 
                             {{-- Step 2: Lokasi & Perangkat --}}
-                            <div>
-                                <h3 class="text-xl font-bold text-petra-blue mb-6 flex items-center gap-3">
-                                    <span class="flex items-center justify-center w-8 h-8 rounded-full bg-petra-blue text-white text-sm">2</span>
-                                    Lokasi & Perangkat Laboratorium
-                                </h3>
+                            <div class="hx-section">
+                                <div class="hx-step">
+                                    <span class="hx-step-no">02</span>
+                                    <h3>Lokasi &amp; Perangkat Laboratorium</h3>
+                                </div>
 
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                <div class="hx-field-grid">
                                     <div>
-                                        <label for="repair-lab" class="block text-sm font-semibold text-gray-700 mb-2">
-                                            Pilih Laboratorium <span class="text-red-500">*</span>
+                                        <label for="repair-lab" class="hx-label">
+                                            Pilih Laboratorium <span class="req">*</span>
                                         </label>
-                                        <select id="repair-lab" required class="form-input bg-white">
+                                        <select id="repair-lab" required class="form-input">
                                             <option value="">-- Pilih Laboratorium --</option>
                                             @foreach ($labs as $lab)
                                                 <option value="{{ $lab->id }}">{{ $lab->name }}</option>
                                             @endforeach
                                         </select>
-                                        <p class="text-xs text-gray-500 mt-1">Pilih laboratorium tempat barang yang rusak berada.</p>
+                                        <p class="hx-hint">Pilih laboratorium tempat barang yang rusak berada.</p>
                                     </div>
 
                                     <div id="device-source-section" class="hidden">
-                                        <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                            Penempatan Perangkat <span class="text-red-500">*</span>
+                                        <label class="hx-label">
+                                            Penempatan Perangkat <span class="req">*</span>
                                         </label>
-                                        <div class="grid grid-cols-2 gap-3">
-                                            <label class="cursor-pointer" onclick="toggleDeviceSource('desk')">
+                                        <div class="hx-fields-sm" style="margin-top:10px;">
+                                            <label class="hx-opt-wrap" onclick="toggleDeviceSource('desk')">
                                                 <input type="radio" name="device_source" value="desk" checked class="sr-only">
-                                                <div id="source-desk-card" class="booking-card active p-3 rounded-lg text-center">
-                                                    <i class="fa-solid fa-desktop text-petra-blue mb-1"></i>
-                                                    <div class="text-xs font-bold text-gray-800">Meja Praktikum</div>
+                                                <div id="source-desk-card" class="hx-opt hx-opt--sm active">
+                                                    <i class="fa-solid fa-desktop"></i>
+                                                    <span>Meja Praktikum</span>
                                                 </div>
                                             </label>
-                                            <label class="cursor-pointer" onclick="toggleDeviceSource('storage')">
+                                            <label class="hx-opt-wrap" onclick="toggleDeviceSource('storage')">
                                                 <input type="radio" name="device_source" value="storage" class="sr-only">
-                                                <div id="source-storage-card" class="booking-card p-3 rounded-lg text-center">
-                                                    <i class="fa-solid fa-box-open text-gray-500 mb-1"></i>
-                                                    <div class="text-xs font-bold text-gray-800">Alat Umum / Storage</div>
+                                                <div id="source-storage-card" class="hx-opt hx-opt--sm">
+                                                    <i class="fa-solid fa-box-open"></i>
+                                                    <span>Alat Umum / Storage</span>
                                                 </div>
                                             </label>
                                         </div>
@@ -299,34 +294,32 @@
                                 </div>
 
                                 {{-- Pilihan Meja Grid --}}
-                                <div id="desk-selection-wrapper" class="hidden space-y-3 pt-4 border-t border-gray-100">
-                                    <div class="flex items-center justify-between">
-                                        <label class="block text-sm font-semibold text-gray-700">Pilih Meja Praktikum:</label>
-                                        <span id="current-location-badge" class="px-3 py-1 bg-blue-100 text-petra-blue text-xs font-bold rounded-full">
-                                            Pilih meja
-                                        </span>
+                                <div id="desk-selection-wrapper" class="hidden hx-desk-wrap">
+                                    <div class="hx-desk-head">
+                                        <label class="hx-label" style="margin:0;">Pilih Meja Praktikum:</label>
+                                        <span id="current-location-badge" class="hx-tag hx-tag--orange">Pilih meja</span>
                                     </div>
-                                    <div id="desk-buttons-container" class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2 p-3 bg-gray-50 rounded-xl border border-gray-200 max-h-48 overflow-y-auto">
+                                    <div id="desk-buttons-container">
                                         {{-- Diisi secara dinamis oleh JavaScript --}}
                                     </div>
                                 </div>
                             </div>
 
                             {{-- Step 3: Daftar Barang & Masalah --}}
-                            <div id="items-selection-section" class="hidden">
-                                <h3 class="text-xl font-bold text-petra-blue mb-6 flex items-center gap-3">
-                                    <span class="flex items-center justify-center w-8 h-8 rounded-full bg-petra-blue text-white text-sm">3</span>
-                                    Centang Barang & Deskripsikan Kerusakan <span class="text-red-500">*</span>
-                                </h3>
+                            <div id="items-selection-section" class="hidden hx-section">
+                                <div class="hx-step">
+                                    <span class="hx-step-no">03</span>
+                                    <h3>Centang Barang &amp; Deskripsikan Kerusakan <span class="req">*</span></h3>
+                                </div>
 
-                                <div id="items-list-container" class="space-y-4">
+                                <div id="items-list-container">
                                     {{-- Render item list oleh JavaScript --}}
                                 </div>
                             </div>
 
                             {{-- Submit Button --}}
-                            <div id="repair-submit-section" class="hidden pt-6 border-t border-gray-200 flex justify-end">
-                                <button type="submit" class="bg-petra-blue text-white px-8 py-3.5 rounded-xl shadow-md hover:bg-blue-800 transition-all font-semibold flex items-center gap-2">
+                            <div id="repair-submit-section" class="hidden hx-submit">
+                                <button type="submit" class="hx-btn">
                                     <i class="fa-solid fa-paper-plane"></i>
                                     <span>Kirim Laporan Kerusakan</span>
                                 </button>
@@ -338,44 +331,40 @@
                     {{-- TAB 2: FORM KELUHAN & SARAN (FEEDBACK)                    --}}
                     {{-- ========================================================= --}}
                     <div id="tab-pane-feedback" class="hidden">
-                        <form id="feedback-form" class="space-y-8">
+                        <form id="feedback-form" class="hx-form">
                             @csrf
 
-                            <div>
-                                <h3 class="text-xl font-bold text-petra-blue mb-6 flex items-center gap-3">
-                                    <span class="flex items-center justify-center w-8 h-8 rounded-full bg-petra-blue text-white text-sm">2</span>
-                                    Detail Keluhan / Saran Anda
-                                </h3>
+                            <div class="hx-section">
+                                <div class="hx-step">
+                                    <span class="hx-step-no">02</span>
+                                    <h3>Detail Keluhan / Saran Anda</h3>
+                                </div>
 
-                                <div class="space-y-6">
+                                <div class="hx-fields">
                                     {{-- Kategori: Keluhan vs Saran --}}
                                     <div>
-                                        <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                            Kategori Masukan <span class="text-red-500">*</span>
+                                        <label class="hx-label" style="margin-bottom:14px;">
+                                            Kategori Masukan <span class="req">*</span>
                                         </label>
-                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                            <label class="cursor-pointer" onclick="toggleFeedbackType('KELUHAN')">
+                                        <div class="hx-grid-2">
+                                            <label class="hx-opt-wrap" onclick="toggleFeedbackType('KELUHAN')">
                                                 <input type="radio" name="feedback_type" value="KELUHAN" checked class="sr-only peer">
-                                                <div id="type-keluhan-card" class="booking-card active p-4 rounded-xl flex items-center gap-3">
-                                                    <div class="w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center flex-shrink-0">
-                                                        <i class="fa-solid fa-triangle-exclamation"></i>
-                                                    </div>
+                                                <div id="type-keluhan-card" class="hx-opt hx-opt--md active">
+                                                    <div class="hx-opt-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
                                                     <div>
-                                                        <h5 class="font-bold text-gray-900 text-sm">Keluhan Fasilitas</h5>
-                                                        <p class="text-xs text-gray-500">AC tidak dingin, proyektor redup, kebersihan, pelayanan</p>
+                                                        <h5>Keluhan Fasilitas</h5>
+                                                        <p>AC tidak dingin, proyektor redup, kebersihan, pelayanan</p>
                                                     </div>
                                                 </div>
                                             </label>
 
-                                            <label class="cursor-pointer" onclick="toggleFeedbackType('SARAN')">
+                                            <label class="hx-opt-wrap" onclick="toggleFeedbackType('SARAN')">
                                                 <input type="radio" name="feedback_type" value="SARAN" class="sr-only peer">
-                                                <div id="type-saran-card" class="booking-card p-4 rounded-xl flex items-center gap-3">
-                                                    <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
-                                                        <i class="fa-solid fa-lightbulb"></i>
-                                                    </div>
+                                                <div id="type-saran-card" class="hx-opt hx-opt--md">
+                                                    <div class="hx-opt-icon"><i class="fa-solid fa-lightbulb"></i></div>
                                                     <div>
-                                                        <h5 class="font-bold text-gray-900 text-sm">Saran & Rekomendasi</h5>
-                                                        <p class="text-xs text-gray-500">Usulan software baru, layout lab, aturan praktikum</p>
+                                                        <h5>Saran &amp; Rekomendasi</h5>
+                                                        <p>Usulan software baru, layout lab, aturan praktikum</p>
                                                     </div>
                                                 </div>
                                             </label>
@@ -384,10 +373,10 @@
 
                                     {{-- Cakupan Lab --}}
                                     <div>
-                                        <label for="feedback-lab" class="block text-sm font-semibold text-gray-700 mb-2">
+                                        <label for="feedback-lab" class="hx-label">
                                             Terkait Laboratorium Spesifik (Opsional)
                                         </label>
-                                        <select id="feedback-lab" class="form-input bg-white">
+                                        <select id="feedback-lab" class="form-input">
                                             <option value="">Fasilitas Umum / Semua Lab</option>
                                             @foreach ($labs as $lab)
                                                 <option value="{{ $lab->id }}">{{ $lab->name }}</option>
@@ -397,8 +386,8 @@
 
                                     {{-- Subjek --}}
                                     <div>
-                                        <label for="feedback-subject" class="block text-sm font-semibold text-gray-700 mb-2">
-                                            Judul / Subjek <span class="text-red-500">*</span>
+                                        <label for="feedback-subject" class="hx-label">
+                                            Judul / Subjek <span class="req">*</span>
                                         </label>
                                         <input type="text" id="feedback-subject" required maxlength="150"
                                             placeholder="Contoh: AC Lab P2.04 tidak dingin pada sesi praktikum sore"
@@ -407,8 +396,8 @@
 
                                     {{-- Deskripsi --}}
                                     <div>
-                                        <label for="feedback-description" class="block text-sm font-semibold text-gray-700 mb-2">
-                                            Uraian Lengkap Keluhan / Saran <span class="text-red-500">*</span>
+                                        <label for="feedback-description" class="hx-label">
+                                            Uraian Lengkap Keluhan / Saran <span class="req">*</span>
                                         </label>
                                         <textarea id="feedback-description" required rows="5" maxlength="2000"
                                             placeholder="Tuliskan keluhan atau saran Anda secara rinci, termasuk waktu kejadian atau kondisi terkait..."
@@ -418,8 +407,8 @@
                             </div>
 
                             {{-- Submit Button --}}
-                            <div class="pt-6 border-t border-gray-200 flex justify-end">
-                                <button type="submit" class="bg-petra-blue text-white px-8 py-3.5 rounded-xl shadow-md hover:bg-blue-800 transition-all font-semibold flex items-center gap-2">
+                            <div class="hx-submit">
+                                <button type="submit" class="hx-btn">
                                     <i class="fa-solid fa-paper-plane"></i>
                                     <span>Kirim Tiket Keluhan/Saran</span>
                                 </button>
@@ -428,26 +417,22 @@
                     </div>
 
                 </div>
-            </div>
+            </section>
 
             {{-- Contact --}}
-            <div class="helpdesk-contact bg-white rounded-xl border border-gray-200 p-6 md:p-7">
-                <div class="flex flex-col md:flex-row md:items-center gap-5">
-                    <div class="flex-shrink-0">
-                        <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
-                            <i class="fa-solid fa-headset text-xl text-petra-blue"></i>
-                        </div>
+            <section class="hx-contact hx-fade" data-reveal>
+                <div class="hx-contact-inner">
+                    <div>
+                        <div class="hx-eyebrow">Hubungi kami</div>
+                        <h3>Butuh <em>bantuan?</em></h3>
+                        <p>Jika kesulitan mengisi formulir, hubungi administrator laboratorium.</p>
                     </div>
-                    <div class="flex-1">
-                        <h3 class="font-bold text-lg text-petra-blue mb-1">Butuh bantuan?</h3>
-                        <p class="text-gray-600 mb-3">Jika kesulitan mengisi formulir, hubungi administrator laboratorium.</p>
-                        <div class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-700">
-                            <span class="inline-flex items-center gap-2"><i class="fa-solid fa-envelope text-petra-blue"></i>lab@petra.ac.id</span>
-                            <span class="inline-flex items-center gap-2"><i class="fa-solid fa-phone text-petra-blue"></i>(031) 1234-5678</span>
-                        </div>
-                    </div>
+                    <ul class="hx-contact-list">
+                        <li><i class="fa-solid fa-envelope"></i><span>lab@petra.ac.id</span></li>
+                        <li><i class="fa-solid fa-phone"></i><span>(031) 1234-5678</span></li>
+                    </ul>
                 </div>
-            </div>
+            </section>
         </div>
     </div>
 @endsection
@@ -560,13 +545,13 @@
     function renderDeskButtons(desks) {
         const container = document.getElementById('desk-buttons-container');
         if (!desks || desks.length === 0) {
-            container.innerHTML = '<div class="col-span-full py-3 text-center text-xs text-gray-400">Tidak ada meja terdaftar di lab ini</div>';
+            container.innerHTML = '<div style="grid-column:1/-1;padding:14px 0;text-align:center;font-size:.78rem;color:rgba(26,45,74,.5);">Tidak ada meja terdaftar di lab ini</div>';
             return;
         }
 
         container.innerHTML = desks.map(d => `
             <button type="button" onclick="selectDesk('${d.id}')" id="btn-desk-${d.id}"
-                    class="desk-card p-2 text-xs font-bold transition-all ${selectedDeskId === d.id ? 'selected' : ''}">
+                    class="desk-card ${selectedDeskId === d.id ? 'selected' : ''}">
                 ${d.location}
             </button>
         `).join('');
@@ -602,7 +587,7 @@
         submitSection.classList.remove('hidden');
 
         if ((!items || items.length === 0) && (!extraComponents || extraComponents.length === 0)) {
-            container.innerHTML = `<div class="p-8 text-center text-sm text-gray-400 bg-gray-50 border border-dashed rounded-xl">Tidak ada perangkat terdaftar di ${locationName}.</div>`;
+            container.innerHTML = `<div class="hx-empty-items">Tidak ada perangkat terdaftar di ${locationName}.</div>`;
             return;
         }
 
@@ -615,50 +600,48 @@
             const isRepairUnavailable = isUnderRepair || isPendingRepair;
             html += `
                 <div class="item-card" id="item-card-wrapper-${item.id}">
-                    <div class="flex items-start gap-3">
+                    <div class="hx-item-head">
                         <input type="checkbox" id="item-chk-${item.id}" value="${item.id}" data-type="item"
                                onchange="toggleItemDescription('item', '${item.id}')"
-                               class="mt-1 h-4 w-4 text-petra-blue rounded border-gray-300 focus:ring-petra-blue cursor-pointer"
+                               class="hx-check"
                                ${isRepairUnavailable ? 'disabled' : ''}>
-                        <div class="flex-1 min-w-0">
-                            <div class="flex flex-wrap items-center gap-2">
-                                <label for="item-chk-${item.id}" class="text-sm font-bold text-gray-900 cursor-pointer">${item.name}</label>
-                                <span class="px-2 py-0.5 text-xs font-semibold rounded bg-blue-50 text-petra-blue border border-blue-200">${item.type}</span>
-                                ${isUnderRepair ? '<span class="px-2 py-0.5 text-[10px] font-bold rounded bg-amber-100 text-amber-800">Sedang Diperbaiki</span>' : ''}
-                                ${isPendingRepair ? '<span class="px-2 py-0.5 text-[10px] font-bold rounded bg-gray-100 text-gray-700">Menunggu Diproses</span>' : ''}
-                                ${isBroken && !isRepairUnavailable ? '<span class="px-2 py-0.5 text-[10px] font-bold rounded bg-red-100 text-red-800">Kondisi Rusak</span>' : ''}
+                        <div class="hx-item-main">
+                            <div class="hx-item-title">
+                                <label for="item-chk-${item.id}" class="hx-item-name">${item.name}</label>
+                                <span class="hx-tag">${item.type}</span>
+                                ${isUnderRepair ? '<span class="hx-tag hx-tag--orange">Sedang Diperbaiki</span>' : ''}
+                                ${isPendingRepair ? '<span class="hx-tag hx-tag--mute">Menunggu Diproses</span>' : ''}
+                                ${isBroken && !isRepairUnavailable ? '<span class="hx-tag hx-tag--bad">Kondisi Rusak</span>' : ''}
                             </div>
-                            <p class="text-xs text-gray-500 font-mono mt-0.5">SN: ${item.serial_code}</p>
+                            <p class="hx-sn hx-mono">SN: ${item.serial_code}</p>
 
-                            {{-- Input Deskripsi Masalah --}}
-                            <div id="desc-box-item-${item.id}" class="hidden mt-3 pt-3 border-t border-gray-100">
-                                <label class="block text-xs font-semibold text-gray-700 mb-1">Uraikan kendala/kerusakan pada ${item.name}:</label>
+                            <div id="desc-box-item-${item.id}" class="hidden hx-desc">
+                                <label class="hx-label" for="desc-val-item-${item.id}">Uraikan kendala/kerusakan pada ${item.name}:</label>
                                 <textarea id="desc-val-item-${item.id}" rows="2" maxlength="1000"
                                           placeholder="Contoh: Layar bergaris horizontal dan berkedip saat menyala..."
-                                          class="form-input text-xs"></textarea>
+                                          class="form-input"></textarea>
                             </div>
 
-                            {{-- Komponen Internal --}}
                             ${item.components && item.components.length > 0 ? `
-                                <div class="mt-3 pl-3 border-l-2 border-petra-blue/20 space-y-2">
-                                    <p class="text-[11px] font-bold text-petra-blue uppercase tracking-wider">Komponen Internal (Pilih jika spesifik):</p>
+                                <div class="hx-comps">
+                                    <p class="hx-comps-label">Komponen Internal (Pilih jika spesifik)</p>
                                     ${item.components.map(comp => `
-                                        <div class="flex items-start gap-2.5 bg-gray-50/80 p-2.5 rounded-lg border border-gray-200">
+                                        <div class="hx-comp">
                                             <input type="checkbox" id="comp-chk-${comp.id}" value="${comp.id}" data-type="component"
                                                    onchange="toggleItemDescription('comp', '${comp.id}')"
-                                                   class="mt-0.5 h-3.5 w-3.5 text-petra-blue rounded border-gray-300 focus:ring-petra-blue cursor-pointer"
+                                                   class="hx-check"
                                                    ${(comp.is_under_repair || comp.is_pending_repair) ? 'disabled' : ''}>
-                                            <div class="flex-1 min-w-0">
-                                                <div class="flex flex-wrap items-center gap-1.5">
-                                                    <label for="comp-chk-${comp.id}" class="text-xs font-semibold text-gray-800 cursor-pointer">${comp.name}</label>
-                                                    <span class="text-[10px] font-mono text-gray-500">(${comp.type})</span>
-                                                    ${comp.is_under_repair ? '<span class="text-[9px] px-1.5 py-0.2 rounded bg-amber-100 text-amber-800 font-bold">Sedang Diperbaiki</span>' : ''}
-                                                    ${comp.is_pending_repair ? '<span class="text-[9px] px-1.5 py-0.2 rounded bg-gray-100 text-gray-700 font-bold">Menunggu Diproses</span>' : ''}
+                                            <div class="hx-item-main">
+                                                <div class="hx-item-title" style="gap:8px;">
+                                                    <label for="comp-chk-${comp.id}" class="hx-comp-name">${comp.name}</label>
+                                                    <span class="hx-comp-type hx-mono">(${comp.type})</span>
+                                                    ${comp.is_under_repair ? '<span class="hx-tag hx-tag--orange">Sedang Diperbaiki</span>' : ''}
+                                                    ${comp.is_pending_repair ? '<span class="hx-tag hx-tag--mute">Menunggu Diproses</span>' : ''}
                                                 </div>
-                                                <div id="desc-box-comp-${comp.id}" class="hidden mt-2">
+                                                <div id="desc-box-comp-${comp.id}" class="hidden" style="margin-top:12px;">
                                                     <textarea id="desc-val-comp-${comp.id}" rows="2" maxlength="1000"
                                                               placeholder="Kendala komponen ini..."
-                                                              class="form-input text-xs"></textarea>
+                                                              class="form-input"></textarea>
                                                 </div>
                                             </div>
                                         </div>
@@ -673,23 +656,23 @@
 
         extraComponents.forEach(comp => {
             html += `
-                <div class="item-card">
-                    <div class="flex items-start gap-3">
+                <div class="item-card" id="item-card-wrapper-${comp.id}">
+                    <div class="hx-item-head">
                         <input type="checkbox" id="comp-chk-${comp.id}" value="${comp.id}" data-type="component"
                                onchange="toggleItemDescription('comp', '${comp.id}')"
-                               class="mt-1 h-4 w-4 text-petra-blue rounded border-gray-300 focus:ring-petra-blue cursor-pointer"
+                               class="hx-check"
                                ${(comp.is_under_repair || comp.is_pending_repair) ? 'disabled' : ''}>
-                        <div class="flex-1 min-w-0">
-                            <div class="flex flex-wrap items-center gap-2">
-                                <label for="comp-chk-${comp.id}" class="text-sm font-bold text-gray-900 cursor-pointer">${comp.name}</label>
-                                <span class="px-2 py-0.5 text-xs font-semibold rounded bg-blue-50 text-petra-blue border border-blue-200">${comp.type}</span>
-                                ${comp.is_under_repair ? '<span class="px-2 py-0.5 text-[10px] font-bold rounded bg-amber-100 text-amber-800">Sedang Diperbaiki</span>' : ''}
-                                ${comp.is_pending_repair ? '<span class="px-2 py-0.5 text-[10px] font-bold rounded bg-gray-100 text-gray-700">Menunggu Diproses</span>' : ''}
+                        <div class="hx-item-main">
+                            <div class="hx-item-title">
+                                <label for="comp-chk-${comp.id}" class="hx-item-name">${comp.name}</label>
+                                <span class="hx-tag">${comp.type}</span>
+                                ${comp.is_under_repair ? '<span class="hx-tag hx-tag--orange">Sedang Diperbaiki</span>' : ''}
+                                ${comp.is_pending_repair ? '<span class="hx-tag hx-tag--mute">Menunggu Diproses</span>' : ''}
                             </div>
-                            <div id="desc-box-comp-${comp.id}" class="hidden mt-3 pt-3 border-t border-gray-100">
+                            <div id="desc-box-comp-${comp.id}" class="hidden hx-desc">
                                 <textarea id="desc-val-comp-${comp.id}" rows="2" maxlength="1000"
                                           placeholder="Uraikan kendala komponen..."
-                                          class="form-input text-xs"></textarea>
+                                          class="form-input"></textarea>
                             </div>
                         </div>
                     </div>
@@ -750,7 +733,7 @@
             text: `Anda akan melaporkan ${itemsPayload.length + compsPayload.length} barang/komponen rusak untuk ditindaklanjuti teknisi.`,
             icon: 'question',
             showCancelButton: true,
-            confirmButtonColor: '#1a237e',
+            confirmButtonColor: '#1A2D4A',
             confirmButtonText: 'Ya, Kirim Laporan',
             cancelButtonText: 'Batal'
         });
@@ -782,7 +765,7 @@
                     text: data.message,
                     icon: 'success',
                     showCancelButton: true,
-                    confirmButtonColor: '#1a237e',
+                    confirmButtonColor: '#1A2D4A',
                     confirmButtonText: 'Lihat Riwayat Laporan',
                     cancelButtonText: 'Tutup'
                 }).then(result => {
@@ -839,7 +822,7 @@
                     text: data.message,
                     icon: 'success',
                     showCancelButton: true,
-                    confirmButtonColor: '#1a237e',
+                    confirmButtonColor: '#1A2D4A',
                     confirmButtonText: 'Lihat Riwayat Tiket',
                     cancelButtonText: 'Selesai'
                 }).then(result => {

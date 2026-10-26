@@ -3,123 +3,203 @@
 @section('title', 'Riwayat Pengajuan Helpdesk')
 
 @section('style')
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'petra-blue': '#1a237e',
-                        'petra-yellow': '#ffca28',
-                        'petra-darkgray': '#424242',
-                        'petra-gray': '#f1f5f9',
-                    }
-                }
-            }
-        }
-    </script>
+    @include('user.partials.helpdesk-theme')
     <style>
-        .card-hover:hover {
-            transform: none;
-            box-shadow: 0 4px 12px rgba(15, 23, 42, .05);
-        }
+        .hidden-card { display: none !important; }
 
-        .booking-card {
-            transition: all 0.3s ease-in-out;
-        }
+        /* ============================================================
+           HEADER
+           ============================================================ */
+        .hx-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 32px; flex-wrap: wrap; position: relative; }
+        .hx-head .hx-title { margin-bottom: 22px; }
 
-        .hidden-card {
-            display: none !important;
-        }
+        /* ============================================================
+           RINGKASAN
+           ============================================================ */
+        .hx-stats { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); margin-bottom: 64px; }
+        .hx-stat { padding: 30px 32px; }
+        .hx-stat + .hx-stat { border-left: 1px solid var(--line); }
+        .hx-stat-label { font-size: .64rem; font-weight: 700; letter-spacing: .26em; text-transform: uppercase; color: var(--clr-muted); }
+        .hx-stat-num { margin-top: 14px; font-family: var(--serif); font-weight: 500; font-size: 3.6rem; line-height: 1; color: var(--clr-navy); }
+        .hx-stat-num.is-orange { color: var(--clr-orange); }
+        .hx-stat-num.is-ok { color: var(--ok); }
 
-        .helpdesk-history-page { background: #f7f8fa; }
-        .helpdesk-history-page .booking-card {
-            border-radius: .75rem;
-            box-shadow: 0 2px 8px rgba(15, 23, 42, .03);
+        /* ============================================================
+           TAB
+           ============================================================ */
+        .hx-tabs { display: flex; gap: 44px; border-bottom: 1px solid var(--line); margin-bottom: 36px; }
+        .hx-tab {
+            position: relative; display: inline-flex; align-items: center; gap: 12px; padding: 0 0 18px; background: none; border: 0; cursor: pointer;
+            font-family: var(--sans); font-size: .7rem; font-weight: 700; letter-spacing: .22em; text-transform: uppercase; color: var(--clr-muted);
+            transition: color .4s var(--ease);
         }
-        .helpdesk-history-page .booking-card:hover { transform: none; }
-        .history-tabbar {
-            width: 100%;
-            border-bottom: 1px solid #e5e7eb;
-            gap: 1.5rem;
+        .hx-tab::after {
+            content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--clr-orange);
+            transform: scaleX(0); transform-origin: right; transition: transform .6s var(--ease-io);
         }
-        .history-tabbar button {
-            position: relative;
-            padding: .75rem .15rem 1rem;
-            border-radius: 0;
-            color: #6b7280;
-            font-weight: 600;
-            box-shadow: none;
+        .hx-tab:hover { color: var(--clr-navy); }
+        .hx-tab.is-active { color: var(--clr-navy); }
+        .hx-tab.is-active::after { transform: scaleX(1); transform-origin: left; }
+        .hx-tab i { color: var(--clr-orange); }
+        .hx-tab .count { font-family: var(--serif); font-style: italic; font-size: 1.15rem; letter-spacing: 0; color: var(--clr-orange); font-weight: 600; }
+
+        /* ============================================================
+           FILTER
+           ============================================================ */
+        .hx-filter { display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap; margin-bottom: 44px; }
+        .hx-search { position: relative; flex: 1; min-width: 260px; max-width: 520px; }
+        .hx-search i { position: absolute; left: 0; top: 50%; transform: translateY(-50%); color: var(--clr-orange); font-size: .85rem; }
+        .hx-search .form-input { padding-left: 28px; }
+
+        /* ============================================================
+           KARTU
+           ============================================================ */
+        .hx-list { display: grid; gap: 32px; }
+        .hx-card { background: var(--panel); border: 1px solid var(--line); box-shadow: 0 40px 80px -64px rgba(26, 45, 74, .5); }
+        .hx-card-head { display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; padding: 24px 32px; border-bottom: 1px solid var(--line); }
+        .hx-card-id { display: flex; align-items: center; gap: 18px; min-width: 0; }
+        .hx-card-icon { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid var(--line); color: var(--clr-orange); font-size: 1.05rem; }
+        .hx-card-icon.is-bad { color: var(--danger); }
+        .hx-card-icon.is-ok { color: var(--ok); }
+        .hx-card-title { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+        .hx-card-name { font-family: var(--serif); font-weight: 600; font-size: 1.55rem; line-height: 1.1; color: var(--clr-navy); }
+        .hx-meta { margin-top: 6px; font-size: .74rem; color: var(--clr-muted); }
+        .hx-meta i { margin-right: 6px; color: var(--clr-orange); }
+        .hx-period { font-size: .64rem; font-weight: 700; letter-spacing: .22em; text-transform: uppercase; color: var(--clr-muted); }
+        .hx-period strong { margin-left: 8px; font-family: var(--serif); font-size: 1.15rem; letter-spacing: 0; text-transform: none; color: var(--clr-navy); }
+
+        .hx-card-body { padding: 32px; }
+        .hx-split { display: grid; grid-template-columns: 1fr 270px; gap: 36px; align-items: start; }
+        .hx-rows { display: grid; gap: 16px; min-width: 0; }
+
+        .hx-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; padding: 22px 24px; border: 1px solid var(--line); background: rgba(255, 255, 255, .55); }
+        .hx-row-main { flex: 1; min-width: 0; }
+        .hx-row-title { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+        .hx-row-name { font-family: var(--serif); font-weight: 600; font-size: 1.3rem; line-height: 1.15; color: var(--clr-navy); }
+        .hx-sn { margin-top: 6px; font-size: .72rem; color: var(--clr-muted); }
+        .hx-issue { margin-top: 16px; padding: 12px 16px; border-left: 2px solid var(--clr-orange); background: rgba(245, 126, 33, .07); font-size: .84rem; line-height: 1.7; color: var(--clr-navy); }
+        .hx-issue b, .hx-note b { display: block; margin-bottom: 3px; font-size: .6rem; font-weight: 700; letter-spacing: .22em; text-transform: uppercase; color: var(--clr-orange); }
+        .hx-note { margin-top: 10px; padding: 12px 16px; border-left: 2px solid var(--clr-navy); background: rgba(26, 45, 74, .05); font-size: .84rem; line-height: 1.7; color: var(--clr-navy); }
+        .hx-note b { color: var(--clr-navy); }
+        .hx-row-side { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; flex-shrink: 0; }
+        .hx-date { font-size: .7rem; color: var(--clr-muted); }
+
+        .hx-summary { position: relative; overflow: hidden; background: var(--clr-navy); color: var(--clr-bg); padding: 28px 26px; }
+        .hx-summary h4 { font-size: .62rem; font-weight: 700; letter-spacing: .28em; text-transform: uppercase; color: var(--clr-orange); margin-bottom: 20px; }
+        .hx-summary dl { margin: 0; }
+        .hx-summary dt { font-size: .64rem; letter-spacing: .18em; text-transform: uppercase; color: rgba(251, 250, 245, .6); }
+        .hx-summary dd { margin: 6px 0 0; font-family: var(--serif); font-size: 1.6rem; line-height: 1.1; font-weight: 500; color: var(--clr-bg); }
+        .hx-summary div + div { margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--line-light); }
+
+        /* Feedback */
+        .hx-subject { font-family: var(--serif); font-weight: 600; font-size: 1.8rem; line-height: 1.1; color: var(--clr-navy); }
+        .hx-desc-text { margin-top: 12px; font-size: .92rem; line-height: 1.85; color: var(--clr-muted); white-space: pre-line; }
+        .hx-card-foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; margin-top: 26px; padding-top: 22px; border-top: 1px solid var(--line); }
+        .hx-loc { font-size: .78rem; color: var(--clr-muted); }
+        .hx-loc i { margin-right: 8px; color: var(--clr-orange); }
+        .hx-loc strong { color: var(--clr-navy); font-weight: 700; }
+
+        /* Kosong */
+        .hx-empty { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 88px 24px; border: 1px dashed var(--line); background: rgba(255, 255, 255, .4); }
+        .hx-empty-icon { font-size: 3.4rem; color: transparent; -webkit-text-stroke: 1px var(--clr-navy); margin-bottom: 26px; }
+        .hx-empty-icon i { color: var(--clr-orange); font-size: 2.6rem; -webkit-text-stroke: 0; }
+        .hx-empty h3 { font-family: var(--serif); font-weight: 500; font-size: 2.1rem; line-height: 1.1; color: var(--clr-navy); }
+        .hx-empty p { margin: 14px auto 32px; max-width: 420px; font-size: .92rem; line-height: 1.8; color: var(--clr-muted); }
+
+        /* ============================================================
+           MODAL
+           ============================================================ */
+        .hx-modal { position: fixed; inset: 0; z-index: 1100; display: flex; align-items: center; justify-content: center; padding: 24px; font-family: var(--sans); }
+        .hx-modal *, .hx-modal *::before, .hx-modal *::after { box-sizing: border-box; }
+        .hx-modal h3, .hx-modal h4, .hx-modal p { margin: 0; }
+        .hx-modal-bg { position: absolute; inset: 0; background: rgba(26, 45, 74, .62); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+        .hx-modal-panel {
+            position: relative; width: 100%; max-width: 660px; max-height: 92vh; display: flex; flex-direction: column;
+            background: #FBFAF5; border: 1px solid var(--line); box-shadow: 0 60px 100px -40px rgba(0, 0, 0, .55); color: var(--clr-navy);
+            animation: hx-clip .85s var(--ease-io) both;
         }
-        .history-tabbar button.is-active { color: #1a237e; }
-        .history-tabbar button.is-active::after {
-            content: '';
-            position: absolute;
-            left: 0;
-            right: 0;
-            bottom: -1px;
-            height: 2px;
-            background: #1a237e;
+        .hx-modal-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; padding: 28px 32px 24px; border-bottom: 1px solid var(--line); }
+        .hx-modal-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+        #modal-title { font-family: var(--serif); font-weight: 600; font-size: 1.9rem; line-height: 1.1; color: var(--clr-navy); }
+        .hx-modal-meta { margin-top: 10px; font-size: .74rem; color: var(--clr-muted); }
+        .hx-modal-meta .sep { margin: 0 8px; color: var(--clr-orange); }
+        .hx-close {
+            position: relative; width: 42px; height: 42px; flex-shrink: 0; overflow: hidden; isolation: isolate; cursor: pointer;
+            border: 1px solid var(--line); background: transparent; color: var(--clr-navy); transition: color .5s var(--ease), border-color .5s var(--ease);
         }
-        .history-filter {
-            background: #fff;
-            border: 1px solid #e5e7eb;
-            border-radius: .75rem;
-            box-shadow: none;
+        .hx-close::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--clr-navy); transform: translateY(101%); transition: transform .6s var(--ease-io); }
+        .hx-close:hover { color: var(--clr-bg); border-color: var(--clr-navy); }
+        .hx-close:hover::before { transform: translateY(0); }
+        .hx-modal-body { padding: 28px 32px; overflow-y: auto; display: grid; gap: 32px; }
+        .hx-box { padding: 20px 22px; border: 1px solid var(--line); background: rgba(26, 45, 74, .03); }
+        .hx-box h4 { margin-bottom: 10px; font-size: .62rem; font-weight: 700; letter-spacing: .28em; text-transform: uppercase; color: var(--clr-orange); }
+        #modal-description { font-size: .92rem; line-height: 1.85; color: var(--clr-navy); white-space: pre-line; }
+        .hx-resp-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 20px; }
+        .hx-resp-head h4 { font-family: var(--serif); font-weight: 600; font-size: 1.5rem; line-height: 1.1; }
+        .hx-resp-head p { margin-top: 4px; font-size: .76rem; color: var(--clr-muted); }
+        #modal-response-count { font-size: .62rem; font-weight: 700; letter-spacing: .22em; text-transform: uppercase; color: var(--clr-orange); }
+
+        #modal-responses-container { position: relative; display: grid; gap: 14px; padding-left: 24px; }
+        #modal-responses-container::before { content: ''; position: absolute; left: 4px; top: 8px; bottom: 8px; width: 1px; background: var(--line); }
+        .response-entry { position: relative; padding: 18px 20px; border: 1px solid var(--line); background: #fff; animation: hx-in .7s var(--ease) both; }
+        .response-entry::before { content: ''; position: absolute; left: -24px; top: 24px; width: 9px; height: 9px; background: var(--clr-orange); transform: rotate(45deg); box-shadow: 0 0 0 4px #FBFAF5; }
+        .response-entry header { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 16px; margin-bottom: 10px; }
+        .response-entry .who { font-weight: 700; font-size: .82rem; color: var(--clr-navy); }
+        .response-entry .who span { margin-left: 8px; font-family: var(--serif); font-style: italic; font-weight: 500; font-size: 1rem; color: var(--clr-orange); }
+        .response-entry time { font-size: .7rem; color: var(--clr-muted); }
+        .response-entry p { font-size: .9rem; line-height: 1.8; color: var(--clr-navy); white-space: pre-line; }
+        .response-empty { padding: 36px 20px; text-align: center; border: 1px dashed var(--line); font-size: .86rem; line-height: 1.8; color: var(--clr-muted); background: rgba(26, 45, 74, .03); }
+        .response-empty i { display: block; margin-bottom: 12px; font-size: 1.4rem; color: var(--clr-orange); }
+        .hx-modal-foot { display: flex; justify-content: flex-end; padding: 18px 32px; border-top: 1px solid var(--line); }
+
+        /* ============================================================
+           RESPONSIVE
+           ============================================================ */
+        @media (max-width: 899px) {
+            .hx-split { grid-template-columns: 1fr; }
+            .hx-stats { margin-bottom: 48px; }
         }
-        .history-stat {
-            background: #fff;
-            border: 1px solid #e5e7eb;
-            border-radius: .75rem;
-            padding: 1rem 1.1rem;
+        @media (max-width: 639px) {
+            .hx-stats { grid-template-columns: 1fr; }
+            .hx-stat + .hx-stat { border-left: 0; border-top: 1px solid var(--line); }
+            .hx-stat { padding: 22px 4px; }
+            .hx-stat-num { font-size: 3rem; }
+            .hx-tabs { gap: 26px; overflow-x: auto; }
+            .hx-tab { white-space: nowrap; }
+            .hx-card-head, .hx-card-body { padding: 22px 20px; }
+            .hx-row { flex-direction: column; padding: 20px 18px; }
+            .hx-row-side { align-items: flex-start; flex-direction: row; flex-wrap: wrap; align-items: center; }
+            .hx-subject { font-size: 1.5rem; }
+            .hx-modal { padding: 12px; }
+            .hx-modal-head, .hx-modal-body, .hx-modal-foot { padding-left: 20px; padding-right: 20px; }
+            .hx-hide-sm { display: none; }
         }
-        .helpdesk-feedback-modal .feedback-modal-panel { box-shadow: 0 18px 45px rgba(15, 23, 42, .18); }
-        .helpdesk-feedback-modal #modal-responses-container { position: relative; padding-left: 1.15rem; }
-        .helpdesk-feedback-modal #modal-responses-container::before {
-            content: '';
-            position: absolute;
-            left: .25rem;
-            top: .5rem;
-            bottom: .5rem;
-            width: 1px;
-            background: #dbe2ea;
-        }
-        .helpdesk-feedback-modal #modal-responses-container .response-entry { position: relative; border-radius: .75rem; }
-        .helpdesk-feedback-modal #modal-responses-container .response-entry::before {
-            content: '';
-            position: absolute;
-            left: -1.23rem;
-            top: 1.1rem;
-            width: .5rem;
-            height: .5rem;
-            border-radius: 999px;
-            background: #1a237e;
-            box-shadow: 0 0 0 3px #f7f8fa;
-        }
-        .helpdesk-feedback-modal #modal-responses-container .response-empty::before { display: none; }
     </style>
 @endsection
 
 @section('body')
     @include('user.partials.navbar')
 
-    <div class="helpdesk-history-page min-h-screen px-4 pt-24 pb-12">
-      <div class="container mx-auto max-w-5xl">
+    <div class="hx-page">
+      <div class="hx-wrap">
 
         {{-- Page Header --}}
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-7 gap-4">
-            <div>
-                <p class="text-xs font-bold uppercase tracking-[.18em] text-gray-500 mb-3">Pusat bantuan laboratorium</p>
-                <h1 class="text-3xl font-bold tracking-tight text-petra-blue">Riwayat laporan</h1>
-                <p class="text-gray-500 mt-2">Pantau status laporan dan tanggapan tim laboratorium.</p>
+        <header class="hx-hero hx-head" data-reveal>
+            <div class="hx-ghost" aria-hidden="true">Riwayat</div>
+            <div style="position:relative;">
+                <div class="hx-eyebrow hx-fade">Pusat bantuan laboratorium</div>
+                <h1 class="hx-display hx-title">
+                    <span class="hx-mask" style="--d:.05s"><span>Riwayat</span></span>
+                    <span class="hx-mask" style="--d:.17s"><span><em>laporan</em></span></span>
+                </h1>
+                <p class="hx-lead hx-fade" style="--d:.4s">Pantau status laporan dan tanggapan tim laboratorium.</p>
             </div>
-            <a href="{{ route('user.helpdesk.index') }}"
-                class="group bg-petra-blue text-white px-5 py-2.5 rounded-lg hover:bg-blue-800 transition-all flex items-center gap-2 font-medium">
-                <i class="fa-solid fa-plus transition-transform group-hover:rotate-90"></i>
-                <span class="hidden sm:inline">Buat Laporan Baru</span>
-                <span class="sm:hidden">Lapor</span>
+            <a href="{{ route('user.helpdesk.index') }}" class="hx-btn hx-fade" style="--d:.55s;position:relative;">
+                <i class="fa-solid fa-plus"></i>
+                <span class="hx-hide-sm">Buat Laporan Baru</span>
+                <span class="hx-show-sm" style="display:none;">Lapor</span>
             </a>
-        </div>
+        </header>
 
         @php
             $activeRepairs = $repairs->filter(fn ($repair) => $repair->items->contains(fn ($item) => (int) $item->pivot->status !== 2) || $repair->components->contains(fn ($component) => (int) $component->pivot->status !== 2))->count();
@@ -130,65 +210,51 @@
         @endphp
 
         {{-- Summary --}}
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-7">
-            <div class="history-stat"><p class="text-xs text-gray-500">Total laporan</p><p class="text-2xl font-bold text-gray-900 mt-1">{{ $totalReports }}</p></div>
-            <div class="history-stat"><p class="text-xs text-gray-500">Sedang diproses</p><p class="text-2xl font-bold text-amber-700 mt-1">{{ $activeReports }}</p></div>
-            <div class="history-stat"><p class="text-xs text-gray-500">Selesai</p><p class="text-2xl font-bold text-emerald-700 mt-1">{{ $resolvedReports }}</p></div>
+        <div class="hx-stats hx-fade" data-reveal>
+            <div class="hx-stat"><p class="hx-stat-label">Total laporan</p><p class="hx-stat-num">{{ $totalReports }}</p></div>
+            <div class="hx-stat"><p class="hx-stat-label">Sedang diproses</p><p class="hx-stat-num is-orange">{{ $activeReports }}</p></div>
+            <div class="hx-stat"><p class="hx-stat-label">Selesai</p><p class="hx-stat-num is-ok">{{ $resolvedReports }}</p></div>
         </div>
 
         {{-- Tab Selector --}}
-        <div class="history-tabbar flex items-center mb-6">
-            <button type="button" onclick="switchHistTab('repair')" id="tab-btn-repair-hist"
-                class="is-active text-sm transition-all flex items-center gap-2">
-                <i class="fa-solid fa-screwdriver-wrench text-petra-blue"></i>
+        <div class="hx-tabs hx-fade" data-reveal>
+            <button type="button" onclick="switchHistTab('repair')" id="tab-btn-repair-hist" class="hx-tab is-active">
+                <i class="fa-solid fa-screwdriver-wrench"></i>
                 <span>Laporan Perbaikan</span>
-                <span class="text-xs font-bold text-gray-400">{{ $repairs->count() }}</span>
+                <span class="count">{{ $repairs->count() }}</span>
             </button>
-            <button type="button" onclick="switchHistTab('feedback')" id="tab-btn-feedback-hist"
-                class="text-sm transition-all flex items-center gap-2">
-                <i class="fa-solid fa-comments text-indigo-500"></i>
-                <span>Keluhan & Saran</span>
-                <span class="text-xs font-bold text-gray-400">{{ $feedbacks->count() }}</span>
+            <button type="button" onclick="switchHistTab('feedback')" id="tab-btn-feedback-hist" class="hx-tab">
+                <i class="fa-solid fa-comments"></i>
+                <span>Keluhan &amp; Saran</span>
+                <span class="count">{{ $feedbacks->count() }}</span>
             </button>
         </div>
 
         {{-- Filter Bar --}}
-        <div class="history-filter p-4 mb-8">
-            <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-                <div class="relative w-full sm:w-1/2">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i class="fa-solid fa-search text-gray-400"></i>
-                    </div>
-                    <input type="text" id="searchInput" placeholder="Cari tiket, nama barang, atau uraian..."
-                        class="pl-10 w-full rounded-lg border-gray-300 border px-3 py-2 text-sm focus:ring-petra-blue focus:border-petra-blue transition-colors shadow-sm"
-                        onkeyup="applyFilters()">
-                </div>
-                <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
-                    <button onclick="resetFilters()"
-                        class="px-4 py-2 text-sm text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-100 whitespace-nowrap">
-                        Reset Filter
-                    </button>
-                </div>
+        <div class="hx-filter hx-fade" data-reveal>
+            <div class="hx-search">
+                <i class="fa-solid fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Cari tiket, nama barang, atau uraian..."
+                    class="form-input" onkeyup="applyFilters()">
             </div>
+            <button type="button" onclick="resetFilters()" class="hx-link danger">Reset Filter</button>
         </div>
 
         {{-- ========================================================= --}}
         {{-- PANE 1: RIWAYAT PERBAIKAN BARANG (REPAIR)               --}}
         {{-- ========================================================= --}}
-        <div id="tab-pane-repair-hist" class="space-y-6">
+        <div id="tab-pane-repair-hist">
             @if ($repairs->isEmpty())
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center flex flex-col items-center">
-                    <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                        <i class="fa-regular fa-folder-open text-3xl text-gray-400"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-700 mb-2">Belum ada riwayat perbaikan</h3>
-                    <p class="text-gray-500 max-w-md mx-auto mb-6">Anda belum pernah mengajukan laporan perbaikan perangkat lab.</p>
-                    <a href="{{ route('user.helpdesk.index') }}" class="bg-petra-blue text-white px-5 py-2.5 rounded-lg shadow-sm font-semibold text-sm hover:bg-blue-800">
-                        Laporkan Kerusakan Sekarang
+                <div class="hx-empty hx-fade" data-reveal>
+                    <div class="hx-empty-icon"><i class="fa-regular fa-folder-open"></i></div>
+                    <h3>Belum ada riwayat perbaikan</h3>
+                    <p>Anda belum pernah mengajukan laporan perbaikan perangkat lab.</p>
+                    <a href="{{ route('user.helpdesk.index') }}" class="hx-btn">
+                        Laporkan Kerusakan Sekarang <i class="fa-solid fa-arrow-right-long arrow"></i>
                     </a>
                 </div>
             @else
-                <div class="grid gap-6" id="repairList">
+                <div class="hx-list" id="repairList">
                     @foreach ($repairs as $repair)
                         @php
                             $allItems = $repair->items;
@@ -196,86 +262,81 @@
                             $totalCount = $allItems->count() + $allComps->count();
                             $searchTerms = strtolower($repair->name . ' ' . $allItems->pluck('name')->join(' ') . ' ' . $allComps->pluck('name')->join(' '));
                         @endphp
-                        <div class="booking-card repair-card bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden transition-all duration-300 card-hover"
+                        <div class="hx-card repair-card hx-fade" data-reveal style="--d: {{ min($loop->index, 5) * 0.08 }}s"
                             data-search="{{ $searchTerms }}">
                             {{-- Card Header --}}
-                            <div class="px-6 py-4 bg-gray-50 border-b border-gray-100 flex flex-col sm:flex-row justify-between sm:items-center gap-3">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-9 h-9 rounded-lg bg-blue-100 text-petra-blue flex items-center justify-center flex-shrink-0">
+                            <div class="hx-card-head">
+                                <div class="hx-card-id">
+                                    <div class="hx-card-icon">
                                         <i class="fa-solid fa-screwdriver-wrench"></i>
                                     </div>
                                     <div>
-                                        <div class="flex items-center gap-2">
-                                            <span class="text-sm font-bold text-gray-900">{{ $repair->name }}</span>
-                                            <span class="text-xs px-2 py-0.5 rounded bg-blue-50 text-petra-blue border border-blue-200 font-semibold">
-                                                {{ $totalCount }} Perangkat
-                                            </span>
+                                        <div class="hx-card-title">
+                                            <span class="hx-card-name">{{ $repair->name }}</span>
+                                            <span class="hx-tag hx-tag--orange">{{ $totalCount }} Perangkat</span>
                                         </div>
-                                        <p class="text-xs text-gray-500 mt-0.5">
-                                            <i class="fa-regular fa-clock mr-1"></i>{{ $repair->created_at->translatedFormat('d F Y, H:i') }}
+                                        <p class="hx-meta">
+                                            <i class="fa-regular fa-clock"></i>{{ $repair->created_at->translatedFormat('d F Y, H:i') }}
                                         </p>
                                     </div>
                                 </div>
-                                <div class="text-xs text-gray-500 self-start sm:self-auto">
-                                    Periode: <strong class="text-gray-700">{{ $repair->period->academic_year ?? '-' }}</strong>
+                                <div class="hx-period">
+                                    Periode <strong>{{ $repair->period->academic_year ?? '-' }}</strong>
                                 </div>
                             </div>
 
                             {{-- Card Body: Item List --}}
-                            <div class="p-6">
-                                <div class="grid md:grid-cols-3 gap-6">
-                                    <div class="md:col-span-2 space-y-4">
+                            <div class="hx-card-body">
+                                <div class="hx-split">
+                                    <div class="hx-rows">
                                 @foreach ($allItems as $item)
                                     @php
                                         $pivot = $item->pivot;
                                         $status = (int) $pivot->status;
                                     @endphp
-                                    <div class="p-4 rounded-xl border border-gray-100 bg-gray-50/70 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                                        <div class="space-y-1 min-w-0 flex-1">
-                                            <div class="flex flex-wrap items-center gap-2">
-                                                <span class="text-sm font-bold text-gray-900">{{ $item->name }}</span>
-                                                <span class="text-xs font-semibold px-2 py-0.5 rounded bg-blue-100 text-petra-blue">{{ $item->type->name ?? 'Item' }}</span>
-                                                <span class="text-xs font-semibold px-2 py-0.5 rounded bg-gray-200 text-gray-700">
+                                    <div class="hx-row">
+                                        <div class="hx-row-main">
+                                            <div class="hx-row-title">
+                                                <span class="hx-row-name">{{ $item->name }}</span>
+                                                <span class="hx-tag">{{ $item->type->name ?? 'Item' }}</span>
+                                                <span class="hx-tag hx-tag--mute">
                                                     {{ $item->desk ? 'Meja ' . $item->desk->location : ($item->lab->name ?? 'Storage Lab') }}
                                                 </span>
                                             </div>
-                                            <p class="text-xs text-gray-500 font-mono">SN: {{ $item->serial_code }}</p>
-                                            <div class="text-xs text-gray-700 bg-white p-2.5 rounded-lg border border-gray-200 mt-2">
-                                                <span class="font-bold text-gray-900">Kendala:</span> {{ $pivot->issue_description }}
+                                            <p class="hx-sn hx-mono">SN: {{ $item->serial_code }}</p>
+                                            <div class="hx-issue">
+                                                <b>Kendala</b>{{ $pivot->issue_description }}
                                             </div>
                                             @if ($pivot->repair_notes)
-                                                <div class="text-xs text-emerald-800 bg-emerald-50 border border-emerald-200 p-2.5 rounded-lg mt-2 flex items-start gap-2">
-                                                    <i class="fa-solid fa-wrench text-emerald-600 mt-0.5"></i>
-                                                    <div>
-                                                        <span class="font-bold">Catatan Teknisi:</span> {{ $pivot->repair_notes }}
-                                                    </div>
+                                                <div class="hx-note">
+                                                    <b><i class="fa-solid fa-wrench" style="margin-right:6px;color:var(--clr-orange);"></i>Catatan Teknisi</b>{{ $pivot->repair_notes }}
                                                 </div>
                                             @endif
                                         </div>
 
-                                        <div class="flex md:flex-col items-center md:items-end justify-between gap-2 flex-shrink-0">
+                                        <div class="hx-row-side">
                                             @if ($status === 2)
                                                 @if ($pivot->is_successful)
-                                                    <span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
-                                                        <i class="fa-solid fa-circle-check mr-1"></i>Berhasil diperbaiki
+                                                    <span class="hx-tag hx-tag--ok">
+                                                        <i class="fa-solid fa-circle-check"></i>Berhasil diperbaiki
                                                     </span>
                                                 @else
-                                                    <span class="px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-800 border border-red-200">
-                                                        <i class="fa-solid fa-circle-xmark mr-1"></i>Tidak berhasil diperbaiki
+                                                    <span class="hx-tag hx-tag--bad">
+                                                        <i class="fa-solid fa-circle-xmark"></i>Tidak berhasil diperbaiki
                                                     </span>
                                                 @endif
                                             @elseif ($status === 1)
-                                                <span class="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">
-                                                    <i class="fa-solid fa-spinner fa-spin mr-1"></i>Sedang diproses
+                                                <span class="hx-tag hx-tag--orange">
+                                                    <i class="fa-solid fa-spinner fa-spin"></i>Sedang diproses
                                                 </span>
                                             @else
-                                                <span class="px-3 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-700 border border-gray-200">
-                                                    <i class="fa-regular fa-clock mr-1"></i>Menunggu diproses
+                                                <span class="hx-tag hx-tag--mute">
+                                                    <i class="fa-regular fa-clock"></i>Menunggu diproses
                                                 </span>
                                             @endif
 
                                             @if ($pivot->start_date)
-                                                <span class="text-[11px] text-gray-400">
+                                                <span class="hx-date">
                                                     Mulai: {{ \Carbon\Carbon::parse($pivot->start_date)->translatedFormat('d M Y') }}
                                                 </span>
                                             @endif
@@ -288,35 +349,35 @@
                                         $pivot = $comp->pivot;
                                         $status = (int) $pivot->status;
                                     @endphp
-                                    <div class="p-4 rounded-xl border border-gray-100 bg-gray-50/70 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                                        <div class="space-y-1 min-w-0 flex-1">
-                                            <div class="flex flex-wrap items-center gap-2">
-                                                <span class="text-sm font-bold text-gray-900">{{ $comp->name }}</span>
-                                                <span class="text-xs font-semibold px-2 py-0.5 rounded bg-indigo-100 text-indigo-800">Komponen: {{ $comp->type->name ?? 'Komponen' }}</span>
+                                    <div class="hx-row">
+                                        <div class="hx-row-main">
+                                            <div class="hx-row-title">
+                                                <span class="hx-row-name">{{ $comp->name }}</span>
+                                                <span class="hx-tag hx-tag--orange">Komponen: {{ $comp->type->name ?? 'Komponen' }}</span>
                                             </div>
-                                            <div class="text-xs text-gray-700 bg-white p-2.5 rounded-lg border border-gray-200 mt-2">
-                                                <span class="font-bold text-gray-900">Kendala:</span> {{ $pivot->issue_description }}
+                                            <div class="hx-issue">
+                                                <b>Kendala</b>{{ $pivot->issue_description }}
                                             </div>
                                         </div>
 
-                                        <div class="flex md:flex-col items-center md:items-end justify-between gap-2 flex-shrink-0">
+                                        <div class="hx-row-side">
                                             @if ($status === 2)
                                                 @if ($pivot->is_successful)
-                                                    <span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
-                                                        <i class="fa-solid fa-circle-check mr-1"></i>Berhasil diperbaiki
+                                                    <span class="hx-tag hx-tag--ok">
+                                                        <i class="fa-solid fa-circle-check"></i>Berhasil diperbaiki
                                                     </span>
                                                 @else
-                                                    <span class="px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-800 border border-red-200">
-                                                        <i class="fa-solid fa-circle-xmark mr-1"></i>Tidak berhasil diperbaiki
+                                                    <span class="hx-tag hx-tag--bad">
+                                                        <i class="fa-solid fa-circle-xmark"></i>Tidak berhasil diperbaiki
                                                     </span>
                                                 @endif
                                             @elseif ($status === 1)
-                                                <span class="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">
-                                                    <i class="fa-solid fa-spinner fa-spin mr-1"></i>Sedang diproses
+                                                <span class="hx-tag hx-tag--orange">
+                                                    <i class="fa-solid fa-spinner fa-spin"></i>Sedang diproses
                                                 </span>
                                             @else
-                                                <span class="px-3 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-700 border border-gray-200">
-                                                    <i class="fa-regular fa-clock mr-1"></i>Menunggu diproses
+                                                <span class="hx-tag hx-tag--mute">
+                                                    <i class="fa-regular fa-clock"></i>Menunggu diproses
                                                 </span>
                                             @endif
                                         </div>
@@ -324,19 +385,19 @@
                                 @endforeach
                                     </div>
 
-                                    <div class="col-span-1 bg-gray-50 rounded-lg p-4 border border-gray-100 h-fit">
-                                        <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Ringkasan Laporan</h4>
-                                        <dl class="space-y-3 text-sm">
+                                    <aside class="hx-summary">
+                                        <h4>Ringkasan Laporan</h4>
+                                        <dl>
                                             <div>
-                                                <dt class="text-xs text-gray-500">Perangkat dilaporkan</dt>
-                                                <dd class="font-semibold text-gray-800 mt-0.5">{{ $totalCount }} perangkat</dd>
+                                                <dt>Perangkat dilaporkan</dt>
+                                                <dd>{{ $totalCount }} perangkat</dd>
                                             </div>
                                             <div>
-                                                <dt class="text-xs text-gray-500">Periode</dt>
-                                                <dd class="font-semibold text-gray-800 mt-0.5">{{ $repair->period->academic_year ?? '-' }}</dd>
+                                                <dt>Periode</dt>
+                                                <dd>{{ $repair->period->academic_year ?? '-' }}</dd>
                                             </div>
                                         </dl>
-                                    </div>
+                                    </aside>
                                 </div>
                             </div>
                         </div>
@@ -348,73 +409,64 @@
         {{-- ========================================================= --}}
         {{-- PANE 2: RIWAYAT KELUHAN & SARAN (FEEDBACK)               --}}
         {{-- ========================================================= --}}
-        <div id="tab-pane-feedback-hist" class="hidden space-y-6">
+        <div id="tab-pane-feedback-hist" class="hidden">
             @if ($feedbacks->isEmpty())
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center flex flex-col items-center">
-                    <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                        <i class="fa-regular fa-folder-open text-3xl text-gray-400"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-700 mb-2">Belum ada tiket keluhan atau saran</h3>
-                    <p class="text-gray-500 max-w-md mx-auto mb-6">Punya masukan atau kendala fasilitas? Jangan ragu untuk menyampaikannya ke pengelola lab.</p>
-                    <a href="{{ route('user.helpdesk.index') }}" class="bg-petra-blue text-white px-5 py-2.5 rounded-lg shadow-sm font-semibold text-sm hover:bg-blue-800">
-                        Kirim Masukan Sekarang
+                <div class="hx-empty hx-fade" data-reveal>
+                    <div class="hx-empty-icon"><i class="fa-regular fa-folder-open"></i></div>
+                    <h3>Belum ada tiket keluhan atau saran</h3>
+                    <p>Punya masukan atau kendala fasilitas? Jangan ragu untuk menyampaikannya ke pengelola lab.</p>
+                    <a href="{{ route('user.helpdesk.index') }}" class="hx-btn">
+                        Kirim Masukan Sekarang <i class="fa-solid fa-arrow-right-long arrow"></i>
                     </a>
                 </div>
             @else
-                <div class="grid gap-6" id="feedbackList">
+                <div class="hx-list" id="feedbackList">
                     @foreach ($feedbacks as $fb)
                         @php
                             $statusClasses = [
-                                1 => 'bg-blue-100 text-blue-800 border-blue-200',
-                                2 => 'bg-amber-100 text-amber-800 border-amber-200',
-                                3 => 'bg-emerald-100 text-emerald-800 border-emerald-200',
-                                4 => 'bg-gray-100 text-gray-800 border-gray-200',
-                                5 => 'bg-red-100 text-red-800 border-red-200',
+                                1 => '',
+                                2 => 'hx-tag--orange',
+                                3 => 'hx-tag--ok',
+                                4 => 'hx-tag--mute',
+                                5 => 'hx-tag--bad',
                             ];
                             $searchTerms = strtolower($fb->ticket_number . ' ' . $fb->subject . ' ' . $fb->description);
                         @endphp
-                        <div class="booking-card feedback-card bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden transition-all duration-300 card-hover"
+                        <div class="hx-card feedback-card hx-fade" data-reveal style="--d: {{ min($loop->index, 5) * 0.08 }}s"
                             data-search="{{ $searchTerms }}">
                             {{-- Card Header --}}
-                            <div class="px-6 py-4 bg-gray-50 border-b border-gray-100 flex flex-col sm:flex-row justify-between sm:items-center gap-3">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-9 h-9 rounded-lg {{ $fb->type === 'KELUHAN' ? 'bg-red-100 text-red-600' : 'bg-emerald-100 text-emerald-600' }} flex items-center justify-center flex-shrink-0">
+                            <div class="hx-card-head">
+                                <div class="hx-card-id">
+                                    <div class="hx-card-icon {{ $fb->type === 'KELUHAN' ? 'is-bad' : 'is-ok' }}">
                                         <i class="fa-solid {{ $fb->type === 'KELUHAN' ? 'fa-triangle-exclamation' : 'fa-lightbulb' }}"></i>
                                     </div>
                                     <div>
-                                        <div class="flex items-center gap-2">
-                                            <span class="text-xs font-mono font-bold text-petra-blue bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
-                                                {{ $fb->ticket_number }}
-                                            </span>
-                                            <span class="text-xs font-semibold px-2 py-0.5 rounded {{ $fb->type === 'KELUHAN' ? 'bg-red-50 text-red-700' : 'bg-emerald-50 text-emerald-700' }}">
-                                                {{ $fb->type }}
-                                            </span>
+                                        <div class="hx-card-title">
+                                            <span class="hx-tag hx-tag--solid hx-mono">{{ $fb->ticket_number }}</span>
+                                            <span class="hx-tag {{ $fb->type === 'KELUHAN' ? 'hx-tag--bad' : 'hx-tag--ok' }}">{{ $fb->type }}</span>
                                         </div>
-                                        <p class="text-xs text-gray-500 mt-0.5">
-                                            <i class="fa-regular fa-clock mr-1"></i>{{ $fb->created_at->translatedFormat('d F Y, H:i') }}
+                                        <p class="hx-meta">
+                                            <i class="fa-regular fa-clock"></i>{{ $fb->created_at->translatedFormat('d F Y, H:i') }}
                                         </p>
                                     </div>
                                 </div>
-                                <span class="px-3 py-1 rounded-full text-xs font-bold border {{ $statusClasses[$fb->status] ?? 'bg-gray-100 text-gray-700' }} self-start sm:self-auto">
+                                <span class="hx-tag {{ $statusClasses[$fb->status] ?? 'hx-tag--mute' }}">
                                     {{ $fb->status_label }}
                                 </span>
                             </div>
 
                             {{-- Card Body --}}
-                            <div class="p-6 space-y-4">
-                                <div>
-                                    <h4 class="text-base font-bold text-gray-900 mb-1">{{ $fb->subject }}</h4>
-                                    <p class="text-sm text-gray-600 whitespace-pre-line leading-relaxed">{{ $fb->description }}</p>
-                                </div>
+                            <div class="hx-card-body">
+                                <h4 class="hx-subject">{{ $fb->subject }}</h4>
+                                <p class="hx-desc-text">{{ $fb->description }}</p>
 
-                                <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-gray-100">
-                                    <div class="flex items-center gap-2 text-xs text-gray-500">
-                                        <i class="fa-solid fa-location-dot text-gray-400"></i>
-                                        <span>Lokasi: <strong class="text-gray-700">{{ $fb->lab ? $fb->lab->name : 'Fasilitas Umum' }}</strong></span>
+                                <div class="hx-card-foot">
+                                    <div class="hx-loc">
+                                        <i class="fa-solid fa-location-dot"></i>
+                                        Lokasi: <strong>{{ $fb->lab ? $fb->lab->name : 'Fasilitas Umum' }}</strong>
                                     </div>
 
-                                    <button type="button" onclick="openFeedbackDetail('{{ $fb->id }}')"
-                                        class="inline-flex items-center gap-2 px-4 py-2 bg-petra-blue hover:bg-blue-800 text-white text-xs font-semibold rounded-lg shadow-sm transition-all">
+                                    <button type="button" onclick="openFeedbackDetail('{{ $fb->id }}')" class="hx-btn sm">
                                         <i class="fa-solid fa-comments"></i>
                                         <span>Lihat Tanggapan ({{ $fb->responses->count() }})</span>
                                     </button>
@@ -432,68 +484,54 @@
     {{-- ========================================================= --}}
     {{-- MODAL DIALOG DETAIL & BALASAN FEEDBACK                     --}}
     {{-- ========================================================= --}}
-    <div id="feedbackDetailModal" class="helpdesk-feedback-modal fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true" aria-hidden="true">
-        <div class="flex items-center justify-center min-h-screen px-4 py-6 sm:py-10">
-            <div class="fixed inset-0 bg-slate-950/45" onclick="closeFeedbackDetail()"></div>
+    <div id="feedbackDetailModal" class="hx-modal hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true" aria-hidden="true">
+        <div class="hx-modal-bg" onclick="closeFeedbackDetail()"></div>
 
-            <div class="feedback-modal-panel relative w-full max-w-xl overflow-hidden text-left bg-white rounded-xl border border-gray-200">
-                {{-- Modal Header --}}
-                <div class="px-5 py-4 border-b border-gray-200">
-                    <div class="flex items-start justify-between gap-4">
-                        <div class="min-w-0">
-                            <div class="flex flex-wrap items-center gap-2 mb-2">
-                                <span id="modal-ticket-badge" class="px-2 py-1 rounded-md text-[11px] font-mono font-bold bg-blue-50 text-petra-blue border border-blue-100">
-                                    FB-000000
-                                </span>
-                                <span id="modal-type-badge" class="px-2 py-1 rounded-md text-[11px] font-bold bg-gray-100 text-gray-700">
-                                    KELUHAN
-                                </span>
-                                <span id="modal-status-badge" class="px-2 py-1 rounded-md text-[11px] font-bold bg-gray-100 text-gray-700">
-                                    Open
-                                </span>
-                            </div>
-                            <h3 id="modal-title" class="text-lg font-bold leading-snug text-gray-900">Subjek Pengaduan</h3>
-                            <p class="mt-1 text-xs text-gray-500">
-                                <span id="modal-reporter-info">Laporan Anda</span>
-                                <span class="mx-1 text-gray-300">·</span>
-                                <span id="modal-created-at">Tanggal</span>
-                            </p>
-                        </div>
-                        <button type="button" onclick="closeFeedbackDetail()" aria-label="Tutup detail laporan"
-                            class="flex-shrink-0 inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-400 hover:bg-gray-100 hover:text-gray-800 transition-colors">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
+        <div class="hx-modal-panel">
+            {{-- Modal Header --}}
+            <div class="hx-modal-head">
+                <div style="min-width:0;">
+                    <div class="hx-modal-tags">
+                        <span id="modal-ticket-badge" class="hx-tag hx-tag--solid hx-mono">FB-000000</span>
+                        <span id="modal-type-badge" class="hx-tag">KELUHAN</span>
+                        <span id="modal-status-badge" class="hx-tag">Open</span>
                     </div>
+                    <h3 id="modal-title">Subjek Pengaduan</h3>
+                    <p class="hx-modal-meta">
+                        <span id="modal-reporter-info">Laporan Anda</span>
+                        <span class="sep">◆</span>
+                        <span id="modal-created-at">Tanggal</span>
+                    </p>
                 </div>
+                <button type="button" onclick="closeFeedbackDetail()" aria-label="Tutup detail laporan" class="hx-close">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
 
-                {{-- Modal Body --}}
-                <div class="p-5 space-y-6 max-h-[68vh] overflow-y-auto">
-                    <section class="rounded-lg border border-gray-200 bg-gray-50/70 p-4">
-                        <p class="mb-2 text-[11px] font-bold uppercase tracking-[.14em] text-gray-500">Isi laporan</p>
-                        <p id="modal-description" class="text-sm text-gray-700 whitespace-pre-line leading-relaxed"></p>
-                    </section>
+            {{-- Modal Body --}}
+            <div class="hx-modal-body">
+                <section class="hx-box">
+                    <h4>Isi laporan</h4>
+                    <p id="modal-description"></p>
+                </section>
 
-                    <section>
-                        <div class="flex items-center justify-between gap-3 mb-3">
-                            <div>
-                                <h4 class="text-sm font-bold text-gray-900">Riwayat tanggapan</h4>
-                                <p class="text-xs text-gray-500 mt-0.5">Pembaruan dari tim laboratorium.</p>
-                            </div>
-                            <span id="modal-response-count" class="text-xs font-semibold text-gray-500">0 tanggapan</span>
+                <section>
+                    <div class="hx-resp-head">
+                        <div>
+                            <h4>Riwayat tanggapan</h4>
+                            <p>Pembaruan dari tim laboratorium.</p>
                         </div>
-                        <div id="modal-responses-container" class="space-y-3">
-                            {{-- Diisi secara dinamis oleh JS --}}
-                        </div>
-                    </section>
-                </div>
+                        <span id="modal-response-count">0 tanggapan</span>
+                    </div>
+                    <div id="modal-responses-container">
+                        {{-- Diisi secara dinamis oleh JS --}}
+                    </div>
+                </section>
+            </div>
 
-                {{-- Modal Footer --}}
-                <div class="px-5 py-3.5 border-t border-gray-200 flex justify-end">
-                    <button type="button" onclick="closeFeedbackDetail()"
-                        class="px-4 py-2 bg-petra-blue hover:bg-blue-800 text-white font-semibold text-xs rounded-md transition-colors">
-                        Tutup
-                    </button>
-                </div>
+            {{-- Modal Footer --}}
+            <div class="hx-modal-foot">
+                <button type="button" onclick="closeFeedbackDetail()" class="hx-btn sm">Tutup</button>
             </div>
         </div>
     </div>
@@ -504,6 +542,14 @@
     let currentTab = 'repair';
     let feedbackModalPreviousOverflow = '';
 
+    // Tombol "Lapor" versi mobile
+    (function () {
+        if (window.matchMedia('(max-width: 639px)').matches) {
+            const s = document.querySelector('.hx-show-sm');
+            if (s) s.style.display = 'inline';
+        }
+    })();
+
     function switchHistTab(tab) {
         currentTab = tab;
         const btnRepair = document.getElementById('tab-btn-repair-hist');
@@ -512,13 +558,13 @@
         const paneFeedback = document.getElementById('tab-pane-feedback-hist');
 
         if (tab === 'repair') {
-            btnRepair.className = 'is-active text-sm transition-all flex items-center gap-2';
-            btnFeedback.className = 'text-sm transition-all flex items-center gap-2';
+            btnRepair.classList.add('is-active');
+            btnFeedback.classList.remove('is-active');
             paneRepair.classList.remove('hidden');
             paneFeedback.classList.add('hidden');
         } else {
-            btnFeedback.className = 'is-active text-sm transition-all flex items-center gap-2';
-            btnRepair.className = 'text-sm transition-all flex items-center gap-2';
+            btnFeedback.classList.add('is-active');
+            btnRepair.classList.remove('is-active');
             paneFeedback.classList.remove('hidden');
             paneRepair.classList.add('hidden');
         }
@@ -576,41 +622,41 @@
 
             const typeBadge = document.getElementById('modal-type-badge');
             typeBadge.textContent = fb.type === 'KELUHAN' ? 'Keluhan' : 'Saran';
-            typeBadge.className = `px-2 py-1 rounded-md text-[11px] font-bold ${fb.type === 'KELUHAN' ? 'bg-red-50 text-red-700' : 'bg-emerald-50 text-emerald-700'}`;
+            typeBadge.className = `hx-tag ${fb.type === 'KELUHAN' ? 'hx-tag--bad' : 'hx-tag--ok'}`;
 
             const statusMap = {
-                1: { label: 'Menunggu diproses', className: 'bg-blue-50 text-blue-700' },
-                2: { label: 'Sedang ditangani', className: 'bg-amber-50 text-amber-700' },
-                3: { label: 'Selesai', className: 'bg-emerald-50 text-emerald-700' },
-                4: { label: 'Ditutup', className: 'bg-gray-100 text-gray-700' },
-                5: { label: 'Ditolak', className: 'bg-red-50 text-red-700' },
+                1: { label: 'Menunggu diproses', className: '' },
+                2: { label: 'Sedang ditangani', className: 'hx-tag--orange' },
+                3: { label: 'Selesai', className: 'hx-tag--ok' },
+                4: { label: 'Ditutup', className: 'hx-tag--mute' },
+                5: { label: 'Ditolak', className: 'hx-tag--bad' },
             };
-            const currentStatus = statusMap[fb.status] || { label: 'Status tidak diketahui', className: 'bg-gray-100 text-gray-700' };
+            const currentStatus = statusMap[fb.status] || { label: 'Status tidak diketahui', className: 'hx-tag--mute' };
             const statusBadge = document.getElementById('modal-status-badge');
             statusBadge.textContent = currentStatus.label;
-            statusBadge.className = `px-2 py-1 rounded-md text-[11px] font-bold ${currentStatus.className}`;
+            statusBadge.className = `hx-tag ${currentStatus.className}`;
 
             const respContainer = document.getElementById('modal-responses-container');
             const responseCount = fb.responses?.length || 0;
             document.getElementById('modal-response-count').textContent = `${responseCount} tanggapan`;
             if (!fb.responses || fb.responses.length === 0) {
                 respContainer.innerHTML = `
-                    <div class="response-empty p-5 text-center text-xs text-gray-500 bg-gray-50 rounded-lg border border-dashed border-gray-200">
-                        <i class="fa-regular fa-clock text-lg text-amber-500 mb-1 block"></i>
+                    <div class="response-empty">
+                        <i class="fa-regular fa-clock"></i>
                         Belum ada balasan dari tim pengelola laboratorium. Laporan Anda sedang dalam antrean tindak lanjut.
                     </div>
                 `;
             } else {
                 respContainer.innerHTML = fb.responses.map((r, index) => `
-                    <article class="response-entry p-3.5 bg-white border border-gray-200 space-y-2">
-                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 text-xs">
-                            <span class="font-bold text-gray-800">
+                    <article class="response-entry" style="animation-delay:${index * 0.08}s">
+                        <header>
+                            <span class="who">
                                 ${escapeHtml(r.responder ? r.responder.name : 'Pengelola Lab')}
-                                <span class="ml-1 font-normal text-gray-400">Tanggapan ${index + 1}</span>
+                                <span>Tanggapan ${index + 1}</span>
                             </span>
-                            <time class="text-gray-400">${new Date(r.created_at).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })}</time>
-                        </div>
-                        <p class="text-sm text-gray-700 whitespace-pre-line leading-relaxed">${escapeHtml(r.message || r.response || '-')}</p>
+                            <time>${new Date(r.created_at).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })}</time>
+                        </header>
+                        <p>${escapeHtml(r.message || r.response || '-')}</p>
                     </article>
                 `).join('');
             }
