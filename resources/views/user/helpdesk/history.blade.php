@@ -5,6 +5,7 @@
 @section('style')
     @include('user.partials.helpdesk-theme')
     <style>
+        .hx-page::before { height: 100%; }
         .hidden-card { display: none !important; }
 
         /* ============================================================
@@ -535,6 +536,7 @@
             </div>
         </div>
     </div>
+    @include('user.partials.footer')
 @endsection
 
 @section('script')
