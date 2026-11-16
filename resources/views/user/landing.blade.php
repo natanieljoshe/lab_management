@@ -1,6 +1,6 @@
 @extends('layouts.user')
 
-@section('title', 'Selamat Datang di Laboratorium Gedung P')
+@section('title', 'Selamat Datang di Laboratorium Informatika')
 
 @section('body')
 
@@ -687,13 +687,13 @@
 
         .lx-about-tag {
             position: absolute;
-            right: -36px;
+            right: -40px;
             bottom: 56px;
             z-index: 2;
             background: var(--clr-navy);
             color: var(--clr-bg);
             padding: 26px 30px;
-            max-width: 230px;
+            max-width: 320px;
         }
 
         .lx-about-tag b {
@@ -1390,7 +1390,7 @@
                         <h1 class="lx-display lx-hero-title">
                             <span class="lx-mask" style="--d:.05s"><span>Pusat Inovasi &amp;</span></span>
                             <span class="lx-mask" style="--d:.17s"><span>Praktikum</span></span>
-                            <span class="lx-mask" style="--d:.29s"><span><em>Gedung P</em></span></span>
+                            <span class="lx-mask" style="--d:.29s"><span><em>Informatika</em></span></span>
                         </h1>
 
                         <p class="lx-lead lx-hero-copy lx-fade" style="--d:.5s">
@@ -1434,9 +1434,9 @@
                         <div class="lx-arch lx-wipe" style="--d:.1s">
                             <img data-parallax="0.08"
                                 src="https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=1400&auto=format&fit=crop"
-                                alt="Suasana Laboratorium Gedung P Universitas Kristen Petra" loading="eager">
+                                alt="Suasana Laboratorium Informatika Universitas Kristen Petra" loading="eager">
                         </div>
-                        <div class="lx-caption lx-fade" style="--d:1.3s">Gedung P — UK Petra</div>
+                        <div class="lx-caption lx-fade" style="--d:1.3s">Informatika — UK Petra</div>
                     </div>
 
                 </div>
@@ -1475,10 +1475,10 @@
                         <div class="lx-about-img lx-wipe" style="position:relative;z-index:1;">
                             <img data-parallax="0.07"
                                 src="https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?q=80&w=1200&auto=format&fit=crop"
-                                alt="Aktivitas Praktikum Mahasiswa di Laboratorium Gedung P" loading="lazy">
+                                alt="Aktivitas Praktikum Mahasiswa di Laboratorium Informatika" loading="lazy">
                         </div>
                         <div class="lx-about-tag lx-wipe-x" style="--d:.7s">
-                            <b>Gedung P</b>
+                            <b>Laboratorium Informatika</b>
                             <span>Standar akademik &amp; industri terkini</span>
                         </div>
                     </div>
@@ -1492,7 +1492,7 @@
                         </h2>
 
                         <p class="lx-lead lx-fade" style="--d:.35s; max-width:520px;">
-                            Laboratorium di Gedung P UK Petra dirancang memenuhi standar akademik dan industri terkini. Kami
+                            Laboratorium di Informatika UK Petra dirancang memenuhi standar akademik dan industri terkini. Kami
                             menyediakan lingkungan kondusif bagi mahasiswa untuk bereksperimen dan mengaplikasikan teori
                             yang dipelajari di kelas.
                         </p>
@@ -1526,7 +1526,7 @@
                                 <span class="lx-feat-no">iii.</span>
                                 <div>
                                     <h3>Konektivitas Cepat</h3>
-                                    <p>Jaringan internet dedicated bandwidth tinggi di seluruh ruang laboratorium Gedung P.
+                                    <p>Jaringan internet dedicated bandwidth tinggi di seluruh ruang laboratorium Informatika.
                                     </p>
                                 </div>
                                 <i class="fa-solid fa-wifi"></i>
@@ -1671,7 +1671,7 @@
                     <div class="lx-step lx-fade" style="--d:.4s">
                         <div class="lx-step-no">03</div>
                         <h4>Mulai Praktikum</h4>
-                        <p>Datang ke Gedung P dan manfaatkan fasilitas lab dalam lingkungan yang profesional.</p>
+                        <p>Datang ke Informatika dan manfaatkan fasilitas lab dalam lingkungan yang profesional.</p>
                     </div>
                 </div>
                 <span class="lx-line" data-reveal-group></span>
@@ -1682,7 +1682,7 @@
         CTA
         ══════════════════════════════════════════ --}}
         <section class="lx-cta" id="lxCta" aria-label="Call to Action">
-            <div class="lx-cta-ghost" aria-hidden="true">Gedung P</div>
+            <div class="lx-cta-ghost" aria-hidden="true">Informatika</div>
             <div class="lx-wrap">
                 <div class="lx-cta-inner" data-reveal-group>
                     <div class="lx-cta-ornament lx-fade"><i class="fa-solid fa-diamond"></i></div>

@@ -342,24 +342,17 @@
         font-family: 'Cormorant Garamond', serif;
         font-weight: 500;
         font-style: italic;
-        line-height: .78;
-        font-size: clamp(5rem, 22vw, 20rem);
+        line-height: .9;
+        font-size: clamp(4rem, 15vw, 14rem);
         color: transparent;
-        -webkit-text-stroke: 1px rgba(251, 250, 245, .16);
-        margin-top: -10px;
+        -webkit-text-stroke: .6px rgba(251, 250, 245, .12);
+        margin-top: -44px;
         overflow: hidden;
-        padding-bottom: .02em;
+        padding-bottom: .12em;
     }
 
     .ft-mark span {
         display: block;
-        transform: translateY(100%);
-        transition: transform 1.6s var(--ft-ease);
-        transition-delay: .3s;
-    }
-
-    .ft-in .ft-mark span {
-        transform: translateY(0);
     }
 
     /* Bawah */
@@ -411,6 +404,13 @@
             padding: 0 20px;
         }
 
+
+        .ft-mark {
+            margin-top: 0;
+            font-size: clamp(3rem, 15vw, 6rem);
+            line-height: .95;
+        }
+
         .ft-grid {
             grid-template-columns: 1fr;
             gap: 44px;
@@ -449,7 +449,7 @@
             <div class="ft-fade" style="--d:.1s">
                 <div class="ft-brand">
                     <div class="ft-brand-box"><i class="fa-solid fa-building-columns"></i></div>
-                    <b>LAB GEDUNG P</b>
+                    <b>LAB INFORMATIKA</b>
                 </div>
                 <p class="ft-about">
                     Menyediakan fasilitas laboratorium dan peralatan terkini untuk menunjang kegiatan praktikum dan
@@ -473,7 +473,7 @@
                 <ul class="ft-list">
                     <li class="ft-contact">
                         <i class="fa-solid fa-map-location-dot"></i>
-                        <span>Gedung P, Universitas Kristen Petra.<br>Siwalankerto, Surabaya.</span>
+                        <span>Informatika, Universitas Kristen Petra.<br>Siwalankerto, Surabaya.</span>
                     </li>
                     <li class="ft-contact" style="align-items:center;">
                         <i class="fa-solid fa-envelope" style="margin-top:0;"></i>
@@ -494,12 +494,12 @@
         </div>
     </div>
 
-    <div class="ft-mark" aria-hidden="true"><span>Gedung P</span></div>
+    <div class="ft-mark" aria-hidden="true"><span>Informatika</span></div>
 
     {{-- Bottom line --}}
     <div class="ft-bottom">
         <div class="ft-wrap">
-            <p>&copy; {{ date('Y') }} Laboratorium Gedung P · UK Petra. All Rights Reserved.</p>
+            <p>&copy; {{ date('Y') }} Laboratorium Informatika · UK Petra. All Rights Reserved.</p>
             <p><span class="o">◆</span>&nbsp; Sistem Manajemen Laboratorium Terpadu</p>
         </div>
     </div>
